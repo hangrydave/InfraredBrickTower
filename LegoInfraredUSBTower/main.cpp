@@ -1,12 +1,11 @@
 #include "pch.h"
 
-#include "LegoHeaders/VendReq.h"
 #include "USBTowerController.h"
 
 #include <stdio.h>
 #include <iostream>
 
-BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeid);
+//BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeid);
 
 BOOL SendPacket(PUCHAR buffer, ULONG bufferLength, PUCHAR replyBuffer, ULONG expectedReplyLength, const DEVICE_DATA& deviceData);
 
@@ -76,14 +75,6 @@ Routine description:
 		return 0;
 	}
 
-	//
-	// Print a few parts of the device descriptor
-	//
-	wprintf(L"Device found: VID_%04X&PID_%04X; bcdUsb %04X\n",
-		deviceDesc.idVendor,
-		deviceDesc.idProduct,
-		deviceDesc.bcdUSB);
-
 	USB_CONFIGURATION_DESCRIPTOR configDescriptor;
 	ULONG cdLenReceived;
 	WinUsb_GetDescriptor(
@@ -98,15 +89,11 @@ Routine description:
 
 	USBTowerController* towerController = new USBTowerController(&deviceData.WinusbHandle);
 
-	LTW_REQ_GET_VERSION_REPLY reply;
-	BOOL getVersionSuccess = towerController->GetVersion(reply);
-	printf("hehee%d", getVersionSuccess);
+	towerController->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
+	towerController->SetLED(TowerLED::VLL, TowerLEDColor::DEFAULT);
+	towerController->SetLED(TowerLED::VLL, TowerLEDColor::OFF);
 
-	/*SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_ID_LED_MODE, LTW_ID_LED_SW_CTRL, deviceData);
-	SendControlPacket(LTW_REQ_SET_LED, LTW_LED_VLL, LTW_LED_COLOR_ON, deviceData);
-	SendControlPacket(LTW_REQ_SET_LED, LTW_LED_ID, LTW_LED_COLOR_ON, deviceData);
-	SendControlPacket(LTW_REQ_SET_LED, LTW_LED_VLL, LTW_LED_COLOR_OFF, deviceData);
-	SendControlPacket(LTW_REQ_SET_LED, LTW_LED_ID, LTW_LED_COLOR_OFF, deviceData);*/
+	delete towerController;
 
 	/*SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_RANGE, LTW_RANGE_MEDIUM, deviceData);
 	SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_MODE, LTW_MODE_IR, deviceData);
@@ -178,42 +165,42 @@ VOID Beep(const DEVICE_DATA& deviceData)
 
 // useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint
 
-BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeID)
-{
-	if (hDeviceHandle == INVALID_HANDLE_VALUE)
-	{
-		return FALSE;
-	}
-
-	BOOL bResult = TRUE;
-
-	USB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
-	ZeroMemory(&InterfaceDescriptor, sizeof(USB_INTERFACE_DESCRIPTOR));
-
-	WINUSB_PIPE_INFORMATION  Pipe;
-	ZeroMemory(&Pipe, sizeof(WINUSB_PIPE_INFORMATION));
-
-	bResult = WinUsb_QueryInterfaceSettings(hDeviceHandle, 0, &InterfaceDescriptor);
-
-	if (bResult)
-	{
-		for (int index = 0; index < InterfaceDescriptor.bNumEndpoints; index++)
-		{
-			bResult = WinUsb_QueryPipe(hDeviceHandle, 0, (UCHAR)index, &Pipe);
-
-			if (bResult)
-			{
-				if (Pipe.PipeType == UsbdPipeTypeInterrupt)
-				{
-					printf("Endpoint index: %d Pipe type: Interrupt Pipe ID: %d.\n", index, Pipe.PipeId);
-					*pipeID = Pipe.PipeId;
-				}
-			}
-			else
-			{
-				continue;
-			}
-		}
-	}
-	return bResult;
-}
+//BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeID)
+//{
+//	if (hDeviceHandle == INVALID_HANDLE_VALUE)
+//	{
+//		return FALSE;
+//	}
+//
+//	BOOL bResult = TRUE;
+//
+//	USB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
+//	ZeroMemory(&InterfaceDescriptor, sizeof(USB_INTERFACE_DESCRIPTOR));
+//
+//	WINUSB_PIPE_INFORMATION  Pipe;
+//	ZeroMemory(&Pipe, sizeof(WINUSB_PIPE_INFORMATION));
+//
+//	bResult = WinUsb_QueryInterfaceSettings(hDeviceHandle, 0, &InterfaceDescriptor);
+//
+//	if (bResult)
+//	{
+//		for (int index = 0; index < InterfaceDescriptor.bNumEndpoints; index++)
+//		{
+//			bResult = WinUsb_QueryPipe(hDeviceHandle, 0, (UCHAR)index, &Pipe);
+//
+//			if (bResult)
+//			{
+//				if (Pipe.PipeType == UsbdPipeTypeInterrupt)
+//				{
+//					printf("Endpoint index: %d Pipe type: Interrupt Pipe ID: %d.\n", index, Pipe.PipeId);
+//					*pipeID = Pipe.PipeId;
+//				}
+//			}
+//			else
+//			{
+//				continue;
+//			}
+//		}
+//	}
+//	return bResult;
+//}

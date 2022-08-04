@@ -1,38 +1,100 @@
 #include "usbtowercontroller.h"
+#include "TowerValues.h"
+#include "LegoHeaders/LegoVendReq.h"
 
 USBTowerController::USBTowerController(const WINUSB_INTERFACE_HANDLE* handle)
 {
 	this->handle = handle;
 }
 
-BOOL USBTowerController::BlinkLights()
+TowerReqError USBTowerController::SetMode(TowerMode mode)
 {
-	USBTowerController::SendVendorRequest(LTW_REQ_SET_PARM, LTW_PARM_ID_LED_MODE, LTW_ID_LED_SW_CTRL);
-	USBTowerController::SendVendorRequest(LTW_REQ_SET_LED, LTW_LED_VLL, LTW_LED_COLOR_ON);
-	USBTowerController::SendVendorRequest(LTW_REQ_SET_LED, LTW_LED_ID, LTW_LED_COLOR_ON);
-	USBTowerController::SendVendorRequest(LTW_REQ_SET_LED, LTW_LED_VLL, LTW_LED_COLOR_OFF);
-	USBTowerController::SendVendorRequest(LTW_REQ_SET_LED, LTW_LED_ID, LTW_LED_COLOR_OFF);
-	return TRUE;
+	return MakeRequest(
+		TowerRequest::SET_PARAMETER,
+		TowerParameter::MODE,
+		(BYTE)mode);
 }
 
-BOOL USBTowerController::GetVersion(LTW_REQ_GET_VERSION_REPLY& reply)
+TowerReqError USBTowerController::SetIndicatorLEDMode(TowerIndicatorLEDMode ledMode)
 {
-	BYTE replyBuffer[sizeof(LTW_REQ_GET_VERSION_REPLY)];
-	BOOL success = USBTowerController::SendVendorRequest(
-		LTW_REQ_GET_VERSION,
-		0,
-		0,
-		0,
-		sizeof(LTW_REQ_GET_VERSION_REPLY),
-		replyBuffer
-	);
+	return MakeRequest(
+		TowerRequest::SET_PARAMETER,
+		TowerParameter::INDICATOR_LED_MODE,
+		(BYTE)ledMode);
+}
+
+TowerReqError USBTowerController::SetLED(TowerLED led, TowerLEDColor color)
+{
+	return MakeRequest(
+		TowerRequest::SET_LED,
+		(BYTE)led,
+		(BYTE)color);
+}
+
+
+TowerReqError USBTowerController::MakeRequest(
+	TowerRequest request,
+	TowerParameter parameter,
+	BYTE value)
+{
+	return MakeRequest(
+		(BYTE)request,
+		(BYTE)parameter,
+		value,
+		0);
+}
+
+TowerReqError USBTowerController::MakeRequest(
+	TowerRequest request,
+	BYTE parameter,
+	BYTE value)
+{
+	return MakeRequest(
+		(BYTE)request,
+		parameter,
+		value,
+		0);
+}
+
+TowerReqError USBTowerController::MakeRequest(
+	BYTE request,
+	BYTE parameter,
+	BYTE value)
+{
+	return MakeRequest(
+		request,
+		parameter,
+		value,
+		0);
+}
+
+TowerReqError USBTowerController::MakeRequest(
+	BYTE request,
+	BYTE parameter,
+	BYTE value,
+	WORD index)
+{
+	WORD replyLength = 8;
+	BYTE replyBuffer[8];
+	BOOL success = SendVendorRequest(
+		request,
+		parameter,
+		value,
+		index,
+		replyLength,
+		replyBuffer);
 
 	if (!success)
-		return FALSE;
+	{
+		return TowerReqError::BAD_PARAMETER;
+	}
 
-	reply = *reinterpret_cast<LTW_REQ_GET_VERSION_REPLY*>(replyBuffer);
-	return TRUE;
+	TowerReqError error = (TowerReqError) *(replyBuffer + 2);
+	return error;
 }
+
+
+/* TODO: move lower level stuff out of here into its own little happy place */
 
 BOOL USBTowerController::SendVendorRequest(
 	BYTE request,
@@ -43,7 +105,7 @@ BOOL USBTowerController::SendVendorRequest(
 	BYTE* replyBuffer)
 {
 	// the value takes the low byte and the parameter takes the high byte (little endian)
-	return USBTowerController::SendVendorRequest(
+	return SendVendorRequest(
 		request,
 		((value << 8) | parameter),
 		index,
@@ -57,9 +119,10 @@ BOOL USBTowerController::SendVendorRequest(
 	BYTE parameter,
 	BYTE value)
 {
+	// TODO: no
 	BYTE replyBuffer[8];
 	WORD replyLength = 8;
-	return USBTowerController::SendVendorRequest(
+	return SendVendorRequest(
 		request,
 		parameter,
 		value,
@@ -101,7 +164,7 @@ BOOL USBTowerController::SendVendorRequest(
 	setupPacket.Length = replyLength;
 
 	ULONG lengthTransferred;
-	WinUsb_ControlTransfer(
+	return WinUsb_ControlTransfer(
 		*(this->handle),
 		setupPacket,
 		replyBuffer,
@@ -109,6 +172,4 @@ BOOL USBTowerController::SendVendorRequest(
 		&lengthTransferred,
 		NULL
 	);
-
-	return TRUE;
 }

@@ -13,8 +13,8 @@ DESCRIPTION		: USB Vendor request structures
 
 REMARK:	 1. Before you add this header file to your program you have to define
 			the following datatypes:
-			Byte = unsigned char (8 bits)
-			Word = unsigned word (16 bits)
+			BYTE = unsigned char (8 bits)
+			WORD = unsigned word (16 bits)
 
 		 2. The Reply format has to be a even number of bytes. Extra bytes called "spare"
 			are used to obtain a even number of bytes.
@@ -24,24 +24,24 @@ REMARK:	 1. Before you add this header file to your program you have to define
 #ifndef LTW_VENDREQ_H
 #define LTW_VENDREQ_H
 
-#define Word unsigned short
-#define Byte unsigned char
+#define WORD unsigned short
+#define BYTE unsigned char
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//	Definition of Word/Byte for Win32
+//	Definition of WORD/BYTE for Win32
 //	
 //	Feel free to add definition for other platform -- as long as a word is 16 bits and a byte is
 //	8 bits.
 //	
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#ifndef __LTW_VENDREQ_NOTYPEDEFS__		// define this if you have already defined Word/Byte somewhere else
+//#ifndef __LTW_VENDREQ_NOTYPEDEFS__		// define this if you have already defined WORD/BYTE somewhere else
 //
 //	#ifdef _WIN32
 //
-//		typedef unsigned short Word;
-//		typedef unsigned char  Byte;
-//		typedef unsigned long  LWord;
+//		typedef unsigned short WORD;
+//		typedef unsigned char  BYTE;
+//		typedef unsigned long  LWORD;
 //
 //	#endif
 //
@@ -92,9 +92,9 @@ REMARK:	 1. Before you add this header file to your program you have to define
 //
 typedef struct LTW_REQ_BAD_REPLY
 {
-	Word wNoOfBytes;			// Number of bytes in the reply
-	Byte bErrCode;			// Request return code
-	Byte bSpare;				// Used only for having a even number of bytes in the reply
+	WORD wNoOfBYTEs;			// Number of bytes in the reply
+	BYTE bErrCode;			// Request return code
+	BYTE bSpare;				// Used only for having a even number of bytes in the reply
 } LTW_REQ_BAD_REPLY;
 
 
@@ -174,9 +174,9 @@ typedef struct LTW_REQ_BAD_REPLY
 
 typedef struct LTW_REQ_REPLY_HEADER
 {
-	Word wNoOfBytes;						// Number of bytes in the reply
-	Byte bErrCode;						// Request return code
-	Byte bValue;							// Request return value
+	WORD wNoOfBYTEs;						// Number of bytes in the reply
+	BYTE bErrCode;						// Request return code
+	BYTE bValue;							// Request return value
 } LTW_REQ_REPLY_HEADER;
 
 typedef LTW_REQ_REPLY_HEADER LTW_REQ_GET_SET_PARM_REPLY;
@@ -215,9 +215,9 @@ typedef LTW_REQ_REPLY_HEADER LTW_REQ_GET_SET_PARM_IRC_REPLY;
 //
 typedef struct LTW_REQ_FLUSH_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bBufferno;					// Flushed bufferno.
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bBufferno;					// Flushed bufferno.
 } LTW_REQ_FLUSH_REPLY;
 
 
@@ -233,9 +233,9 @@ typedef struct LTW_REQ_FLUSH_REPLY
 //
 typedef struct LTW_REQ_RESET_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 } LTW_REQ_RESET_REPLY;
 
 
@@ -251,14 +251,14 @@ typedef struct LTW_REQ_RESET_REPLY
 //
 typedef struct LTW_REQ_GET_STAT_REPLY
 {
-	Word  wNoOfBytes;					// Number of bytes in the reply
-	Byte  bErrCode;					// Request return code
-	Byte  bSpare;						// Spare byte to obtain an even number of bytes
+	WORD  wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE  bErrCode;					// Request return code
+	BYTE  bSpare;						// Spare byte to obtain an even number of bytes
 
-	Word  wNoOfRxBytes;				// Number of received bytes
-	Word  wOverrunErrorCount;			// # of times overrun error has happen
-	Word  wNoiseCount;				// # of bytes with wrong bits
-	Word  wFramingErrorCount;			// # of bytes with framing errors 
+	WORD  wNoOfRxBYTEs;				// Number of received bytes
+	WORD  wOverrunErrorCount;			// # of times overrun error has happen
+	WORD  wNoiseCount;				// # of bytes with wrong bits
+	WORD  wFramingErrorCount;			// # of bytes with framing errors 
 } LTW_REQ_GET_STAT_REPLY;
 
 
@@ -274,14 +274,14 @@ typedef struct LTW_REQ_GET_STAT_REPLY
 //
 typedef struct LTW_REQ_GET_POWER_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Byte bPower;						// Powermode (POWER_LOW or POWER_HIGH)
+	BYTE bPower;						// Powermode (POWER_LOW or POWER_HIGH)
 #define LTW_POWER_LOW			0x01    // - Tower is set to low power device
 #define LTW_POWER_HIGH			0x02    // - Tower is set to high power device
-	Byte bSpare2;
+	BYTE bSpare2;
 
 } LTW_REQ_GET_POWER_REPLY;
 
@@ -325,12 +325,12 @@ typedef struct LTW_REQ_GET_POWER_REPLY
 //
 typedef struct LTW_REQ_GET_SET_LED_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Byte bLedId;						// See parameter 
-	Byte bColor;						// See value 
+	BYTE bLedId;						// See parameter 
+	BYTE bColor;						// See value 
 } LTW_REQ_GET_SET_LED_REPLY;
 
 
@@ -346,9 +346,9 @@ typedef struct LTW_REQ_GET_SET_LED_REPLY
 //
 typedef struct LTW_REQ_RESET_STAT_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Used only for having a even number of bytes in the reply
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Used only for having a even number of bytes in the reply
 } LTW_REQ_RESET_STAT_REPLY;
 
 
@@ -395,11 +395,11 @@ typedef LTW_REQ_REPLY_HEADER LTW_REQ_GET_SET_PARM_IRC_REPLY;
 //
 typedef struct LTW_REQ_GET_SET_TX_SPEED_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Word wTxSpeed;					// Transmission speed 
+	WORD wTxSpeed;					// Transmission speed 
 } LTW_REQ_GET_SET_TX_SPEED_REPLY;
 
 
@@ -417,11 +417,11 @@ typedef struct LTW_REQ_GET_SET_TX_SPEED_REPLY
 //
 typedef struct LTW_REQ_GET_SET_RX_SPEED_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Word wRxSpeed;					// Receiving speed 
+	WORD wRxSpeed;					// Receiving speed 
 } LTW_REQ_GET_SET_RX_SPEED_REPLY;
 
 
@@ -437,14 +437,14 @@ typedef struct LTW_REQ_GET_SET_RX_SPEED_REPLY
 //
 typedef struct LTW_REQ_GET_TX_STATE_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Byte bTxState;					// Transmitter states:
+	BYTE bTxState;					// Transmitter states:
 #define CAPS_TX_STATE_READY		0x01	// - Transmitter buffer empty, Ready to receive more data to send
 #define CAPS_TX_STATE_BUSY		0x02	// - Busy sending data
-	Byte bSpare2;						// Spare byte to obtain an even number of bytes
+	BYTE bSpare2;						// Spare byte to obtain an even number of bytes
 } LTW_REQ_GET_TX_STATE_REPLY;
 
 
@@ -467,12 +467,12 @@ typedef struct LTW_REQ_GET_TX_STATE_REPLY
 //
 typedef struct LTW_REQ_GET_SET_TX_CARRIER_FREQUENCY_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Byte bTxFrequency;				// Transmission frequency
-	Byte bSpare2;						// Spare byte to obtain an even number of bytes
+	BYTE bTxFrequency;				// Transmission frequency
+	BYTE bSpare2;						// Spare byte to obtain an even number of bytes
 } LTW_REQ_GET_SET_TX_CARRIER_FREQUENCY_REPLY;
 
 
@@ -499,14 +499,14 @@ typedef struct LTW_REQ_GET_SET_TX_CARRIER_FREQUENCY_REPLY
 //
 typedef struct LTW_REQ_GET_SET_TX_CARRIER_DUTY_CYCLE_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Byte bTxRange;					// Transmission range
-	Byte bSpare2;
+	BYTE bTxRange;					// Transmission range
+	BYTE bSpare2;
 
-	Word wTxDutyCycle;				// Transmission dutycycle in this range	in 1/10 of a ms.	
+	WORD wTxDutyCycle;				// Transmission dutycycle in this range	in 1/10 of a ms.	
 } LTW_REQ_GET_SET_TX_CARRIER_DUTY_CYCLE_REPLY;
 
 
@@ -529,32 +529,32 @@ typedef struct LTW_REQ_GET_SET_TX_CARRIER_DUTY_CYCLE_REPLY
 //
 typedef struct LTW_REQ_GET_CAPS_REPLY
 {
-	Word wNoOfBytes;							// Number of bytes in the reply
-	Byte bErrCode;							// Request return code
-	Byte bSpare;								// Spare byte to obtain even number of bytes
+	WORD wNoOfBYTEs;							// Number of bytes in the reply
+	BYTE bErrCode;							// Request return code
+	BYTE bSpare;								// Spare byte to obtain even number of bytes
 
-	Byte bCommDirections;						// Communication directions:
+	BYTE bCommDirections;						// Communication directions:
 #define CAPS_COMM_DIRECTION_TRANSMIT	0x01	// - Transmit
 #define CAPS_COMM_DIRECTION_RECEIVE		0x02	// - Receive
 #define CAPS_COMM_DIRECTION_BOTH		0x03	// - Both transmit and receive
-	Byte bCommRange;							// Communication range:
+	BYTE bCommRange;							// Communication range:
 #define CAPS_COMM_RANGE_SHORT			0x01	// - Short 
 #define CAPS_COMM_RANGE_MEDIUM			0x02	// - Medium
 #define CAPS_COMM_RANGE_LONG			0x04	// - Long
 #define CAPS_COMM_RANGE_ALL				0x07	// - Both short, medium and long range
-	Word wCommTransmitRate;					// Communication transmit rate (same definition as receive rate)
-	Word wCommReceiveRate;					// Communication receive rate:
+	WORD wCommTransmitRate;					// Communication transmit rate (same definition as receive rate)
+	WORD wCommReceiveRate;					// Communication receive rate:
 #define CAPS_COMM_BAUD_1200				0x0004  // - 1200 baud
 #define CAPS_COMM_BAUD_2400				0x0008	// - 2400 baud
 #define CAPS_COMM_BAUD_4800				0x0010	// - 4800 baud
 #define CAPS_COMM_BAUD_9600				0x0020	// - 9600 baud
 #define CAPS_COMM_BAUD_19200			0x0040	// - 19200 baud
-	Byte bCommTransmitMinFrequency;			// Minimum frequency between 30 and 99 kHz. E.g. 30 kHz = 30
-	Byte bCommTransmitMaxFrequency;			// Maximum frequency between 30 and 99 kHz. E.g. 30 kHz = 30
-	Word wCommTransmitMinDutyCycle;			// Minimum duty cycle in us multiplied by 100. E.g.  1,25 us = 125
-	Word wCommTransmitMaxDutyCycle;			// Maximum duty cycle in us multiplied by 100. E.g. 18,9  us = 1890
-	Byte bNoOfBytesInUartTxBuffer;			// Number of bytes defined in the transmitter buffer
-	Byte bNoOfBytesInUartRxBuffer;			// Number of bytes defined in the receiver buffer
+	BYTE bCommTransmitMinFrequency;			// Minimum frequency between 30 and 99 kHz. E.g. 30 kHz = 30
+	BYTE bCommTransmitMaxFrequency;			// Maximum frequency between 30 and 99 kHz. E.g. 30 kHz = 30
+	WORD wCommTransmitMinDutyCycle;			// Minimum duty cycle in us multiplied by 100. E.g.  1,25 us = 125
+	WORD wCommTransmitMaxDutyCycle;			// Maximum duty cycle in us multiplied by 100. E.g. 18,9  us = 1890
+	BYTE bNoOfBYTEsInUartTxBuffer;			// Number of bytes defined in the transmitter buffer
+	BYTE bNoOfBYTEsInUartRxBuffer;			// Number of bytes defined in the receiver buffer
 } LTW_REQ_GET_CAPS_REPLY;
 
 
@@ -571,13 +571,13 @@ typedef struct LTW_REQ_GET_CAPS_REPLY
 #pragma pack(push, 1)
 typedef struct LTW_REQ_GET_VERSION_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
-	Byte bMajorVersion;				// Major version e.g. 1
-	Byte bMinorVersion;				// Minor version e.g. 01
-	Word wBuildNo;					// Build no. e.g. 0112
+	BYTE bMajorVersion;				// Major version e.g. 1
+	BYTE bMinorVersion;				// Minor version e.g. 01
+	WORD wBuildNo;					// Build no. e.g. 0112
 } LTW_REQ_GET_VERSION_REPLY;
 #pragma pack(pop)
 
@@ -594,9 +594,9 @@ typedef struct LTW_REQ_GET_VERSION_REPLY
 //
 typedef struct LTW_REQ_GET_COPYRIGHT_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
 	// Copyright string: placed in the Tower ROM -- NOT null-terminated
 } LTW_REQ_GET_COPYRIGHT_REPLY;
@@ -614,9 +614,9 @@ typedef struct LTW_REQ_GET_COPYRIGHT_REPLY
 //
 typedef struct LTW_REQ_GET_CREDITS_REPLY
 {
-	Word wNoOfBytes;					// Number of bytes in the reply
-	Byte bErrCode;					// Request return code
-	Byte bSpare;						// Spare byte to obtain an even number of bytes
+	WORD wNoOfBYTEs;					// Number of bytes in the reply
+	BYTE bErrCode;					// Request return code
+	BYTE bSpare;						// Spare byte to obtain an even number of bytes
 
 	// Credits string: placed in the Tower ROM -- NOT null-terminated
 } LTW_REQ_GET_CREDITS_REPLY;

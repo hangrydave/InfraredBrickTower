@@ -28,10 +28,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LegoHeaders\VendReq.h">
+    <ClInclude Include="LegoHeaders\LegoVendReq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="USBTowerController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TowerValues.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

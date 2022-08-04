@@ -45,8 +45,9 @@
   <ItemGroup>
     <ClInclude Include="device.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="LegoHeaders\VendReq.h" />
+    <ClInclude Include="LegoHeaders\LegoVendReq.h" />
     <ClInclude Include="USBTowerController.h" />
+    <ClInclude Include="TowerValues.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />
