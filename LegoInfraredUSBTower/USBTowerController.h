@@ -210,13 +210,13 @@ class USBTowerController
 public:
 	USBTowerController(const WINUSB_INTERFACE_HANDLE* handle);
 
-	TowerReqError GetMode(TowerMode mode);
-	TowerReqError GetRange(TowerRange range);
-	TowerReqError GetErrorDetection(TowerErrorDetection errorDetection);
-	TowerReqError GetErrorStatus(TowerErrorStatus errorStatus);
-	TowerReqError GetEndian(TowerEndian endian);
-	TowerReqError GetIndicatorLEDMode(TowerIndicatorLEDMode ledMode);
-	TowerReqError GetErrorSignal(TowerErrorSignal errorSignal);
+	TowerReqError GetMode(TowerMode& mode);
+	TowerReqError GetRange(TowerRange& range);
+	TowerReqError GetErrorDetection(TowerErrorDetection& errorDetection);
+	TowerReqError GetErrorStatus(TowerErrorStatus& errorStatus);
+	TowerReqError GetEndian(TowerEndian& endian);
+	TowerReqError GetIndicatorLEDMode(TowerIndicatorLEDMode& ledMode);
+	TowerReqError GetErrorSignal(TowerErrorSignal& errorSignal);
 
 	TowerReqError SetMode(TowerMode mode);
 	TowerReqError SetRange(TowerRange range);
