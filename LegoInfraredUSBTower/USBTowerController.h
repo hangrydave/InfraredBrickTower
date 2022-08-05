@@ -228,37 +228,37 @@ public:
 	VOID SetIndicatorLEDMode(TowerIndicatorLEDMode ledMode);
 	VOID SetErrorSignal(TowerErrorSignal errorSignal);
 
-	TowerRequestError Flush(TowerBuffer buffer);
-	TowerRequestError Reset();
+	VOID Flush(TowerBuffer buffer);
+	VOID Reset();
 
-	TowerRequestError GetPower();
+	TowerPower GetPower();
 
-	TowerRequestError GetLED();
+	TowerLED GetLED();
 	VOID SetLED(TowerLED led, TowerLEDColor color);
 
-	TowerRequestError GetStatistics();
-	TowerRequestError ResetStatistics();
+	BYTE GetStatistics();
+	VOID ResetStatistics();
 
-	TowerRequestError GetIRCParameter();
-	TowerRequestError SetIRCParameter();
+	TowerIRCParam GetIRCParameter();
+	VOID SetIRCParameter(TowerIRCParam& param);
 
-	TowerRequestError GetTransmissionSpeed();
-	TowerRequestError SetTransmissionSpeed();
+	TowerCommSpeed GetTransmissionSpeed();
+	VOID SetTransmissionSpeed(TowerCommSpeed& speed);
 
-	TowerRequestError GetReceivingSpeed();
-	TowerRequestError SetReceivingSpeed();
+	TowerCommSpeed GetReceivingSpeed();
+	VOID SetReceivingSpeed(TowerCommSpeed& speed);
 
-	TowerRequestError GetTransmitterState();
+	TowerTransmitterState GetTransmitterState();
 
-	TowerRequestError GetTransmissionCarrierFrequency();
-	TowerRequestError SetTransmissionCarrierFrequency();
-	TowerRequestError GetTransmissionCarrierDutyCycle();
-	TowerRequestError SetTransmissionCarrierDutyCycle();
+	BYTE GetTransmissionCarrierFrequency();
+	VOID SetTransmissionCarrierFrequency();
+	BYTE GetTransmissionCarrierDutyCycle();
+	VOID SetTransmissionCarrierDutyCycle();
 
-	TowerRequestError GetCapabilities();
-	TowerRequestError GetVersion();
-	TowerRequestError GetCopyright();
-	TowerRequestError GetCredits();
+	BYTE GetCapabilities();
+	BYTE GetVersion();
+	BYTE GetCopyright();
+	BYTE GetCredits();
 private:
 	const WINUSB_INTERFACE_HANDLE* handle;
 
