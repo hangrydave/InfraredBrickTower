@@ -7,7 +7,7 @@
 #include <winusb.h>
 #include "TowerValues.h"
 
-enum class TowerRequest : BYTE
+enum class TowerRequestType : BYTE
 {
 	GET_PARAMETER = 0x01,
 	SET_PARAMETER = 0x02,
@@ -35,7 +35,7 @@ enum class TowerRequest : BYTE
 	GET_CREDITS = 0xFF
 };
 
-enum class TowerReqError : BYTE
+enum class TowerRequestError : BYTE
 {
 	SUCCESS = 0x00,
 	BAD_PARAMETER = 0x01,
@@ -46,7 +46,7 @@ enum class TowerReqError : BYTE
 	BAD_REQUEST = 0xFF
 };
 
-enum class TowerParameter : BYTE
+enum class TowerParamType : BYTE
 {
 	MODE = 0x01,
 	RANGE = 0x02,
@@ -152,7 +152,7 @@ enum class TowerLEDColor : BYTE
 	DEFAULT = 0xFF
 };
 
-enum class TowerIRCParameter : BYTE
+enum class TowerIRCParam : BYTE
 {
 	PACKET_SIZE = 0x01,
 	TRANSMISSION_DELAY = 0x02
@@ -205,65 +205,81 @@ enum class TowerCapabilityCommSpeed : BYTE
 	COMM_BAUD_19200 = 0x0040
 };
 
+struct TowerReplyData
+{
+	TowerRequestError error = TowerRequestError::SUCCESS;
+	BYTE value;
+};
+
 class USBTowerController
 {
 public:
 	USBTowerController(const WINUSB_INTERFACE_HANDLE* handle);
 
-	TowerReqError GetMode(TowerMode& mode);
-	TowerReqError GetRange(TowerRange& range);
-	TowerReqError GetErrorDetection(TowerErrorDetection& errorDetection);
-	TowerReqError GetErrorStatus(TowerErrorStatus& errorStatus);
-	TowerReqError GetEndian(TowerEndian& endian);
-	TowerReqError GetIndicatorLEDMode(TowerIndicatorLEDMode& ledMode);
-	TowerReqError GetErrorSignal(TowerErrorSignal& errorSignal);
+	TowerRequestError GetLastRequestError();
 
-	TowerReqError SetMode(TowerMode mode);
-	TowerReqError SetRange(TowerRange range);
-	TowerReqError SetErrorDetection(TowerErrorDetection errorDetection);
-	TowerReqError SetErrorStatus(TowerErrorStatus errorStatus);
-	TowerReqError SetEndian(TowerEndian endian);
-	TowerReqError SetIndicatorLEDMode(TowerIndicatorLEDMode ledMode);
-	TowerReqError SetErrorSignal(TowerErrorSignal errorSignal);
+	TowerMode GetMode();
+	TowerRange GetRange();
+	TowerErrorDetection GetErrorDetection();
+	TowerErrorStatus GetErrorStatus();
+	TowerEndian GetEndian();
+	TowerIndicatorLEDMode GetIndicatorLEDMode();
+	TowerErrorSignal GetErrorSignal();
 
-	TowerReqError Flush(TowerBuffer buffer);
-	TowerReqError Reset();
+	VOID SetMode(TowerMode mode);
+	VOID SetRange(TowerRange range);
+	VOID SetErrorDetection(TowerErrorDetection errorDetection);
+	VOID SetErrorStatus(TowerErrorStatus errorStatus);
+	VOID SetEndian(TowerEndian endian);
+	VOID SetIndicatorLEDMode(TowerIndicatorLEDMode ledMode);
+	VOID SetErrorSignal(TowerErrorSignal errorSignal);
 
-	TowerReqError GetPower();
+	TowerRequestError Flush(TowerBuffer buffer);
+	TowerRequestError Reset();
 
-	TowerReqError GetLED();
-	TowerReqError SetLED(TowerLED led, TowerLEDColor color);
+	TowerRequestError GetPower();
 
-	TowerReqError GetStatistics();
-	TowerReqError ResetStatistics();
+	TowerRequestError GetLED();
+	VOID SetLED(TowerLED led, TowerLEDColor color);
 
-	TowerReqError GetIRCParameter();
-	TowerReqError SetIRCParameter();
+	TowerRequestError GetStatistics();
+	TowerRequestError ResetStatistics();
 
-	TowerReqError GetTransmissionSpeed();
-	TowerReqError SetTransmissionSpeed();
+	TowerRequestError GetIRCParameter();
+	TowerRequestError SetIRCParameter();
 
-	TowerReqError GetReceivingSpeed();
-	TowerReqError SetReceivingSpeed();
+	TowerRequestError GetTransmissionSpeed();
+	TowerRequestError SetTransmissionSpeed();
 
-	TowerReqError GetTransmitterState();
+	TowerRequestError GetReceivingSpeed();
+	TowerRequestError SetReceivingSpeed();
 
-	TowerReqError GetTransmissionCarrierFrequency();
-	TowerReqError SetTransmissionCarrierFrequency();
-	TowerReqError GetTransmissionCarrierDutyCycle();
-	TowerReqError SetTransmissionCarrierDutyCycle();
+	TowerRequestError GetTransmitterState();
 
-	TowerReqError GetCapabilities();
-	TowerReqError GetVersion();
-	TowerReqError GetCopyright();
-	TowerReqError GetCredits();
+	TowerRequestError GetTransmissionCarrierFrequency();
+	TowerRequestError SetTransmissionCarrierFrequency();
+	TowerRequestError GetTransmissionCarrierDutyCycle();
+	TowerRequestError SetTransmissionCarrierDutyCycle();
+
+	TowerRequestError GetCapabilities();
+	TowerRequestError GetVersion();
+	TowerRequestError GetCopyright();
+	TowerRequestError GetCredits();
 private:
 	const WINUSB_INTERFACE_HANDLE* handle;
+
+	TowerRequestError lastRequestError;
+
+	/*TowerReqError MakeRequest(
+		TowerRequest request,
+		TowerParameter parameter,
+		BYTE value);
 
 	TowerReqError MakeRequest(
 		TowerRequest request,
 		TowerParameter parameter,
-		BYTE value);
+		WORD replyLength,
+		BYTE* replyBuffer);
 
 	TowerReqError MakeRequest(
 		TowerRequest request,
@@ -279,7 +295,26 @@ private:
 		BYTE request,
 		BYTE parameter,
 		BYTE value,
-		WORD index);
+		WORD index);*/
+
+	VOID SetParameter(
+		TowerParamType parameter,
+		BYTE value);
+
+	BYTE GetParameter(TowerParamType parameter);
+
+	TowerRequestError MakeRequest(
+		BYTE request,
+		BYTE parameter,
+		BYTE value);
+
+	TowerRequestError MakeRequest(
+		BYTE request,
+		BYTE parameter,
+		BYTE value,
+		WORD index,
+		WORD replyLength,
+		BYTE* replyBuffer);
 
 	BOOL SendVendorRequest(
 		BYTE request,
@@ -296,10 +331,10 @@ private:
 		WORD replyLength,
 		BYTE* replyBuffer);
 
-	BOOL SendVendorRequest(
+	/*BOOL SendVendorRequest(
 		BYTE request,
 		BYTE parameter,
-		BYTE value);
+		BYTE value);*/
 
 	BOOL SendVendorRequest(
 		BYTE request,

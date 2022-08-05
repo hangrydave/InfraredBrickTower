@@ -92,6 +92,15 @@ Routine description:
 	towerController->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
 	towerController->SetLED(TowerLED::VLL, TowerLEDColor::DEFAULT);
 	towerController->SetLED(TowerLED::VLL, TowerLEDColor::OFF);
+	
+	TowerMode mode;
+	mode = towerController->GetMode();
+	towerController->SetMode(TowerMode::IR);
+	mode = towerController->GetMode();
+	towerController->SetMode(TowerMode::VLL);
+	mode = towerController->GetMode();
+	towerController->SetMode(TowerMode::IRC);
+	mode = towerController->GetMode();
 
 	delete towerController;
 

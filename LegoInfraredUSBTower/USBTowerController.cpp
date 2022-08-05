@@ -5,77 +5,167 @@
 USBTowerController::USBTowerController(const WINUSB_INTERFACE_HANDLE* handle)
 {
 	this->handle = handle;
+	this->lastRequestError = TowerRequestError::SUCCESS;
 }
 
-TowerReqError USBTowerController::SetMode(TowerMode mode)
+TowerRequestError USBTowerController::GetLastRequestError()
 {
-	return MakeRequest(
-		TowerRequest::SET_PARAMETER,
-		TowerParameter::MODE,
-		(BYTE)mode);
+	return lastRequestError;
 }
 
-TowerReqError USBTowerController::SetIndicatorLEDMode(TowerIndicatorLEDMode ledMode)
+TowerMode USBTowerController::GetMode()
 {
-	return MakeRequest(
-		TowerRequest::SET_PARAMETER,
-		TowerParameter::INDICATOR_LED_MODE,
-		(BYTE)ledMode);
+	return (TowerMode) GetParameter(TowerParamType::MODE);
 }
 
-TowerReqError USBTowerController::SetLED(TowerLED led, TowerLEDColor color)
+VOID USBTowerController::SetMode(TowerMode mode)
 {
-	return MakeRequest(
-		TowerRequest::SET_LED,
+	SetParameter(TowerParamType::MODE, (BYTE)mode);
+}
+
+VOID USBTowerController::SetIndicatorLEDMode(TowerIndicatorLEDMode ledMode)
+{
+	SetParameter(TowerParamType::INDICATOR_LED_MODE, (BYTE)ledMode);
+}
+
+VOID USBTowerController::SetLED(TowerLED led, TowerLEDColor color)
+{
+	lastRequestError = MakeRequest(
+		(BYTE)TowerRequestType::SET_LED,
 		(BYTE)led,
 		(BYTE)color);
 }
 
+//TowerReqError USBTowerController::MakeRequest(
+//	TowerRequest request,
+//	TowerParameter parameter,
+//	BYTE& outValue)
+//{
+//
+//	return MakeRequest(
+//		request,
+//		parameter,
+//		replyLength,
+//		replyBuffer);
+//}
 
-TowerReqError USBTowerController::MakeRequest(
-	TowerRequest request,
-	TowerParameter parameter,
+//TowerReqError USBTowerController::MakeRequest(
+//	TowerRequest request,
+//	TowerParameter parameter,
+//	WORD replyLength,
+//	BYTE* replyBuffer)
+//{
+//	return MakeRequest(
+//		request,
+//		parameter,
+//		replyLength,
+//		replyBuffer);
+//}
+
+//TowerReqError USBTowerController::MakeRequest(
+//	TowerRequest request,
+//	TowerParameter parameter,
+//	BYTE value)
+//{
+//	return MakeRequest(
+//		(BYTE)request,
+//		(BYTE)parameter,
+//		value,
+//		0);
+//}
+
+//TowerReqError USBTowerController::MakeRequest(
+//	TowerRequest request,
+//	BYTE parameter,
+//	BYTE value)
+//{
+//	return MakeRequest(
+//		(BYTE)request,
+//		parameter,
+//		value,
+//		0);
+//}
+
+//TowerReqError USBTowerController::MakeRequest(
+//	BYTE request,
+//	BYTE parameter,
+//	BYTE value)
+//{
+//	return MakeRequest(
+//		request,
+//		parameter,
+//		value,
+//		0);
+//}
+
+//TowerReqError USBTowerController::MakeRequest(
+//	BYTE request,
+//	BYTE parameter,
+//	BYTE value,
+//	WORD index)
+//{
+//	BYTE replyBuffer[8];
+//	WORD replyLength = 8;
+//	return MakeRequest(
+//		request,
+//		parameter,
+//		value,
+//		index,
+//		replyLength,
+//		replyBuffer);
+//}
+
+VOID USBTowerController::SetParameter(
+	TowerParamType parameter,
 	BYTE value)
 {
-	return MakeRequest(
+	lastRequestError = MakeRequest(
+		(BYTE)TowerRequestType::SET_PARAMETER,
+		(BYTE)parameter,
+		value);
+}
+
+BYTE USBTowerController::GetParameter(TowerParamType parameter)
+{
+	BYTE replyBuffer[4];
+	WORD replyLength = 4;
+	lastRequestError = MakeRequest(
+		(BYTE)TowerRequestType::GET_PARAMETER,
+		(BYTE)parameter,
+		0,
+		0,
+		replyLength,
+		replyBuffer);
+
+	return *(replyBuffer + 3); 
+}
+
+TowerRequestError USBTowerController::MakeRequest(
+	BYTE request,
+	BYTE parameter,
+	BYTE value)
+{
+	BYTE replyBuffer[8];
+	WORD replyLength = 8;
+	TowerRequestError error = MakeRequest(
 		(BYTE)request,
 		(BYTE)parameter,
 		value,
-		0);
+		0,
+		replyLength,
+		replyBuffer);
+
+	return error;
 }
 
-TowerReqError USBTowerController::MakeRequest(
-	TowerRequest request,
-	BYTE parameter,
-	BYTE value)
-{
-	return MakeRequest(
-		(BYTE)request,
-		parameter,
-		value,
-		0);
-}
-
-TowerReqError USBTowerController::MakeRequest(
-	BYTE request,
-	BYTE parameter,
-	BYTE value)
-{
-	return MakeRequest(
-		request,
-		parameter,
-		value,
-		0);
-}
-
-TowerReqError USBTowerController::MakeRequest(
+TowerRequestError USBTowerController::MakeRequest(
 	BYTE request,
 	BYTE parameter,
 	BYTE value,
-	WORD index)
+	WORD index,
+	WORD replyLength,
+	BYTE* replyBuffer)
 {
-	WORD replyLength = 8;
-	BYTE replyBuffer[8];
 	BOOL success = SendVendorRequest(
 		request,
 		parameter,
@@ -86,13 +176,12 @@ TowerReqError USBTowerController::MakeRequest(
 
 	if (!success)
 	{
-		return TowerReqError::BAD_PARAMETER;
+		return TowerRequestError::BAD_PARAMETER;
 	}
 
-	TowerReqError error = (TowerReqError) *(replyBuffer + 2);
-	return error;
+	BYTE errorByte = *(replyBuffer + 2);
+	return (TowerRequestError)errorByte;
 }
-
 
 /* TODO: move lower level stuff out of here into its own little happy place */
 
@@ -114,23 +203,23 @@ BOOL USBTowerController::SendVendorRequest(
 	);
 }
 
-BOOL USBTowerController::SendVendorRequest(
-	BYTE request,
-	BYTE parameter,
-	BYTE value)
-{
-	// TODO: no
-	BYTE replyBuffer[8];
-	WORD replyLength = 8;
-	return SendVendorRequest(
-		request,
-		parameter,
-		value,
-		0,
-		replyLength,
-		replyBuffer
-	);
-}
+//BOOL USBTowerController::SendVendorRequest(
+//	BYTE request,
+//	BYTE parameter,
+//	BYTE value)
+//{
+//	// TODO: no
+//	BYTE replyBuffer[8];
+//	WORD replyLength = 8;
+//	return SendVendorRequest(
+//		request,
+//		parameter,
+//		value,
+//		0,
+//		replyLength,
+//		replyBuffer
+//	);
+//}
 
 //BOOL USBTowerController::SendVendorRequest(
 //	BYTE request,
