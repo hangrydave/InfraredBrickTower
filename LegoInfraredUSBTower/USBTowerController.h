@@ -205,12 +205,6 @@ enum class TowerCapabilityCommSpeed : BYTE
 	COMM_BAUD_19200 = 0x0040
 };
 
-struct TowerReplyData
-{
-	TowerRequestError error = TowerRequestError::SUCCESS;
-	BYTE value;
-};
-
 class USBTowerController
 {
 public:
