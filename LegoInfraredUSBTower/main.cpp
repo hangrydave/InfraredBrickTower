@@ -90,9 +90,9 @@ Routine description:
 	USBTowerController* towerController = new USBTowerController(&deviceData.WinusbHandle);
 
 	towerController->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
-	towerController->SetLED(TowerLED::VLL, TowerLEDColor::DEFAULT);
-	towerController->SetLED(TowerLED::VLL, TowerLEDColor::OFF);
-	
+	towerController->SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT);
+	towerController->SetLEDColor(TowerLED::VLL, TowerLEDColor::OFF);
+
 	TowerMode mode;
 	mode = towerController->GetMode();
 	towerController->SetMode(TowerMode::IR);

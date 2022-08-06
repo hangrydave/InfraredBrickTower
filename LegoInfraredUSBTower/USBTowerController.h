@@ -7,6 +7,30 @@
 #include <winusb.h>
 #include "TowerValues.h"
 
+/*
+	well...
+	I'm using a macro to generate the getters and setters for the GET_PARAMETER and SET_PARAMETER requests.
+	
+	Q: why?
+	A: I didn't want to write a bunch of cookie cutter getters and setters for those.
+	Q: was it a good decision?
+	A: beats me if the broader C++ Community:TM: would approve! My reasoning is this:
+	   - realistically, are many people who aren't me going to use this? probably not, so does it matter? probably not
+	   - i would rather have a little bit of weird macro stuff than a bunch of space filled by near-identical methods
+	   - i wanted to learn macros
+
+	anyway, this might be bad, idk and tbqh idc
+*/
+#define GenerateParameterSetterAndGetter(paramType, outputType) \
+Tower##outputType Get##outputType##() \
+{ \
+	return (Tower##outputType) GetParameter(##paramType##); \
+} \
+VOID Set##outputType##(Tower##outputType newValue) \
+{ \
+	SetParameter(##paramType##, (BYTE)newValue); \
+}
+
 enum class TowerRequestType : BYTE
 {
 	GET_PARAMETER = 0x01,
@@ -212,29 +236,13 @@ public:
 
 	TowerRequestError GetLastRequestError();
 
-	TowerMode GetMode();
-	TowerRange GetRange();
-	TowerErrorDetection GetErrorDetection();
-	TowerErrorStatus GetErrorStatus();
-	TowerEndian GetEndian();
-	TowerIndicatorLEDMode GetIndicatorLEDMode();
-	TowerErrorSignal GetErrorSignal();
-
-	VOID SetMode(TowerMode mode);
-	VOID SetRange(TowerRange range);
-	VOID SetErrorDetection(TowerErrorDetection errorDetection);
-	VOID SetErrorStatus(TowerErrorStatus errorStatus);
-	VOID SetEndian(TowerEndian endian);
-	VOID SetIndicatorLEDMode(TowerIndicatorLEDMode ledMode);
-	VOID SetErrorSignal(TowerErrorSignal errorSignal);
-
 	VOID Flush(TowerBuffer buffer);
 	VOID Reset();
 
 	TowerPower GetPower();
 
-	TowerLED GetLED();
-	VOID SetLED(TowerLED led, TowerLEDColor color);
+	TowerLEDColor GetLEDColor(TowerLED led);
+	VOID SetLEDColor(TowerLED led, TowerLEDColor color);
 
 	BYTE GetStatistics();
 	VOID ResetStatistics();
@@ -259,37 +267,18 @@ public:
 	BYTE GetVersion();
 	BYTE GetCopyright();
 	BYTE GetCredits();
+
+	GenerateParameterSetterAndGetter(TowerParamType::MODE, Mode)
+	GenerateParameterSetterAndGetter(TowerParamType::RANGE, Range)
+	GenerateParameterSetterAndGetter(TowerParamType::ERROR_DETECTION, ErrorDetection)
+	GenerateParameterSetterAndGetter(TowerParamType::ERROR_STATUS, ErrorStatus)
+	GenerateParameterSetterAndGetter(TowerParamType::ENDIAN, Endian)
+	GenerateParameterSetterAndGetter(TowerParamType::INDICATOR_LED_MODE, IndicatorLEDMode)
+	GenerateParameterSetterAndGetter(TowerParamType::ERROR_SIGNAL, ErrorSignal)
 private:
 	const WINUSB_INTERFACE_HANDLE* handle;
 
 	TowerRequestError lastRequestError;
-
-	/*TowerReqError MakeRequest(
-		TowerRequest request,
-		TowerParameter parameter,
-		BYTE value);
-
-	TowerReqError MakeRequest(
-		TowerRequest request,
-		TowerParameter parameter,
-		WORD replyLength,
-		BYTE* replyBuffer);
-
-	TowerReqError MakeRequest(
-		TowerRequest request,
-		BYTE parameter,
-		BYTE value);
-
-	TowerReqError MakeRequest(
-		BYTE request,
-		BYTE parameter,
-		BYTE value);
-
-	TowerReqError MakeRequest(
-		BYTE request,
-		BYTE parameter,
-		BYTE value,
-		WORD index);*/
 
 	VOID SetParameter(
 		TowerParamType parameter,
@@ -297,56 +286,46 @@ private:
 
 	BYTE GetParameter(TowerParamType parameter);
 
-	TowerRequestError MakeRequest(
+	VOID MakeRequest(
 		BYTE request,
-		BYTE parameter,
-		BYTE value);
+		BYTE loByte,
+		BYTE hiByte);
 
-	TowerRequestError MakeRequest(
+	VOID MakeRequest(
 		BYTE request,
-		BYTE parameter,
-		BYTE value,
+		BYTE loByte,
+		BYTE hiByte,
 		WORD index,
 		WORD replyLength,
 		BYTE* replyBuffer);
 
 	BOOL SendVendorRequest(
 		BYTE request,
-		BYTE parameter,
-		BYTE value,
+		BYTE loByte,
+		BYTE hiByte,
 		WORD index,
 		WORD replyLength,
 		BYTE* replyBuffer);
 
 	BOOL SendVendorRequest(
 		BYTE request,
-		BYTE parameter,
-		BYTE value,
+		BYTE loByte,
+		BYTE hiByte,
 		WORD replyLength,
 		BYTE* replyBuffer);
 
-	/*BOOL SendVendorRequest(
-		BYTE request,
-		BYTE parameter,
-		BYTE value);*/
-
 	BOOL SendVendorRequest(
 		BYTE request,
-		WORD fullValue,
+		WORD value,
 		WORD index,
 		WORD replyLength,
 		BYTE* replyBuffer);
 
 	BOOL SendVendorRequest(
 		BYTE request,
-		WORD fullValue,
+		WORD value,
 		WORD replyLength,
 		BYTE* replyBuffer);
-
-	/*BOOL SendVendorRequest(
-		BYTE request,
-		WORD replyLength,
-		BYTE* replyBuffer);*/
 };
 
 #endif USBTOWERCONTROLLER_H
