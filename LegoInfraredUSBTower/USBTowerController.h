@@ -250,7 +250,7 @@ struct TowerVersionData
 	WORD buildNumber;
 };
 
-#define CREDITS_LEN = 128;
+#define CREDITS_LEN = 128
 #define COPYRIGHT_LEN = 128
 
 class USBTowerController
@@ -303,7 +303,8 @@ private:
 	const WINUSB_INTERFACE_HANDLE* handle;
 
 	TowerRequestError lastRequestError;
-	BYTE* lastReplyBuffer;
+	BYTE* replyBuffer;
+	USHORT replyBufferSize;
 	ULONG lastReplyLength;
 
 	VOID SetParameter(
@@ -312,53 +313,28 @@ private:
 
 	BYTE GetParameter(TowerParamType parameter);
 
-	VOID MakeRequest(
-		BYTE request,
-		BYTE loByte,
-		BYTE hiByte);
-
-	VOID MakeRequest(
-		BYTE request,
-		BYTE loByte,
-		BYTE hiByte,
-		WORD index);
+	//WORD BuildValue(BYTE loByte, BYTE hiByte);
 
 	VOID MakeRequest(
 		BYTE request,
 		WORD value,
 		WORD index);
 
-	//VOID ReadString
-
-	/*BOOL SendVendorRequest(
+	VOID MakeRequest(
 		BYTE request,
 		BYTE loByte,
 		BYTE hiByte,
-		WORD index,
-		WORD replyLength,
-		BYTE* replyBuffer,
-		ULONG& lengthTransferred);*/
+		WORD index);
 
-	/*BOOL SendVendorRequest(
-		BYTE request,
-		BYTE loByte,
-		BYTE hiByte,
-		WORD replyLength,
-		BYTE* replyBuffer);*/
+	VOID ReadStringFromReplyBuffer(CHAR*& buffer, INT& length);
 
 	BOOL SendVendorRequest(
 		BYTE request,
 		WORD value,
 		WORD index,
-		WORD replyLength,
-		BYTE* replyBuffer,
+		USHORT bufferLength,
+		BYTE* buffer,
 		ULONG& lengthTransferred);
-
-	/*BOOL SendVendorRequest(
-		BYTE request,
-		WORD value,
-		WORD replyLength,
-		BYTE* replyBuffer);*/
 };
 
 #endif USBTOWERCONTROLLER_H

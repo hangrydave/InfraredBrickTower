@@ -107,7 +107,6 @@ Routine description:
 
 	INT len;
 	CHAR* buffer = 0;
-	printf("poopy butt\n");
 
 	towerController->GetCopyright(buffer, len);
 	for (int i = 0; i < len; i++)

@@ -7,6 +7,10 @@ USBTowerController::USBTowerController(const WINUSB_INTERFACE_HANDLE* handle)
 {
 	this->handle = handle;
 	this->lastRequestError = TowerRequestError::SUCCESS;
+	this->lastReplyLength = 0;
+
+	this->replyBufferSize = 1000;
+	this->replyBuffer = new BYTE[this->replyBufferSize];
 }
 
 TowerRequestError USBTowerController::GetLastRequestError()
@@ -16,17 +20,13 @@ TowerRequestError USBTowerController::GetLastRequestError()
 
 TowerLEDColor USBTowerController::GetLEDColor(TowerLED led)
 {
-	BYTE replyBuffer[6];
-	WORD replyLength = 6;
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_LED,
 		(BYTE)led,
 		0,
-		0,
-		replyLength,
-		replyBuffer);
+		0);
 
-	return (TowerLEDColor) *(replyBuffer + 5);
+	return (TowerLEDColor) *(this->replyBuffer + 5);
 }
 
 VOID USBTowerController::SetLEDColor(TowerLED led, TowerLEDColor color)
@@ -34,96 +34,71 @@ VOID USBTowerController::SetLEDColor(TowerLED led, TowerLEDColor color)
 	MakeRequest(
 		(BYTE)TowerRequestType::SET_LED,
 		(BYTE)led,
-		(BYTE)color);
+		(BYTE)color,
+		0);
 }
 
 TowerCapabilitiesData USBTowerController::GetCapabilities(TowerCapabilityLink link)
 {
-	BYTE replyBuffer[18];
-	WORD replyLength = 18;
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_CAPABILITIES,
 		(WORD)link,
 		0,
-		replyLength,
-		replyBuffer);
+		0);
 
-	return *reinterpret_cast<TowerCapabilitiesData*>(replyBuffer + 4);
+	return *reinterpret_cast<TowerCapabilitiesData*>(this->replyBuffer + 4);
 }
 
 TowerVersionData USBTowerController::GetVersion()
 {
-	BYTE replyBuffer[8];
-	WORD replyLength = 8;
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_VERSION,
 		0,
-		0,
-		replyLength,
-		replyBuffer);
+		0);
 
-	return *reinterpret_cast<TowerVersionData*>(replyBuffer + 4);
+	return *reinterpret_cast<TowerVersionData*>(this->replyBuffer + 4);
 }
 
 VOID USBTowerController::GetCopyright(CHAR*& buffer, INT& length)
 {
-	BYTE replyBuffer[127];
-	WORD replyLength = 127;
-
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_COPYRIGHT,
 		0,
-		0,
-		replyLength,
-		replyBuffer);
+		0);
 
-	length = 0;
-	buffer = new CHAR[replyLength / 2];
-
-	for (int i = 4; i < replyLength; i++)
-	{
-		char c = replyBuffer[i];
-
-		if (c == '\0' && i < replyLength - 1)
-		{
-			char prev = replyBuffer[i - 1];
-			char next = replyBuffer[i + 1];
-
-			if (prev == '\0' && next == '\0')
-			{
-				buffer[length++] = c;
-			}
-		}
-		else
-		{
-			buffer[length++] = c;
-		}
-	}
+	ReadStringFromReplyBuffer(buffer, length);
 }
 
 VOID USBTowerController::GetCredits(CHAR*& buffer, INT& length)
 {
-	BYTE replyBuffer[917];
-	WORD replyLength = 917;
-
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_CREDITS,
 		0,
-		0,
-		replyLength,
-		replyBuffer);
+		0);
+
+	ReadStringFromReplyBuffer(buffer, length);
+}
+
+VOID USBTowerController::ReadStringFromReplyBuffer(CHAR*& buffer, INT& length)
+{
+	// the vendor requests that reply with a string put the length at the front of the buffer
+	UINT stringLength = *((WORD*)(this->replyBuffer));
+	stringLength--; // the last character is garbage
+
+	// the string is formatted "L I K E   T H I S" so we need to fix that
 
 	length = 0;
-	buffer = new CHAR[replyLength / 2];
+	buffer = new CHAR[stringLength / 2];
 
-	for (int i = 4; i < replyLength; i++)
+	// start at 4; skip the non-string stuff
+	for (UINT i = 4; i < stringLength; i++)
 	{
-		char c = replyBuffer[i];
+		char c = this->replyBuffer[i];
 
-		if (c == '\0' && i < replyLength - 1)
+		if (c == '\0' && i < this->lastReplyLength - 1)
 		{
-			char prev = replyBuffer[i - 1];
-			char next = replyBuffer[i + 1];
+			char prev = this->replyBuffer[i - 1];
+			char next = this->replyBuffer[i + 1];
 
 			if (prev == '\0' && next == '\0')
 			{
@@ -136,12 +111,6 @@ VOID USBTowerController::GetCredits(CHAR*& buffer, INT& length)
 		}
 	}
 }
-
-//VOID USBTowerController::ReadString(CHAR*& buffer, INT& length)
-//{
-//
-//	SendVendorRequest
-//}
 
 VOID USBTowerController::SetParameter(
 	TowerParamType parameter,
@@ -150,52 +119,66 @@ VOID USBTowerController::SetParameter(
 	MakeRequest(
 		(BYTE)TowerRequestType::SET_PARAMETER,
 		(BYTE)parameter,
-		value);
+		value,
+		0);
 }
 
 BYTE USBTowerController::GetParameter(TowerParamType parameter)
 {
-	BYTE replyBuffer[4];
-	WORD replyLength = 4;
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_PARAMETER,
 		(BYTE)parameter,
-		0,
-		0,
-		replyLength,
-		replyBuffer);
+		0);
 
-	return *(replyBuffer + 3);
+	return *(this->replyBuffer + 3);
 }
 
-//VOID USBTowerController::MakeRequest(
-//	BYTE request,
-//	BYTE loByte,
-//	BYTE hiByte)
+//WORD USBTowerController::BuildValue(BYTE loByte, BYTE hiByte)
 //{
-//	BYTE replyBuffer[8];
-//	WORD replyLength = 8;
-//	MakeRequest(
-//		(BYTE)request,
-//		loByte,
-//		hiByte,
-//		0,
-//		replyLength,
-//		replyBuffer);
+//	return ((hiByte << 8) | loByte);
 //}
 
 VOID USBTowerController::MakeRequest(
 	BYTE request,
-	WORD value,
-	WORD index,
-	ULONG expectedReplyLength)
+	BYTE loByte,
+	BYTE hiByte,
+	WORD index)
 {
+	MakeRequest(
+		request,
+		((hiByte << 8) | loByte),
+		index);
+}
+
+VOID USBTowerController::MakeRequest(
+	BYTE request,
+	WORD value,
+	WORD index)
+{
+	/*if (expectedReplyLength <= 0)
+	{
+		expectedReplyLength = 8;
+	}
+
+	if (this->replyBufferSize < expectedReplyLength)
+	{
+		delete this->replyBuffer;
+		this->replyBuffer = new BYTE[expectedReplyLength];
+		this->replyBufferSize = expectedReplyLength;
+	}
+	else if (this->replyBufferSize == 0)
+	{
+		delete this->replyBuffer;
+		this->replyBuffer = new BYTE[8];
+		this->replyBufferSize = 8;
+	}*/
+
 	BOOL success = SendVendorRequest(
 		request,
 		value,
 		index,
-		expectedReplyLength,
-		this->lastReplyBuffer,
+		this->replyBufferSize,
+		this->replyBuffer,
 		this->lastReplyLength);
 
 	if (!success)
@@ -204,52 +187,19 @@ VOID USBTowerController::MakeRequest(
 	}
 	else
 	{
-		BYTE errorByte = *(this->lastReplyBuffer + 2);
+		BYTE errorByte = *(this->replyBuffer + 2);
 		this->lastRequestError = (TowerRequestError)errorByte;
 	}
 }
 
-VOID USBTowerController::MakeRequest(
-	BYTE request,
-	BYTE loByte,
-	BYTE hiByte,
-	WORD index,
-	ULONG expectedReplyLength)
-{
-	MakeRequest(
-		request,
-		((hiByte << 8) | loByte),
-		index);
-}
-
 /* TODO: move lower level stuff out of here into its own little happy place */
-
-//BOOL USBTowerController::SendVendorRequest(
-//	BYTE request,
-//	BYTE loByte,
-//	BYTE hiByte,
-//	WORD index,
-//	WORD replyLength,
-//	BYTE* replyBuffer,
-//	ULONG& lengthTransferred)
-//{
-//	// the hiByte takes the low byte and the loByte takes the high byte (little endian)
-//	return SendVendorRequest(
-//		request,
-//		((hiByte << 8) | loByte),
-//		index,
-//		replyLength,
-//		replyBuffer,
-//		lengthTransferred
-//	);
-//}
 
 BOOL USBTowerController::SendVendorRequest(
 	BYTE request,
 	WORD value,
 	WORD index,
-	WORD replyLength,
-	BYTE* replyBuffer,
+	USHORT bufferLength,
+	BYTE* buffer,
 	ULONG& lengthTransferred)
 {
 	WINUSB_SETUP_PACKET setupPacket;
@@ -257,13 +207,13 @@ BOOL USBTowerController::SendVendorRequest(
 	setupPacket.Request = request;
 	setupPacket.Value = value;
 	setupPacket.Index = index;
-	setupPacket.Length = replyLength;
+	setupPacket.Length = bufferLength;
 
 	return WinUsb_ControlTransfer(
 		*(this->handle),
 		setupPacket,
-		replyBuffer,
-		replyLength,
+		buffer,
+		bufferLength,
 		&lengthTransferred,
 		NULL
 	);
