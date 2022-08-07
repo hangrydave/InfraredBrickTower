@@ -182,7 +182,7 @@ enum class TowerIRCParam : BYTE
 	TRANSMISSION_DELAY = 0x02
 };
 
-enum class TowerCommSpeed : BYTE
+enum class TowerCommSpeed : WORD
 {
 	COMM_BAUD_1200 = 0x0004,
 	COMM_BAUD_2400 = 0x0008,
@@ -197,12 +197,12 @@ enum class TowerTransmitterState : BYTE
 	BUSY = 0x02
 };
 
-enum class TowerCapability : BYTE
+enum class TowerCapabilityLink : BYTE
 {
 	VLL = 0x01,
 	IR = 0x02,
-	IRC = 0x04,
-	RADIO = 0x08
+	IRC = 0x04
+	//RADIO = 0x08		unsupported
 };
 
 enum class TowerCapabilityCommDirection : BYTE
@@ -220,7 +220,7 @@ enum class TowerCapabilityCommRange : BYTE
 	ALL = 0x07
 };
 
-enum class TowerCapabilityCommSpeed : BYTE
+enum class TowerCapabilityCommSpeed : WORD
 {
 	COMM_BAUD_1200 = 0x0004,
 	COMM_BAUD_2400 = 0x0008,
@@ -228,6 +228,30 @@ enum class TowerCapabilityCommSpeed : BYTE
 	COMM_BAUD_9600 = 0x0020,
 	COMM_BAUD_19200 = 0x0040
 };
+
+struct TowerCapabilitiesData
+{
+	TowerCapabilityCommDirection direction;
+	TowerCapabilityCommRange range;
+	TowerCapabilityCommSpeed transmitRate;
+	TowerCapabilityCommSpeed receiveRate;
+	BYTE minCarrierFrequency; // what is this
+	BYTE maxCarrierFrequency; // what is this
+	WORD minDutyCycle; // what is this
+	WORD maxDutyCycle; // what is this
+	BYTE UARTTransmitBufferSize;
+	BYTE UARTReceiveBufferSize;
+};
+
+struct TowerVersionData
+{
+	BYTE majorVersion;
+	BYTE minorVersion;
+	WORD buildNumber;
+};
+
+#define CREDITS_LEN = 128;
+#define COPYRIGHT_LEN = 128
 
 class USBTowerController
 {
@@ -248,13 +272,13 @@ public:
 	VOID ResetStatistics();
 
 	TowerIRCParam GetIRCParameter();
-	VOID SetIRCParameter(TowerIRCParam& param);
+	VOID SetIRCParameter(TowerIRCParam param);
 
 	TowerCommSpeed GetTransmissionSpeed();
-	VOID SetTransmissionSpeed(TowerCommSpeed& speed);
+	VOID SetTransmissionSpeed(TowerCommSpeed speed);
 
 	TowerCommSpeed GetReceivingSpeed();
-	VOID SetReceivingSpeed(TowerCommSpeed& speed);
+	VOID SetReceivingSpeed(TowerCommSpeed speed);
 
 	TowerTransmitterState GetTransmitterState();
 
@@ -263,10 +287,10 @@ public:
 	BYTE GetTransmissionCarrierDutyCycle();
 	VOID SetTransmissionCarrierDutyCycle();
 
-	BYTE GetCapabilities();
-	BYTE GetVersion();
-	BYTE GetCopyright();
-	BYTE GetCredits();
+	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link);
+	TowerVersionData GetVersion();
+	VOID GetCopyright(CHAR*& buffer, INT& length);
+	VOID GetCredits(CHAR*& buffer, INT& length);
 
 	GenerateParameterSetterAndGetter(TowerParamType::MODE, Mode)
 	GenerateParameterSetterAndGetter(TowerParamType::RANGE, Range)
@@ -279,6 +303,8 @@ private:
 	const WINUSB_INTERFACE_HANDLE* handle;
 
 	TowerRequestError lastRequestError;
+	BYTE* lastReplyBuffer;
+	ULONG lastReplyLength;
 
 	VOID SetParameter(
 		TowerParamType parameter,
@@ -295,37 +321,44 @@ private:
 		BYTE request,
 		BYTE loByte,
 		BYTE hiByte,
-		WORD index,
-		WORD replyLength,
-		BYTE* replyBuffer);
+		WORD index);
 
-	BOOL SendVendorRequest(
+	VOID MakeRequest(
+		BYTE request,
+		WORD value,
+		WORD index);
+
+	//VOID ReadString
+
+	/*BOOL SendVendorRequest(
 		BYTE request,
 		BYTE loByte,
 		BYTE hiByte,
 		WORD index,
 		WORD replyLength,
-		BYTE* replyBuffer);
+		BYTE* replyBuffer,
+		ULONG& lengthTransferred);*/
 
-	BOOL SendVendorRequest(
+	/*BOOL SendVendorRequest(
 		BYTE request,
 		BYTE loByte,
 		BYTE hiByte,
 		WORD replyLength,
-		BYTE* replyBuffer);
+		BYTE* replyBuffer);*/
 
 	BOOL SendVendorRequest(
 		BYTE request,
 		WORD value,
 		WORD index,
 		WORD replyLength,
-		BYTE* replyBuffer);
+		BYTE* replyBuffer,
+		ULONG& lengthTransferred);
 
-	BOOL SendVendorRequest(
+	/*BOOL SendVendorRequest(
 		BYTE request,
 		WORD value,
 		WORD replyLength,
-		BYTE* replyBuffer);
+		BYTE* replyBuffer);*/
 };
 
 #endif USBTOWERCONTROLLER_H

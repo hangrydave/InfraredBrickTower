@@ -102,6 +102,25 @@ Routine description:
 	towerController->SetMode(TowerMode::IRC);
 	mode = towerController->GetMode();
 
+	TowerCapabilitiesData capData = towerController->GetCapabilities(TowerCapabilityLink::IRC);
+	TowerVersionData versionData = towerController->GetVersion();
+
+	INT len;
+	CHAR* buffer = 0;
+	printf("poopy butt\n");
+
+	towerController->GetCopyright(buffer, len);
+	for (int i = 0; i < len; i++)
+	{
+		printf("%c", buffer[i]);
+	}
+
+	towerController->GetCredits(buffer, len);
+	for (int i = 0; i < len; i++)
+	{
+		printf("%c", buffer[i]);
+	}
+
 	delete towerController;
 
 	/*SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_RANGE, LTW_RANGE_MEDIUM, deviceData);
