@@ -6,6 +6,7 @@
 USBTowerController::USBTowerController(const WINUSB_INTERFACE_HANDLE* handle)
 {
 	this->handle = handle;
+
 	this->lastRequestError = TowerRequestError::SUCCESS;
 	this->lastReplyLength = 0;
 
@@ -20,10 +21,12 @@ TowerRequestError USBTowerController::GetLastRequestError()
 
 TowerLEDColor USBTowerController::GetLEDColor(TowerLED led)
 {
+	BYTE loByte = (BYTE)led;
+	BYTE hiByte = 0;
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_LED,
-		(BYTE)led,
-		0,
+		loByte,
+		hiByte,
 		0);
 
 	return (TowerLEDColor) *(this->replyBuffer + 5);
@@ -31,10 +34,12 @@ TowerLEDColor USBTowerController::GetLEDColor(TowerLED led)
 
 VOID USBTowerController::SetLEDColor(TowerLED led, TowerLEDColor color)
 {
+	BYTE loByte = (BYTE)led;
+	BYTE hiByte = (BYTE)color;
 	MakeRequest(
 		(BYTE)TowerRequestType::SET_LED,
-		(BYTE)led,
-		(BYTE)color,
+		loByte,
+		hiByte,
 		0);
 }
 
@@ -43,7 +48,6 @@ TowerCapabilitiesData USBTowerController::GetCapabilities(TowerCapabilityLink li
 	MakeRequest(
 		(BYTE)TowerRequestType::GET_CAPABILITIES,
 		(WORD)link,
-		0,
 		0);
 
 	return *reinterpret_cast<TowerCapabilitiesData*>(this->replyBuffer + 4);
