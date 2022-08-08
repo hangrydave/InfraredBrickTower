@@ -329,24 +329,21 @@ private:
 	USHORT replyBufferSize;
 	ULONG lastReplyLength;
 
+	VOID ReadStringFromReplyBuffer(CHAR*& buffer, INT& length);
+
 	VOID SetParameter(
 		TowerParamType parameter,
 		BYTE value);
-
 	BYTE GetParameter(TowerParamType parameter);
 
 	VOID MakeRequest(TowerRequestType request);
-
 	VOID MakeRequest(
 		TowerRequestType request,
 		WORD value);
-
 	VOID MakeRequest(
 		TowerRequestType request,
 		BYTE loByte,
 		BYTE hiByte);
-
-	VOID ReadStringFromReplyBuffer(CHAR*& buffer, INT& length);
 
 	BOOL SendVendorRequest(
 		BYTE request,

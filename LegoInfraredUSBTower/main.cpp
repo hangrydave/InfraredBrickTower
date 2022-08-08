@@ -87,6 +87,33 @@ Routine description:
 		&cdLenReceived
 	);
 
+	ULONG timeoutBuffer[1] = { 1000 };
+	BOOL policySetResult = WinUsb_SetPipePolicy(
+		deviceData.WinusbHandle,
+		2,
+		PIPE_TRANSFER_TIMEOUT,
+		8,
+		timeoutBuffer
+	);
+	if (!policySetResult)
+	{
+		printf("Failed to set timeout for pipe 2 (write)");
+		return 1;
+	}
+
+	policySetResult = WinUsb_SetPipePolicy(
+		deviceData.WinusbHandle,
+		129,
+		PIPE_TRANSFER_TIMEOUT,
+		8,
+		timeoutBuffer
+	);
+	if (!policySetResult)
+	{
+		printf("Failed to set timeout for pipe 129 (read)");
+		return 1;
+	}
+
 	USBTowerController* towerController = new USBTowerController(&deviceData.WinusbHandle);
 
 	towerController->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
