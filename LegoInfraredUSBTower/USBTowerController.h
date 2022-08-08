@@ -5,7 +5,6 @@
 
 #include <Windows.h>
 #include <winusb.h>
-#include "TowerValues.h"
 
 /*
 	well...
@@ -229,6 +228,7 @@ enum class TowerCapabilityCommSpeed : WORD
 	COMM_BAUD_19200 = 0x0040
 };
 
+#pragma pack(push, 1)
 struct TowerCapabilitiesData
 {
 	TowerCapabilityCommDirection direction;
@@ -242,22 +242,44 @@ struct TowerCapabilitiesData
 	BYTE UARTTransmitBufferSize;
 	BYTE UARTReceiveBufferSize;
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 struct TowerVersionData
 {
 	BYTE majorVersion;
 	BYTE minorVersion;
 	WORD buildNumber;
 };
+#pragma pack(pop)
 
-#define CREDITS_LEN = 128
-#define COPYRIGHT_LEN = 128
+#pragma pack(push, 1)
+struct TowerStatData
+{
+	WORD receivedBytesCount;
+	WORD overrunErrorCount;
+	WORD noiseCount;
+	WORD framingErrorCount;
+};
+#pragma pack(pop)
 
 class USBTowerController
 {
 public:
 	USBTowerController(const WINUSB_INTERFACE_HANDLE* handle);
+	~USBTowerController();
 
+	/*
+	Well, this is a solution that works... for the time being.
+	Instead of returning the error on every method call, I leave it here.
+
+	This makes the code cleaner as long as there isn't an error, but perhaps
+	it won't be very filthy if I do need to do error handling. Not there yet.
+
+	One potential consequence is that it might be a little messy if I ever need to
+	compare errors from 2 different requests, but that's not super likely to be a
+	thing I've gotta do.
+	*/
 	TowerRequestError GetLastRequestError();
 
 	VOID Flush(TowerBuffer buffer);
@@ -268,11 +290,11 @@ public:
 	TowerLEDColor GetLEDColor(TowerLED led);
 	VOID SetLEDColor(TowerLED led, TowerLEDColor color);
 
-	BYTE GetStatistics();
+	TowerStatData GetStatistics();
 	VOID ResetStatistics();
 
-	TowerIRCParam GetIRCParameter();
-	VOID SetIRCParameter(TowerIRCParam param);
+	/*TowerIRCParam GetIRCParameter();
+	VOID SetIRCParameter(TowerIRCParam param);*/
 
 	TowerCommSpeed GetTransmissionSpeed();
 	VOID SetTransmissionSpeed(TowerCommSpeed speed);
@@ -282,10 +304,10 @@ public:
 
 	TowerTransmitterState GetTransmitterState();
 
-	BYTE GetTransmissionCarrierFrequency();
+	/*BYTE GetTransmissionCarrierFrequency();
 	VOID SetTransmissionCarrierFrequency();
 	BYTE GetTransmissionCarrierDutyCycle();
-	VOID SetTransmissionCarrierDutyCycle();
+	VOID SetTransmissionCarrierDutyCycle();*/
 
 	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link);
 	TowerVersionData GetVersion();
@@ -313,18 +335,16 @@ private:
 
 	BYTE GetParameter(TowerParamType parameter);
 
-	//WORD BuildValue(BYTE loByte, BYTE hiByte);
+	VOID MakeRequest(TowerRequestType request);
 
 	VOID MakeRequest(
-		BYTE request,
-		WORD value,
-		WORD index);
+		TowerRequestType request,
+		WORD value);
 
 	VOID MakeRequest(
-		BYTE request,
+		TowerRequestType request,
 		BYTE loByte,
-		BYTE hiByte,
-		WORD index);
+		BYTE hiByte);
 
 	VOID ReadStringFromReplyBuffer(CHAR*& buffer, INT& length);
 

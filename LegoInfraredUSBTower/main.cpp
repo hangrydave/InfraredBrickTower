@@ -93,18 +93,6 @@ Routine description:
 	towerController->SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT);
 	towerController->SetLEDColor(TowerLED::VLL, TowerLEDColor::OFF);
 
-	TowerMode mode;
-	mode = towerController->GetMode();
-	towerController->SetMode(TowerMode::IR);
-	mode = towerController->GetMode();
-	towerController->SetMode(TowerMode::VLL);
-	mode = towerController->GetMode();
-	towerController->SetMode(TowerMode::IRC);
-	mode = towerController->GetMode();
-
-	TowerCapabilitiesData capData = towerController->GetCapabilities(TowerCapabilityLink::IRC);
-	TowerVersionData versionData = towerController->GetVersion();
-
 	INT len;
 	CHAR* buffer = 0;
 
@@ -120,7 +108,7 @@ Routine description:
 		printf("%c", buffer[i]);
 	}
 
-	delete towerController;
+	// from this:
 
 	/*SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_RANGE, LTW_RANGE_MEDIUM, deviceData);
 	SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_MODE, LTW_MODE_IR, deviceData);
@@ -128,7 +116,16 @@ Routine description:
 	SendControlPacket(LTW_REQ_SET_RX_SPEED, SPEED_COMM_BAUD_2400, deviceData);
 	SendControlPacket(LTW_REQ_SET_TX_CARRIER_FREQUENCY, 0x0026, deviceData);*/
 
-	//Beep(deviceData);
+	// to this:
+
+	towerController->SetRange(TowerRange::MEDIUM);
+	towerController->SetMode(TowerMode::IR);
+	towerController->SetTransmissionSpeed(TowerCommSpeed::COMM_BAUD_2400);
+	towerController->SetReceivingSpeed(TowerCommSpeed::COMM_BAUD_2400);
+
+	delete towerController;
+
+	Beep(deviceData);
 
 	CloseDevice(&deviceData);
 
