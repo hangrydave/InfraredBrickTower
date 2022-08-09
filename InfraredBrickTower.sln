@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LegoInfraredUSBTower", "LegoInfraredUSBTower\LegoInfraredUSBTower.vcxproj", "{549C3FAC-B8E5-493C-9429-6AC4B636C8B4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InfraredBrickTower", "InfraredBrickTower\InfraredBrickTower.vcxproj", "{549C3FAC-B8E5-493C-9429-6AC4B636C8B4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LegoTowerDriverPackage", "LegoTowerDriverPackage\LegoTowerDriverPackage.vcxproj", "{DB8435A0-3751-4961-A9E5-7633B4767C08}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InfraredBrickTowerDriverPackage", "InfraredBrickTowerDriverPackage\InfraredBrickTowerDriverPackage.vcxproj", "{DB8435A0-3751-4961-A9E5-7633B4767C08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

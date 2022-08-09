@@ -270,7 +270,7 @@ public:
 	~USBTowerController();
 
 	/*
-	Well, this is a solution that works... for the time being.
+	Well, this is a solution that works... probably?
 	Instead of returning the error on every method call, I leave it here.
 
 	This makes the code cleaner as long as there isn't an error, but perhaps

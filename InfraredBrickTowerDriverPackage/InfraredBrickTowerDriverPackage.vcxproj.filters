@@ -7,7 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="LegoUSBInfraredTowerDriver.inf">
+    <Inf Include="InfraredBrickTowerDriver.inf">
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>

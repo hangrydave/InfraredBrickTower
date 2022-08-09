@@ -9,7 +9,7 @@
 // Must match "DeviceInterfaceGUIDs" registry value specified in the INF file.
 // d22330b8-1492-404d-bf41-a03987c198f6
 //
-DEFINE_GUID(GUID_DEVINTERFACE_LegoInfraredUSBTower,
+DEFINE_GUID(GUID_DEVINTERFACE_InfraredBrickTower,
     0xd22330b8,0x1492,0x404d,0xbf,0x41,0xa0,0x39,0x87,0xc1,0x98,0xf6);
 
 typedef struct _DEVICE_DATA {
