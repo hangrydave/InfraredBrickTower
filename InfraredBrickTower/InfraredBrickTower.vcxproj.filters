@@ -34,6 +34,12 @@
     <ClInclude Include="USBTowerController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HostTowerCommInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinUsbTowerInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device.cpp">
@@ -43,6 +49,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="USBTowerController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinUsbTowerInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

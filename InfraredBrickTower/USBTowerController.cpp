@@ -2,9 +2,15 @@
 #include "LegoHeaders/LegoVendReq.h"
 #include <string>
 
-USBTowerController::USBTowerController(const WINUSB_INTERFACE_HANDLE* handle)
+#define MAX_WRITE_ATTEMPTS 3
+#define MAX_READ_ATTEMPTS 3
+
+USBTowerController::USBTowerController(const HostTowerCommInterface* usbInterface)
 {
-	this->handle = handle;
+	this->usbInterface = usbInterface;
+
+	this->readAttemptCount = 0;
+	this->writeAttemptCount = 0;
 
 	this->lastRequestError = TowerRequestError::SUCCESS;
 	this->lastReplyLength = 0;
@@ -16,6 +22,34 @@ USBTowerController::USBTowerController(const WINUSB_INTERFACE_HANDLE* handle)
 USBTowerController::~USBTowerController()
 {
 	delete this->replyBuffer;
+}
+
+VOID USBTowerController::ReadData(
+	PUCHAR buffer,
+	ULONG bufferLength,
+	ULONG& lengthRead)
+{
+	this->readAttemptCount = 0;
+	BOOL success = FALSE;
+	while (!success && this->readAttemptCount < MAX_READ_ATTEMPTS)
+	{
+		success = this->usbInterface->Read(buffer, bufferLength, lengthRead);
+		this->readAttemptCount++;
+	}
+}
+
+VOID USBTowerController::WriteData(
+	PUCHAR buffer,
+	ULONG bufferLength,
+	ULONG& lengthRead)
+{
+	this->writeAttemptCount = 0;
+	BOOL success = FALSE;
+	while (!success && this->writeAttemptCount < MAX_WRITE_ATTEMPTS)
+	{
+		success = this->usbInterface->Write(buffer, bufferLength, lengthRead);
+		this->writeAttemptCount++;
+	}
 }
 
 TowerRequestError USBTowerController::GetLastRequestError()
@@ -223,7 +257,7 @@ VOID USBTowerController::MakeRequest(
 	// not used rn, will implement when used
 	WORD index = 0;
 
-	BOOL success = SendVendorRequest(
+	BOOL success = usbInterface->ControlTransfer(
 		(BYTE)request,
 		value,
 		index,
@@ -240,31 +274,4 @@ VOID USBTowerController::MakeRequest(
 		BYTE errorByte = *(this->replyBuffer + 2);
 		this->lastRequestError = (TowerRequestError)errorByte;
 	}
-}
-
-/* TODO: move lower level stuff out of here into its own little happy place */
-
-BOOL USBTowerController::SendVendorRequest(
-	BYTE request,
-	WORD value,
-	WORD index,
-	USHORT bufferLength,
-	BYTE* buffer,
-	ULONG& lengthTransferred)
-{
-	WINUSB_SETUP_PACKET setupPacket;
-	setupPacket.RequestType = 0xc0; // table 9-2 in https://fabiensanglard.net/usbcheat/usb1.1.pdf
-	setupPacket.Request = request;
-	setupPacket.Value = value;
-	setupPacket.Index = index;
-	setupPacket.Length = bufferLength;
-
-	return WinUsb_ControlTransfer(
-		*(this->handle),
-		setupPacket,
-		buffer,
-		bufferLength,
-		&lengthTransferred,
-		NULL
-	);
 }

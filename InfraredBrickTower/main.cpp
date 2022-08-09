@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "USBTowerController.h"
+#include "WinUsbTowerInterface.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -87,34 +88,8 @@ Routine description:
 		&cdLenReceived
 	);
 
-	ULONG timeoutBuffer[1] = { 1000 };
-	BOOL policySetResult = WinUsb_SetPipePolicy(
-		deviceData.WinusbHandle,
-		2,
-		PIPE_TRANSFER_TIMEOUT,
-		8,
-		timeoutBuffer
-	);
-	if (!policySetResult)
-	{
-		printf("Failed to set timeout for pipe 2 (write)");
-		return 1;
-	}
-
-	policySetResult = WinUsb_SetPipePolicy(
-		deviceData.WinusbHandle,
-		129,
-		PIPE_TRANSFER_TIMEOUT,
-		8,
-		timeoutBuffer
-	);
-	if (!policySetResult)
-	{
-		printf("Failed to set timeout for pipe 129 (read)");
-		return 1;
-	}
-
-	USBTowerController* towerController = new USBTowerController(&deviceData.WinusbHandle);
+	WinUsbTowerInterface* usbTowerInterface = new WinUsbTowerInterface(&deviceData.WinusbHandle);
+	USBTowerController* towerController = new USBTowerController(usbTowerInterface);
 
 	towerController->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
 	towerController->SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT);
@@ -151,6 +126,7 @@ Routine description:
 	towerController->SetReceivingSpeed(TowerCommSpeed::COMM_BAUD_2400);
 
 	delete towerController;
+	delete usbTowerInterface;
 
 	Beep(deviceData);
 

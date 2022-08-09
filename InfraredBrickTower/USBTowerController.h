@@ -5,6 +5,7 @@
 
 #include <Windows.h>
 #include <winusb.h>
+#include "HostTowerCommInterface.h"
 
 /*
 	well...
@@ -266,8 +267,11 @@ struct TowerStatData
 class USBTowerController
 {
 public:
-	USBTowerController(const WINUSB_INTERFACE_HANDLE* handle);
+	USBTowerController(const HostTowerCommInterface* usbInterface);
 	~USBTowerController();
+
+	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead);
+	VOID ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead);
 
 	/*
 	Well, this is a solution that works... probably?
@@ -322,9 +326,13 @@ public:
 	GenerateParameterSetterAndGetter(TowerParamType::INDICATOR_LED_MODE, IndicatorLEDMode)
 	GenerateParameterSetterAndGetter(TowerParamType::ERROR_SIGNAL, ErrorSignal)
 private:
-	const WINUSB_INTERFACE_HANDLE* handle;
+	const HostTowerCommInterface* usbInterface;
+
+	USHORT readAttemptCount;
+	USHORT writeAttemptCount;
 
 	TowerRequestError lastRequestError;
+
 	BYTE* replyBuffer;
 	USHORT replyBufferSize;
 	ULONG lastReplyLength;
@@ -344,14 +352,6 @@ private:
 		TowerRequestType request,
 		BYTE loByte,
 		BYTE hiByte);
-
-	BOOL SendVendorRequest(
-		BYTE request,
-		WORD value,
-		WORD index,
-		USHORT bufferLength,
-		BYTE* buffer,
-		ULONG& lengthTransferred);
 };
 
 #endif USBTOWERCONTROLLER_H

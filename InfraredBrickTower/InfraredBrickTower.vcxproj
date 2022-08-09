@@ -41,12 +41,15 @@
     <ClCompile Include="device.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="USBTowerController.cpp" />
+    <ClCompile Include="WinUsbTowerInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="device.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="LegoHeaders\LegoVendReq.h" />
+    <ClInclude Include="HostTowerCommInterface.h" />
     <ClInclude Include="USBTowerController.h" />
+    <ClInclude Include="WinUsbTowerInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />
