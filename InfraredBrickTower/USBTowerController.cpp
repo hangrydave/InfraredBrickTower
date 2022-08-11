@@ -81,7 +81,7 @@ TowerPower USBTowerController::GetPower()
 		loByte,
 		hiByte);
 
-	return (TowerPower) * (this->replyBuffer + 4);
+	return (TowerPower) *(this->replyBuffer + 4);
 }
 
 TowerStatData USBTowerController::GetStatistics()

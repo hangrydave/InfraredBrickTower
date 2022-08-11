@@ -46,7 +46,7 @@ BOOL WinUsbTowerInterface::ControlTransfer(
 	setupPacket.Index = index;
 	setupPacket.Length = bufferLength;
 
-	return WinUsb_ControlTransfer(
+	BOOL success = WinUsb_ControlTransfer(
 		*(this->handle),
 		setupPacket,
 		buffer,
@@ -54,6 +54,10 @@ BOOL WinUsbTowerInterface::ControlTransfer(
 		&lengthTransferred,
 		NULL
 	);
+
+	PrintErrorIfAny("WinUsbTowerInterface::ControlInterface");
+
+	return success;
 }
 
 VOID WinUsbTowerInterface::PrintErrorIfAny(const char* caller) const
