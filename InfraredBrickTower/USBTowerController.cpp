@@ -41,13 +41,13 @@ VOID USBTowerController::ReadData(
 VOID USBTowerController::WriteData(
 	PUCHAR buffer,
 	ULONG bufferLength,
-	ULONG& lengthRead)
+	ULONG& lengthWritten)
 {
 	this->writeAttemptCount = 0;
 	BOOL success = FALSE;
 	while (!success && this->writeAttemptCount < MAX_WRITE_ATTEMPTS)
 	{
-		success = this->usbInterface->Write(buffer, bufferLength, lengthRead);
+		success = this->usbInterface->Write(buffer, bufferLength, lengthWritten);
 		this->writeAttemptCount++;
 	}
 }

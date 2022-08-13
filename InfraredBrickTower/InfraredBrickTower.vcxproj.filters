@@ -40,6 +40,9 @@
     <ClInclude Include="WinUsbTowerInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VLLCommands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device.cpp">
@@ -52,6 +55,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WinUsbTowerInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VLLCommands.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

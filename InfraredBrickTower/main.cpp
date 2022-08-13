@@ -2,12 +2,14 @@
 
 #include "USBTowerController.h"
 #include "WinUsbTowerInterface.h"
+#include "VLLCommands.h"
 
 #include <stdio.h>
 #include <iostream>
 
 //BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeid);
 
+VOID TestTower(USBTowerController* controller);
 BOOL SendPacket(PUCHAR buffer, ULONG bufferLength, PUCHAR replyBuffer, ULONG expectedReplyLength, const DEVICE_DATA& deviceData);
 
 VOID Beep(const DEVICE_DATA& deviceData);
@@ -89,26 +91,12 @@ Routine description:
 	);
 
 	WinUsbTowerInterface* usbTowerInterface = new WinUsbTowerInterface(&deviceData.WinusbHandle);
-	USBTowerController* towerController = new USBTowerController(usbTowerInterface);
+	USBTowerController* controller = new USBTowerController(usbTowerInterface);
 
-	towerController->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
-	towerController->SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT);
-	towerController->SetLEDColor(TowerLED::VLL, TowerLEDColor::OFF);
+	controller->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
+	controller->SetMode(TowerMode::VLL);
 
-	INT len;
-	CHAR* buffer = 0;
-
-	towerController->GetCopyright(buffer, len);
-	for (int i = 0; i < len; i++)
-	{
-		printf("%c", buffer[i]);
-	}
-
-	towerController->GetCredits(buffer, len);
-	for (int i = 0; i < len; i++)
-	{
-		printf("%c", buffer[i]);
-	}
+	VLL_Beep3Immediate(controller);
 
 	// from this:
 
@@ -120,15 +108,15 @@ Routine description:
 
 	// to this:
 
-	towerController->SetRange(TowerRange::MEDIUM);
-	towerController->SetMode(TowerMode::IR);
-	towerController->SetTransmissionSpeed(TowerCommSpeed::COMM_BAUD_2400);
-	towerController->SetReceivingSpeed(TowerCommSpeed::COMM_BAUD_2400);
+	/*controller->SetRange(TowerRange::MEDIUM);
+	controller->SetMode(TowerMode::IR);
+	controller->SetTransmissionSpeed(TowerCommSpeed::COMM_BAUD_2400);
+	controller->SetReceivingSpeed(TowerCommSpeed::COMM_BAUD_2400);*/
 
-	delete towerController;
+	delete controller;
 	delete usbTowerInterface;
 
-	Beep(deviceData);
+	/*Beep(deviceData);*/
 
 	CloseDevice(&deviceData);
 
@@ -170,6 +158,28 @@ BOOL SendPacket(
 	}
 
 	return write;
+}
+
+VOID TestTower(USBTowerController* controller)
+{
+	controller->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
+	controller->SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT);
+	controller->SetLEDColor(TowerLED::VLL, TowerLEDColor::OFF);
+
+	INT len;
+	CHAR* buffer = 0;
+
+	controller->GetCopyright(buffer, len);
+	for (int i = 0; i < len; i++)
+	{
+		printf("%c", buffer[i]);
+	}
+
+	controller->GetCredits(buffer, len);
+	for (int i = 0; i < len; i++)
+	{
+		printf("%c", buffer[i]);
+	}
 }
 
 VOID Beep(const DEVICE_DATA& deviceData)

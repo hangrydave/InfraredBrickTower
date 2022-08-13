@@ -22,11 +22,11 @@
 	anyway, this might be bad, idk and tbqh idc
 */
 #define GenerateParameterSetterAndGetter(paramType, outputType) \
-Tower##outputType Get##outputType##() \
+inline Tower##outputType Get##outputType##() \
 { \
 	return (Tower##outputType) GetParameter(##paramType##); \
 } \
-VOID Set##outputType##(Tower##outputType newValue) \
+inline VOID Set##outputType##(Tower##outputType newValue) \
 { \
 	SetParameter(##paramType##, (BYTE)newValue); \
 }
@@ -270,7 +270,7 @@ public:
 	USBTowerController(const HostTowerCommInterface* usbInterface);
 	~USBTowerController();
 
-	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead);
+	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten);
 	VOID ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead);
 
 	/*
