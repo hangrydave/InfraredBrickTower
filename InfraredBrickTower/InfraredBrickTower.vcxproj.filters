@@ -31,7 +31,7 @@
     <ClInclude Include="LegoHeaders\LegoVendReq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="USBTowerController.h">
+    <ClInclude Include="usbtowercontroller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HostTowerCommInterface.h">
@@ -51,7 +51,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="USBTowerController.cpp">
+    <ClCompile Include="usbtowercontroller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WinUsbTowerInterface.cpp">

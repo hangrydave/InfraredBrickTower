@@ -4,6 +4,7 @@
 #include "WinUsbTowerInterface.h"
 #include "VLLCommands.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <iostream>
 
@@ -12,7 +13,7 @@
 VOID TestTower(USBTowerController* controller);
 BOOL SendPacket(PUCHAR buffer, ULONG bufferLength, PUCHAR replyBuffer, ULONG expectedReplyLength, const DEVICE_DATA& deviceData);
 
-VOID Beep(const DEVICE_DATA& deviceData);
+VOID BeepRCXAndMicroScout(USBTowerController* controller);
 
 LONG __cdecl
 _tmain(
@@ -93,30 +94,10 @@ Routine description:
 	WinUsbTowerInterface* usbTowerInterface = new WinUsbTowerInterface(&deviceData.WinusbHandle);
 	USBTowerController* controller = new USBTowerController(usbTowerInterface);
 
-	controller->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
-	controller->SetMode(TowerMode::VLL);
-
-	VLL_Beep3Immediate(controller);
-
-	// from this:
-
-	/*SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_RANGE, LTW_RANGE_MEDIUM, deviceData);
-	SendControlPacket(LTW_REQ_SET_PARM, LTW_PARM_MODE, LTW_MODE_IR, deviceData);
-	SendControlPacket(LTW_REQ_SET_TX_SPEED, SPEED_COMM_BAUD_2400, deviceData);
-	SendControlPacket(LTW_REQ_SET_RX_SPEED, SPEED_COMM_BAUD_2400, deviceData);
-	SendControlPacket(LTW_REQ_SET_TX_CARRIER_FREQUENCY, 0x0026, deviceData);*/
-
-	// to this:
-
-	/*controller->SetRange(TowerRange::MEDIUM);
-	controller->SetMode(TowerMode::IR);
-	controller->SetTransmissionSpeed(TowerCommSpeed::COMM_BAUD_2400);
-	controller->SetReceivingSpeed(TowerCommSpeed::COMM_BAUD_2400);*/
+	BeepRCXAndMicroScout(controller);
 
 	delete controller;
 	delete usbTowerInterface;
-
-	/*Beep(deviceData);*/
 
 	CloseDevice(&deviceData);
 
@@ -154,7 +135,6 @@ BOOL SendPacket(
 			&dataReceived,
 			NULL
 		);
-		printf("%d, %d\n", write, read);
 	}
 
 	return write;
@@ -182,22 +162,43 @@ VOID TestTower(USBTowerController* controller)
 	}
 }
 
-VOID Beep(const DEVICE_DATA& deviceData)
+VOID BeepRCXAndMicroScout(USBTowerController* controller)
 {
-	UCHAR replyBuffer[1];
-	ULONG replyLen = 1;
+	/* MicroScout */
+	controller->SetMode(TowerMode::VLL);
+	VLL_Beep1Immediate(controller);
+
+	/* RCX */
+	controller->SetMode(TowerMode::IR);
+
+	UCHAR replyBuffer[10];
+	ULONG replyLen = 10;
+	BYTE replyByte;
+
+	ULONG bytesWritten = 0;
+	ULONG bytesRead = 0;
 
 	UCHAR ping[] = { 0x55, 0xff, 0x00, 0x10, 0xef, 0x10, 0xef };
 	ULONG pingLen = 7;
-	SendPacket(ping, pingLen, replyBuffer, replyLen, deviceData);
+	controller->WriteData(ping, pingLen, bytesWritten);
+	controller->ReadData(replyBuffer, replyLen, bytesRead);
+	replyByte = *(replyBuffer + 3) & 0xf7;
+	assert(replyByte == 0xE7);
 
 	UCHAR stop[] = { 0x55, 0xff, 0x00, 0x50, 0xaf, 0x50, 0xaf };
 	ULONG stopLen = 7;
-	SendPacket(stop, stopLen, replyBuffer, replyLen, deviceData);
+	controller->WriteData(stop, stopLen, bytesWritten);
+	controller->ReadData(replyBuffer, replyLen, bytesRead);
+	replyByte = *(replyBuffer + 3) & 0xf7;
+	assert(replyByte == 0xA7);
 
 	UCHAR beep[] = { 0x55, 0xff, 0x00, 0x51, 0xae, 0x05, 0xfa, 0x56, 0xa9 };
 	ULONG beepLen = 9;
-	SendPacket(beep, beepLen, replyBuffer, replyLen, deviceData);
+	// expects 0xA6
+	controller->WriteData(beep, beepLen, bytesWritten);
+	controller->ReadData(replyBuffer, replyLen, bytesRead);
+	replyByte = *(replyBuffer + 3) & 0xf7;
+	assert(replyByte == 0xA6);
 }
 
 // useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint
@@ -241,3 +242,4 @@ VOID Beep(const DEVICE_DATA& deviceData)
 //	}
 //	return bResult;
 //}
+

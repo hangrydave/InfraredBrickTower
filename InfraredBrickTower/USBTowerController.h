@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef USBTOWERCONTROLLER_H
-#define USBTOWERCONTROLLER_H
+#ifndef TOWERCONTROLLER_H
+#define TOWERCONTROLLER_H
 
 #include <Windows.h>
 #include <winusb.h>
@@ -354,4 +354,4 @@ private:
 		BYTE hiByte);
 };
 
-#endif USBTOWERCONTROLLER_H
+#endif TOWERCONTROLLER_H

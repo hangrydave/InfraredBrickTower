@@ -40,7 +40,7 @@
   <ItemGroup>
     <ClCompile Include="device.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="USBTowerController.cpp" />
+    <ClCompile Include="usbtowercontroller.cpp" />
     <ClCompile Include="VLLCommands.cpp" />
     <ClCompile Include="WinUsbTowerInterface.cpp" />
   </ItemGroup>
@@ -49,7 +49,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="LegoHeaders\LegoVendReq.h" />
     <ClInclude Include="HostTowerCommInterface.h" />
-    <ClInclude Include="USBTowerController.h" />
+    <ClInclude Include="usbtowercontroller.h" />
     <ClInclude Include="VLLCommands.h" />
     <ClInclude Include="WinUsbTowerInterface.h" />
   </ItemGroup>

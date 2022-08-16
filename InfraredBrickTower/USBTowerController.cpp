@@ -29,11 +29,28 @@ VOID USBTowerController::ReadData(
 	ULONG bufferLength,
 	ULONG& lengthRead)
 {
+	printf("READ\n");
+
+	TowerTransmitterState transmitterState = this->GetTransmitterState();
+	TowerErrorStatus errorStatus = this->GetErrorStatus();
+	TowerRequestError requestError = this->GetLastRequestError();
+	while (transmitterState == TowerTransmitterState::BUSY) { printf("Tower busy...\n"); transmitterState = this->GetTransmitterState(); }
+	while (errorStatus != TowerErrorStatus::OK) { printf("Tower error status: %d\n", errorStatus); errorStatus = this->GetErrorStatus(); }
+	while (requestError != TowerRequestError::SUCCESS) { printf("Tower request error: %d\n", requestError); requestError = this->GetLastRequestError(); }
+
 	this->readAttemptCount = 0;
 	BOOL success = FALSE;
 	while (!success && this->readAttemptCount < MAX_READ_ATTEMPTS)
 	{
 		success = this->usbInterface->Read(buffer, bufferLength, lengthRead);
+
+		if (lengthRead == 1)
+		{
+			// this happens after the thing is plugged in. there are better ways to handle this, i'm sure, but... ez pz
+			success = this->usbInterface->Read(buffer + 1, bufferLength, lengthRead);
+			lengthRead++;
+		}
+
 		this->readAttemptCount++;
 	}
 }
@@ -43,13 +60,24 @@ VOID USBTowerController::WriteData(
 	ULONG bufferLength,
 	ULONG& lengthWritten)
 {
+	printf("WRITE\n");
+
+	TowerTransmitterState transmitterState = this->GetTransmitterState();
+	TowerErrorStatus errorStatus = this->GetErrorStatus();
+	TowerRequestError requestError = this->GetLastRequestError();
+	while (transmitterState == TowerTransmitterState::BUSY) { printf("Tower busy...\n"); transmitterState = this->GetTransmitterState(); }
+	while (errorStatus != TowerErrorStatus::OK) { printf("Tower error status: %d\n", errorStatus); errorStatus = this->GetErrorStatus(); }
+	while (requestError != TowerRequestError::SUCCESS) { printf("Tower request error: %d\n", requestError); requestError = this->GetLastRequestError(); }
+
 	this->writeAttemptCount = 0;
 	BOOL success = FALSE;
 	while (!success && this->writeAttemptCount < MAX_WRITE_ATTEMPTS)
 	{
 		success = this->usbInterface->Write(buffer, bufferLength, lengthWritten);
+		Sleep(150); // give time to finish
 		this->writeAttemptCount++;
 	}
+
 }
 
 TowerRequestError USBTowerController::GetLastRequestError()
