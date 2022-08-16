@@ -1,6 +1,6 @@
 # Infrared Brick Tower
 
-Infrared Brick Tower is a project to bring new life to the Lego Mindstorms RCX 2.0 USB infrared transmission tower for modern versions of Windows.
+Infrared Brick Tower is a project to bring new life to the Lego Mindstorms RCX 2.0 USB infrared transmission tower for Windows 10/11.
 
 (this thing)
 
