@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InfraredBrickTower", "Infra
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InfraredBrickTowerDriverPackage", "InfraredBrickTowerDriverPackage\InfraredBrickTowerDriverPackage.vcxproj", "{DB8435A0-3751-4961-A9E5-7633B4767C08}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C840DE05-B9E7-429D-AC23-CE3CC0E05F98}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
