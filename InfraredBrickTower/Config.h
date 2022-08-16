@@ -1,3 +1,4 @@
 #pragma once
 
-#define DEBUG
+#define DEBUG 1
+#define DRAMATIC_PAUSE 1

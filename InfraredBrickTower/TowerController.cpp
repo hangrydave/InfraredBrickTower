@@ -295,7 +295,7 @@ VOID TowerController::MakeRequest(
 
 	if (this->lastRequestError != TowerRequestError::SUCCESS)
 	{
-#ifdef DEBUG
+#if DEBUG == 1
 		__debugbreak();
 #endif
 

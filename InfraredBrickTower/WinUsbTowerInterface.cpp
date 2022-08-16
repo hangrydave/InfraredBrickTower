@@ -6,16 +6,18 @@ WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle
 {
 	this->handle = handle;
 
-	ULONG timeoutBuffer[1] = { 1000 };
+	ULONG timeout = 1000;
+	PULONG timeoutPointer = &timeout;
+
 	BOOL policySetResult = WinUsb_SetPipePolicy(
 		*handle,
 		TOWER_WRITE_PIPE_ID,
 		PIPE_TRANSFER_TIMEOUT,
 		8,
-		timeoutBuffer
+		timeoutPointer
 	);
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (!policySetResult)
 		__debugbreak();
 #endif
@@ -26,10 +28,10 @@ WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle
 		TOWER_READ_PIPE_ID,
 		PIPE_TRANSFER_TIMEOUT,
 		8,
-		timeoutBuffer
+		timeoutPointer
 	);
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (!policySetResult)
 		__debugbreak();
 #endif
@@ -60,7 +62,7 @@ BOOL WinUsbTowerInterface::ControlTransfer(
 		NULL
 	);
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (!success)
 		__debugbreak();
 #endif
@@ -83,7 +85,7 @@ BOOL WinUsbTowerInterface::Write(
 		NULL
 	);
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (!success)
 		__debugbreak();
 #endif
@@ -106,7 +108,7 @@ BOOL WinUsbTowerInterface::Read(
 		NULL
 	);
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (!success)
 		__debugbreak();
 #endif

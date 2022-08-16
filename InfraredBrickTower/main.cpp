@@ -172,9 +172,11 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 	VLL_Beep1Immediate(controller);
 	printf("Sent beep command to MicroScout!\n");
 
+#if DRAMATIC_PAUSE == 1
 	Sleep(1000);
 	printf("\nPausing for dramatic effect...\n\n");
 	Sleep(1500);
+#endif
 
 	/* RCX */
 	printf("Sending beep command to RCX...\n");
@@ -193,7 +195,7 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 	controller->ReadData(replyBuffer, replyLen, bytesRead);
 	replyByte = *(replyBuffer + 3) & 0xf7;
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (replyByte != 0xE7)
 		__debugbreak();
 #endif
@@ -204,7 +206,7 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 	controller->ReadData(replyBuffer, replyLen, bytesRead);
 	replyByte = *(replyBuffer + 3) & 0xf7;
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (replyByte != 0xA7)
 		__debugbreak();
 #endif
@@ -216,7 +218,7 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 	controller->ReadData(replyBuffer, replyLen, bytesRead);
 	replyByte = *(replyBuffer + 3) & 0xf7;
 
-#ifdef DEBUG
+#if DEBUG == 1
 	if (replyByte != 0xA6)
 		__debugbreak();
 #endif
