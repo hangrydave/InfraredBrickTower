@@ -264,11 +264,11 @@ struct TowerStatData
 };
 #pragma pack(pop)
 
-class USBTowerController
+class TowerController
 {
 public:
-	USBTowerController(const HostTowerCommInterface* usbInterface);
-	~USBTowerController();
+	TowerController(const HostTowerCommInterface* usbInterface);
+	~TowerController();
 
 	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten);
 	VOID ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead);

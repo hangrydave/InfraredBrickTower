@@ -4,7 +4,7 @@
 #define VLLCOMMANDS_H
 
 #include <Windows.h>
-#include "USBTowerController.h"
+#include "TowerController.h"
 
 #define PACKET_LENGTH 25
 
@@ -37,7 +37,7 @@
 #define KEEP_ALIVE { 0x51, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x15, 0x0a, 0x15, 0x0a, 0x15, 0x0a, 0x15, 0x0a, 0x0b, 0x0b, 0x00 }
 
 #define GenerateVLLFunction(commandName, data) \
-inline BOOL VLL_##commandName##(USBTowerController* controller) \
+inline BOOL VLL_##commandName##(TowerController* controller) \
 { \
 	BYTE bytes[] = data; \
 	ULONG lengthWritten; \

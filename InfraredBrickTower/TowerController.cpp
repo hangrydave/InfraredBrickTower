@@ -1,11 +1,11 @@
-#include "usbtowercontroller.h"
+#include "TowerController.h"
 #include "LegoHeaders/LegoVendReq.h"
 #include <string>
 
 #define MAX_WRITE_ATTEMPTS 3
 #define MAX_READ_ATTEMPTS 3
 
-USBTowerController::USBTowerController(const HostTowerCommInterface* usbInterface)
+TowerController::TowerController(const HostTowerCommInterface* usbInterface)
 {
 	this->usbInterface = usbInterface;
 
@@ -19,12 +19,12 @@ USBTowerController::USBTowerController(const HostTowerCommInterface* usbInterfac
 	this->replyBuffer = new BYTE[this->replyBufferSize];
 }
 
-USBTowerController::~USBTowerController()
+TowerController::~TowerController()
 {
 	delete this->replyBuffer;
 }
 
-VOID USBTowerController::ReadData(
+VOID TowerController::ReadData(
 	PUCHAR buffer,
 	ULONG bufferLength,
 	ULONG& lengthRead)
@@ -55,7 +55,7 @@ VOID USBTowerController::ReadData(
 	}
 }
 
-VOID USBTowerController::WriteData(
+VOID TowerController::WriteData(
 	PUCHAR buffer,
 	ULONG bufferLength,
 	ULONG& lengthWritten)
@@ -80,12 +80,12 @@ VOID USBTowerController::WriteData(
 
 }
 
-TowerRequestError USBTowerController::GetLastRequestError()
+TowerRequestError TowerController::GetLastRequestError()
 {
 	return lastRequestError;
 }
 
-VOID USBTowerController::Flush(TowerBuffer buffer)
+VOID TowerController::Flush(TowerBuffer buffer)
 {
 	BYTE loByte = (BYTE)buffer;
 	BYTE hiByte = 0;
@@ -95,12 +95,12 @@ VOID USBTowerController::Flush(TowerBuffer buffer)
 		hiByte);
 }
 
-VOID USBTowerController::Reset()
+VOID TowerController::Reset()
 {
 	MakeRequest(TowerRequestType::RESET);
 }
 
-TowerPower USBTowerController::GetPower()
+TowerPower TowerController::GetPower()
 {
 	BYTE loByte = 0;
 	BYTE hiByte = 0;
@@ -112,26 +112,26 @@ TowerPower USBTowerController::GetPower()
 	return (TowerPower) *(this->replyBuffer + 4);
 }
 
-TowerStatData USBTowerController::GetStatistics()
+TowerStatData TowerController::GetStatistics()
 {
 	MakeRequest(TowerRequestType::GET_STATISTICS);
 
 	return *reinterpret_cast<TowerStatData*>(this->replyBuffer + 4);
 }
 
-VOID USBTowerController::ResetStatistics()
+VOID TowerController::ResetStatistics()
 {
 	MakeRequest(TowerRequestType::RESET_STATISTICS);
 }
 
-TowerCommSpeed USBTowerController::GetTransmissionSpeed()
+TowerCommSpeed TowerController::GetTransmissionSpeed()
 {
 	MakeRequest(TowerRequestType::GET_TRANSMISSION_SPEED);
 
 	return (TowerCommSpeed) *(this->replyBuffer + 4);
 }
 
-VOID USBTowerController::SetTransmissionSpeed(TowerCommSpeed speed)
+VOID TowerController::SetTransmissionSpeed(TowerCommSpeed speed)
 {
 	MakeRequest(
 		TowerRequestType::SET_TRANSMISSION_SPEED,
@@ -139,14 +139,14 @@ VOID USBTowerController::SetTransmissionSpeed(TowerCommSpeed speed)
 		0);
 }
 
-TowerCommSpeed USBTowerController::GetReceivingSpeed()
+TowerCommSpeed TowerController::GetReceivingSpeed()
 {
 	MakeRequest(TowerRequestType::GET_RECEIVING_SPEED);
 
 	return (TowerCommSpeed) *(this->replyBuffer + 4);
 }
 
-VOID USBTowerController::SetReceivingSpeed(TowerCommSpeed speed)
+VOID TowerController::SetReceivingSpeed(TowerCommSpeed speed)
 {
 	MakeRequest(
 		TowerRequestType::SET_RECEIVING_SPEED,
@@ -154,14 +154,14 @@ VOID USBTowerController::SetReceivingSpeed(TowerCommSpeed speed)
 		0);
 }
 
-TowerTransmitterState USBTowerController::GetTransmitterState()
+TowerTransmitterState TowerController::GetTransmitterState()
 {
 	MakeRequest(TowerRequestType::GET_TRANSMITTER_STATE);
 
 	return (TowerTransmitterState) *(this->replyBuffer + 4);
 }
 
-TowerLEDColor USBTowerController::GetLEDColor(TowerLED led)
+TowerLEDColor TowerController::GetLEDColor(TowerLED led)
 {
 	BYTE loByte = (BYTE)led;
 	BYTE hiByte = 0;
@@ -173,7 +173,7 @@ TowerLEDColor USBTowerController::GetLEDColor(TowerLED led)
 	return (TowerLEDColor) *(this->replyBuffer + 5);
 }
 
-VOID USBTowerController::SetLEDColor(TowerLED led, TowerLEDColor color)
+VOID TowerController::SetLEDColor(TowerLED led, TowerLEDColor color)
 {
 	BYTE loByte = (BYTE)led;
 	BYTE hiByte = (BYTE)color;
@@ -183,35 +183,35 @@ VOID USBTowerController::SetLEDColor(TowerLED led, TowerLEDColor color)
 		hiByte);
 }
 
-TowerCapabilitiesData USBTowerController::GetCapabilities(TowerCapabilityLink link)
+TowerCapabilitiesData TowerController::GetCapabilities(TowerCapabilityLink link)
 {
 	MakeRequest(TowerRequestType::GET_CAPABILITIES, (WORD)link);
 
 	return *reinterpret_cast<TowerCapabilitiesData*>(this->replyBuffer + 4);
 }
 
-TowerVersionData USBTowerController::GetVersion()
+TowerVersionData TowerController::GetVersion()
 {
 	MakeRequest(TowerRequestType::GET_VERSION);
 
 	return *reinterpret_cast<TowerVersionData*>(this->replyBuffer + 4);
 }
 
-VOID USBTowerController::GetCopyright(CHAR*& buffer, INT& length)
+VOID TowerController::GetCopyright(CHAR*& buffer, INT& length)
 {
 	MakeRequest(TowerRequestType::GET_COPYRIGHT);
 
 	ReadStringFromReplyBuffer(buffer, length);
 }
 
-VOID USBTowerController::GetCredits(CHAR*& buffer, INT& length)
+VOID TowerController::GetCredits(CHAR*& buffer, INT& length)
 {
 	MakeRequest(TowerRequestType::GET_CREDITS);
 
 	ReadStringFromReplyBuffer(buffer, length);
 }
 
-VOID USBTowerController::ReadStringFromReplyBuffer(CHAR*& buffer, INT& length)
+VOID TowerController::ReadStringFromReplyBuffer(CHAR*& buffer, INT& length)
 {
 	// the vendor requests that reply with a string put the length at the front of the buffer
 	UINT stringLength = *((WORD*)(this->replyBuffer));
@@ -244,7 +244,7 @@ VOID USBTowerController::ReadStringFromReplyBuffer(CHAR*& buffer, INT& length)
 	}
 }
 
-VOID USBTowerController::SetParameter(
+VOID TowerController::SetParameter(
 	TowerParamType parameter,
 	BYTE value)
 {
@@ -254,7 +254,7 @@ VOID USBTowerController::SetParameter(
 		value);
 }
 
-BYTE USBTowerController::GetParameter(TowerParamType parameter)
+BYTE TowerController::GetParameter(TowerParamType parameter)
 {
 	MakeRequest(
 		TowerRequestType::GET_PARAMETER,
@@ -264,12 +264,12 @@ BYTE USBTowerController::GetParameter(TowerParamType parameter)
 	return *(this->replyBuffer + 3);
 }
 
-VOID USBTowerController::MakeRequest(TowerRequestType request)
+VOID TowerController::MakeRequest(TowerRequestType request)
 {
 	MakeRequest(request, 0);
 }
 
-VOID USBTowerController::MakeRequest(
+VOID TowerController::MakeRequest(
 	TowerRequestType request,
 	BYTE loByte,
 	BYTE hiByte)
@@ -278,7 +278,7 @@ VOID USBTowerController::MakeRequest(
 	MakeRequest(request, value);
 }
 
-VOID USBTowerController::MakeRequest(
+VOID TowerController::MakeRequest(
 	TowerRequestType request,
 	WORD value)
 {

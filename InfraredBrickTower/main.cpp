@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "USBTowerController.h"
+#include "TowerController.h"
 #include "WinUsbTowerInterface.h"
 #include "VLLCommands.h"
 
@@ -10,10 +10,10 @@
 
 //BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeid);
 
-VOID TestTower(USBTowerController* controller);
+VOID TestTower(TowerController* controller);
 BOOL SendPacket(PUCHAR buffer, ULONG bufferLength, PUCHAR replyBuffer, ULONG expectedReplyLength, const DEVICE_DATA& deviceData);
 
-VOID BeepRCXAndMicroScout(USBTowerController* controller);
+VOID BeepRCXAndMicroScout(TowerController* controller);
 
 LONG __cdecl
 _tmain(
@@ -92,7 +92,7 @@ Routine description:
 	);
 
 	WinUsbTowerInterface* usbTowerInterface = new WinUsbTowerInterface(&deviceData.WinusbHandle);
-	USBTowerController* controller = new USBTowerController(usbTowerInterface);
+	TowerController* controller = new TowerController(usbTowerInterface);
 
 	BeepRCXAndMicroScout(controller);
 
@@ -140,7 +140,7 @@ BOOL SendPacket(
 	return write;
 }
 
-VOID TestTower(USBTowerController* controller)
+VOID TestTower(TowerController* controller)
 {
 	controller->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
 	controller->SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT);
@@ -162,7 +162,7 @@ VOID TestTower(USBTowerController* controller)
 	}
 }
 
-VOID BeepRCXAndMicroScout(USBTowerController* controller)
+VOID BeepRCXAndMicroScout(TowerController* controller)
 {
 	/* MicroScout */
 	controller->SetMode(TowerMode::VLL);
