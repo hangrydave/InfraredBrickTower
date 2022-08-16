@@ -1,9 +1,13 @@
 #include "TowerController.h"
 #include "LegoHeaders/LegoVendReq.h"
+#include "Config.h"
 #include <string>
 
 #define MAX_WRITE_ATTEMPTS 3
 #define MAX_READ_ATTEMPTS 3
+
+// This number isn't pulled from documentation or anything, I've just found I need a small pause between things for it to work, and this is reasonably small
+#define WRITE_PAUSE_TIME 150
 
 TowerController::TowerController(const HostTowerCommInterface* usbInterface)
 {
@@ -29,14 +33,7 @@ VOID TowerController::ReadData(
 	ULONG bufferLength,
 	ULONG& lengthRead)
 {
-	printf("READ\n");
-
-	TowerTransmitterState transmitterState = this->GetTransmitterState();
-	TowerErrorStatus errorStatus = this->GetErrorStatus();
-	TowerRequestError requestError = this->GetLastRequestError();
-	while (transmitterState == TowerTransmitterState::BUSY) { printf("Tower busy...\n"); transmitterState = this->GetTransmitterState(); }
-	while (errorStatus != TowerErrorStatus::OK) { printf("Tower error status: %d\n", errorStatus); errorStatus = this->GetErrorStatus(); }
-	while (requestError != TowerRequestError::SUCCESS) { printf("Tower request error: %d\n", requestError); requestError = this->GetLastRequestError(); }
+	while (this->GetTransmitterState() == TowerTransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
 
 	this->readAttemptCount = 0;
 	BOOL success = FALSE;
@@ -60,21 +57,14 @@ VOID TowerController::WriteData(
 	ULONG bufferLength,
 	ULONG& lengthWritten)
 {
-	printf("WRITE\n");
-
-	TowerTransmitterState transmitterState = this->GetTransmitterState();
-	TowerErrorStatus errorStatus = this->GetErrorStatus();
-	TowerRequestError requestError = this->GetLastRequestError();
-	while (transmitterState == TowerTransmitterState::BUSY) { printf("Tower busy...\n"); transmitterState = this->GetTransmitterState(); }
-	while (errorStatus != TowerErrorStatus::OK) { printf("Tower error status: %d\n", errorStatus); errorStatus = this->GetErrorStatus(); }
-	while (requestError != TowerRequestError::SUCCESS) { printf("Tower request error: %d\n", requestError); requestError = this->GetLastRequestError(); }
+	while (this->GetTransmitterState() == TowerTransmitterState::BUSY) { printf("Tower busy, can't write...\n"); }
 
 	this->writeAttemptCount = 0;
 	BOOL success = FALSE;
 	while (!success && this->writeAttemptCount < MAX_WRITE_ATTEMPTS)
 	{
 		success = this->usbInterface->Write(buffer, bufferLength, lengthWritten);
-		Sleep(150); // give time to finish
+		Sleep(WRITE_PAUSE_TIME); // give time to finish
 		this->writeAttemptCount++;
 	}
 
@@ -301,5 +291,36 @@ VOID TowerController::MakeRequest(
 	{
 		BYTE errorByte = *(this->replyBuffer + 2);
 		this->lastRequestError = (TowerRequestError)errorByte;
+	}
+
+	if (this->lastRequestError != TowerRequestError::SUCCESS)
+	{
+#ifdef DEBUG
+		__debugbreak();
+#endif
+
+		printf("Tower request error: ");
+		switch (this->lastRequestError)
+		{
+		case TowerRequestError::BAD_PARAMETER:
+			printf("bad param");
+			break;
+		case TowerRequestError::BUSY:
+			printf("busy");
+			break;
+		case TowerRequestError::NOT_ENOUGH_POWER:
+			printf("not enough power");
+			break;
+		case TowerRequestError::WRONG_MODE:
+			printf("wrong mode");
+			break;
+		case TowerRequestError::INTERNAL_ERROR:
+			printf("internal error");
+			break;
+		case TowerRequestError::BAD_REQUEST:
+			printf("bad request");
+			break;
+		}
+		printf("\n");
 	}
 }

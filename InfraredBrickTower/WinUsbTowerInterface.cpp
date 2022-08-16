@@ -1,4 +1,5 @@
 #include "WinUsbTowerInterface.h"
+#include "Config.h"
 #include <stdio.h>
 
 WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle)
@@ -13,10 +14,12 @@ WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle
 		8,
 		timeoutBuffer
 	);
+
+#ifdef DEBUG
 	if (!policySetResult)
-	{
-		printf("Failed to set timeout for pipe 2 (write)");
-	}
+		__debugbreak();
+#endif
+	PrintErrorIfAny("WinUSB set read pipe policy error");
 
 	policySetResult = WinUsb_SetPipePolicy(
 		*handle,
@@ -25,10 +28,12 @@ WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle
 		8,
 		timeoutBuffer
 	);
+
+#ifdef DEBUG
 	if (!policySetResult)
-	{
-		printf("Failed to set timeout for pipe 129 (read)");
-	}
+		__debugbreak();
+#endif
+	PrintErrorIfAny("WinUSB set read pipe policy error");
 }
 
 BOOL WinUsbTowerInterface::ControlTransfer(
@@ -55,31 +60,13 @@ BOOL WinUsbTowerInterface::ControlTransfer(
 		NULL
 	);
 
-	PrintErrorIfAny("WinUsbTowerInterface::ControlInterface");
+#ifdef DEBUG
+	if (!success)
+		__debugbreak();
+#endif
+	PrintErrorIfAny("WinUSB control transfer error");
 
 	return success;
-}
-
-VOID WinUsbTowerInterface::PrintErrorIfAny(const char* caller) const
-{
-	DWORD error = GetLastError();
-	switch (error)
-	{
-	case ERROR_INVALID_HANDLE:
-		printf("\n%s: invalid WinUsb handle provided", caller);
-		break;
-	case ERROR_IO_PENDING:
-		printf("\n%s: overlapped I\\O operation in progress, operation executing in background", caller);
-		break;
-	case ERROR_NOT_ENOUGH_MEMORY:
-		printf("\n%s: not enough memory", caller);
-		break;
-	case ERROR_SEM_TIMEOUT:
-		printf("\n%s: timeout", caller);
-		break;
-	default:
-		break;
-	}
 }
 
 BOOL WinUsbTowerInterface::Write(
@@ -96,7 +83,11 @@ BOOL WinUsbTowerInterface::Write(
 		NULL
 	);
 
-	PrintErrorIfAny("WinUsbTowerInterface::Write");
+#ifdef DEBUG
+	if (!success)
+		__debugbreak();
+#endif
+	PrintErrorIfAny("WinUSB write error");
 
 	return success;
 }
@@ -115,7 +106,34 @@ BOOL WinUsbTowerInterface::Read(
 		NULL
 	);
 
-	PrintErrorIfAny("WinUsbTowerInterface::Read");
+#ifdef DEBUG
+	if (!success)
+		__debugbreak();
+#endif
+	PrintErrorIfAny("WinUSB read error");
 
 	return success;	
+}
+
+VOID WinUsbTowerInterface::PrintErrorIfAny(const char* caller) const
+{
+	DWORD error = GetLastError();
+	switch (error)
+	{
+	case ERROR_INVALID_HANDLE:
+		printf("%s: invalid WinUsb handle provided\n", caller);
+		break;
+	case ERROR_INVALID_PARAMETER:
+		printf("%s: invalid parameter\n", caller);
+		break;
+	case ERROR_IO_PENDING:
+		printf("%s: overlapped I\\O operation in progress, operation executing in background\n", caller);
+		break;
+	case ERROR_NOT_ENOUGH_MEMORY:
+		printf("%s: not enough memory\n", caller);
+		break;
+	case ERROR_SEM_TIMEOUT:
+		printf("%s: timeout\n", caller);
+		break;
+	}
 }

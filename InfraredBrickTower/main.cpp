@@ -3,6 +3,7 @@
 #include "TowerController.h"
 #include "WinUsbTowerInterface.h"
 #include "VLLCommands.h"
+#include "Config.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -165,10 +166,18 @@ VOID TestTower(TowerController* controller)
 VOID BeepRCXAndMicroScout(TowerController* controller)
 {
 	/* MicroScout */
+
+	printf("Sending beep command to MicroScout...\n");
 	controller->SetMode(TowerMode::VLL);
 	VLL_Beep1Immediate(controller);
+	printf("Sent beep command to MicroScout!\n");
+
+	Sleep(1000);
+	printf("\nPausing for dramatic effect...\n\n");
+	Sleep(1500);
 
 	/* RCX */
+	printf("Sending beep command to RCX...\n");
 	controller->SetMode(TowerMode::IR);
 
 	UCHAR replyBuffer[10];
@@ -183,14 +192,22 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 	controller->WriteData(ping, pingLen, bytesWritten);
 	controller->ReadData(replyBuffer, replyLen, bytesRead);
 	replyByte = *(replyBuffer + 3) & 0xf7;
-	assert(replyByte == 0xE7);
+
+#ifdef DEBUG
+	if (replyByte != 0xE7)
+		__debugbreak();
+#endif
 
 	UCHAR stop[] = { 0x55, 0xff, 0x00, 0x50, 0xaf, 0x50, 0xaf };
 	ULONG stopLen = 7;
 	controller->WriteData(stop, stopLen, bytesWritten);
 	controller->ReadData(replyBuffer, replyLen, bytesRead);
 	replyByte = *(replyBuffer + 3) & 0xf7;
-	assert(replyByte == 0xA7);
+
+#ifdef DEBUG
+	if (replyByte != 0xA7)
+		__debugbreak();
+#endif
 
 	UCHAR beep[] = { 0x55, 0xff, 0x00, 0x51, 0xae, 0x05, 0xfa, 0x56, 0xa9 };
 	ULONG beepLen = 9;
@@ -198,7 +215,13 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 	controller->WriteData(beep, beepLen, bytesWritten);
 	controller->ReadData(replyBuffer, replyLen, bytesRead);
 	replyByte = *(replyBuffer + 3) & 0xf7;
-	assert(replyByte == 0xA6);
+
+#ifdef DEBUG
+	if (replyByte != 0xA6)
+		__debugbreak();
+#endif
+
+	printf("Sent beep command to RCX!\n\n");
 }
 
 // useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint

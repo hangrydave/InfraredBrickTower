@@ -45,6 +45,7 @@
     <ClCompile Include="WinUsbTowerInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="LegoHeaders\LegoVendReq.h" />
