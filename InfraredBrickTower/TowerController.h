@@ -3,8 +3,6 @@
 #ifndef TOWERCONTROLLER_H
 #define TOWERCONTROLLER_H
 
-#include <Windows.h>
-#include <winusb.h>
 #include "HostTowerCommInterface.h"
 
 /*

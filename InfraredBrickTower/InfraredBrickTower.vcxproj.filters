@@ -28,9 +28,6 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LegoHeaders\LegoVendReq.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TowerController.h">
       <Filter>Header Files</Filter>
     </ClInclude>

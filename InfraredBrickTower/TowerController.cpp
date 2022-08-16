@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "TowerController.h"
-#include "LegoHeaders/LegoVendReq.h"
-#include "Config.h"
 #include <string>
 
 #define MAX_WRITE_ATTEMPTS 3

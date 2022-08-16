@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "WinUsbTowerInterface.h"
-#include "Config.h"
 #include <stdio.h>
 
 WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle)
@@ -17,11 +17,11 @@ WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle
 		timeoutPointer
 	);
 
+	PrintErrorIfAny("WinUSB set read pipe policy error");
 #if DEBUG == 1
 	if (!policySetResult)
 		__debugbreak();
 #endif
-	PrintErrorIfAny("WinUSB set read pipe policy error");
 
 	policySetResult = WinUsb_SetPipePolicy(
 		*handle,
@@ -31,11 +31,11 @@ WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle
 		timeoutPointer
 	);
 
+	PrintErrorIfAny("WinUSB set read pipe policy error");
 #if DEBUG == 1
 	if (!policySetResult)
 		__debugbreak();
 #endif
-	PrintErrorIfAny("WinUSB set read pipe policy error");
 }
 
 BOOL WinUsbTowerInterface::ControlTransfer(
@@ -85,11 +85,11 @@ BOOL WinUsbTowerInterface::Write(
 		NULL
 	);
 
+	PrintErrorIfAny("WinUSB write error");
 #if DEBUG == 1
 	if (!success)
 		__debugbreak();
 #endif
-	PrintErrorIfAny("WinUSB write error");
 
 	return success;
 }
@@ -108,11 +108,11 @@ BOOL WinUsbTowerInterface::Read(
 		NULL
 	);
 
+	PrintErrorIfAny("WinUSB read error");
 #if DEBUG == 1
 	if (!success)
 		__debugbreak();
 #endif
-	PrintErrorIfAny("WinUSB read error");
 
 	return success;	
 }

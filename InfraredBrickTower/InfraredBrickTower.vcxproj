@@ -48,7 +48,6 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="LegoHeaders\LegoVendReq.h" />
     <ClInclude Include="HostTowerCommInterface.h" />
     <ClInclude Include="TowerController.h" />
     <ClInclude Include="VLLCommands.h" />

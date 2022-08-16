@@ -3,7 +3,6 @@
 #include "TowerController.h"
 #include "WinUsbTowerInterface.h"
 #include "VLLCommands.h"
-#include "Config.h"
 
 #include <assert.h>
 #include <stdio.h>
