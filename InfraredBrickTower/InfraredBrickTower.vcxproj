@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device.cpp" />
+    <ClCompile Include="InfraredBrickTower.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TowerController.cpp" />
     <ClCompile Include="VLLCommands.cpp" />
@@ -47,6 +48,7 @@
   <ItemGroup>
     <ClInclude Include="Config.h" />
     <ClInclude Include="device.h" />
+    <ClInclude Include="InfraredBrickTower.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="HostTowerCommInterface.h" />
     <ClInclude Include="TowerController.h" />

@@ -43,6 +43,9 @@
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InfraredBrickTower.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device.cpp">
@@ -58,6 +61,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VLLCommands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InfraredBrickTower.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
