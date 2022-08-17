@@ -8,25 +8,6 @@
 // This number isn't pulled from documentation or anything, I've just found I need a small pause between things for it to work, and this is reasonably small
 #define WRITE_PAUSE_TIME 150
 
-//TowerController(const HostTowerCommInterface* usbInterface)
-//{
-//	usbInterface = usbInterface;
-//
-//	readAttemptCount = 0;
-//	writeAttemptCount = 0;
-//
-//	lastRequestError = TowerRequestError::SUCCESS;
-//	lastReplyLength = 0;
-//
-//	replyBufferSize = 1000;
-//	replyBuffer = new BYTE[replyBufferSize];
-//}
-//
-//~TowerController()
-//{
-//	delete replyBuffer;
-//}
-
 namespace IBT
 {
 	VOID ReadData(

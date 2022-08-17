@@ -10,8 +10,6 @@
 
 using namespace IBT;
 
-//BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeid);
-
 VOID TestTower(ControllerData* data);
 
 VOID BeepRCXAndMicroScout(ControllerData* controllerData);
@@ -32,6 +30,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	ControllerData* controllerData = new ControllerData(usbTowerInterface);
 
+	TestTower(controllerData);
 	BeepRCXAndMicroScout(controllerData);
 
 	delete usbTowerInterface;
@@ -125,46 +124,3 @@ VOID BeepRCXAndMicroScout(ControllerData* controllerData)
 
 	printf("Sent beep command to RCX!\n\n");
 }
-
-// useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint
-
-//BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeID)
-//{
-//	if (hDeviceHandle == INVALID_HANDLE_VALUE)
-//	{
-//		return FALSE;
-//	}
-//
-//	BOOL bResult = TRUE;
-//
-//	USB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
-//	ZeroMemory(&InterfaceDescriptor, sizeof(USB_INTERFACE_DESCRIPTOR));
-//
-//	WINUSB_PIPE_INFORMATION  Pipe;
-//	ZeroMemory(&Pipe, sizeof(WINUSB_PIPE_INFORMATION));
-//
-//	bResult = WinUsb_QueryInterfaceSettings(hDeviceHandle, 0, &InterfaceDescriptor);
-//
-//	if (bResult)
-//	{
-//		for (int index = 0; index < InterfaceDescriptor.bNumEndpoints; index++)
-//		{
-//			bResult = WinUsb_QueryPipe(hDeviceHandle, 0, (UCHAR)index, &Pipe);
-//
-//			if (bResult)
-//			{
-//				if (Pipe.PipeType == UsbdPipeTypeInterrupt)
-//				{
-//					printf("Endpoint index: %d Pipe type: Interrupt Pipe ID: %d.\n", index, Pipe.PipeId);
-//					*pipeID = Pipe.PipeId;
-//				}
-//			}
-//			else
-//			{
-//				continue;
-//			}
-//		}
-//	}
-//	return bResult;
-//}
-
