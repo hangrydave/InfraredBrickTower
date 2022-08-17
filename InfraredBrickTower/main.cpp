@@ -8,167 +8,68 @@
 #include <stdio.h>
 #include <iostream>
 
+using namespace IBT;
+
 //BOOL QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PUCHAR pipeid);
 
-VOID TestTower(TowerController* controller);
-BOOL SendPacket(PUCHAR buffer, ULONG bufferLength, PUCHAR replyBuffer, ULONG expectedReplyLength, const DEVICE_DATA& deviceData);
+VOID TestTower(ControllerData* data);
 
-VOID BeepRCXAndMicroScout(TowerController* controller);
+VOID BeepRCXAndMicroScout(ControllerData* controllerData);
 
-LONG __cdecl
-_tmain(
-	LONG     Argc,
-	LPTSTR* Argv
-)
-/*++
-
-Routine description:
-
-	Sample program that communicates with a USB device using WinUSB
-
---*/
+LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 {
-	DEVICE_DATA           deviceData;
-	HRESULT               hr;
-	USB_DEVICE_DESCRIPTOR deviceDesc;
-	BOOL                  bResult;
-	BOOL                  noDevice;
-	ULONG                 lengthReceived;
-
 	UNREFERENCED_PARAMETER(Argc);
 	UNREFERENCED_PARAMETER(Argv);
 
-	//
-	// Find a device connected to the system that has WinUSB installed using our
-	// INF
-	//
-	hr = OpenDevice(&deviceData, &noDevice);
-
-	if (FAILED(hr)) {
-
-		if (noDevice) {
-
-			wprintf(L"Device not connected or driver not installed\n");
-
-		}
-		else {
-
-			wprintf(L"Failed looking for device, HRESULT 0x%x\n", hr);
-		}
-
+	WinUsbTowerInterface* usbTowerInterface;
+	BOOL gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+	if (!gotInterface)
+	{
+		printf("Error getting WinUSB interface!\n");
+		system("pause");
 		return 0;
 	}
 
-	//
-	// Get device descriptor
-	//
-	bResult = WinUsb_GetDescriptor(deviceData.WinusbHandle,
-		USB_DEVICE_DESCRIPTOR_TYPE,
-		0,
-		0,
-		(PBYTE)&deviceDesc,
-		sizeof(deviceDesc),
-		&lengthReceived);
+	ControllerData* controllerData = new ControllerData(usbTowerInterface);
 
-	if (FALSE == bResult || lengthReceived != sizeof(deviceDesc)) {
+	BeepRCXAndMicroScout(controllerData);
 
-		wprintf(L"Error among LastError %d or lengthReceived %d\n",
-			FALSE == bResult ? GetLastError() : 0,
-			lengthReceived);
-		CloseDevice(&deviceData);
-		return 0;
-	}
-
-	USB_CONFIGURATION_DESCRIPTOR configDescriptor;
-	ULONG cdLenReceived;
-	WinUsb_GetDescriptor(
-		deviceData.WinusbHandle,
-		USB_CONFIGURATION_DESCRIPTOR_TYPE,
-		0,
-		0,
-		(PBYTE)&configDescriptor,
-		sizeof(configDescriptor),
-		&cdLenReceived
-	);
-
-	WinUsbTowerInterface* usbTowerInterface = new WinUsbTowerInterface(&deviceData.WinusbHandle);
-	TowerController* controller = new TowerController(usbTowerInterface);
-
-	BeepRCXAndMicroScout(controller);
-
-	delete controller;
 	delete usbTowerInterface;
-
-	CloseDevice(&deviceData);
+	delete controllerData;
 
 	system("pause");
 	return 0;
 }
 
-BOOL SendPacket(
-	PUCHAR buffer,
-	ULONG bufferLength,
-	PUCHAR replyBuffer,
-	ULONG expectedReplyLength,
-	const DEVICE_DATA& deviceData)
+VOID TestTower(ControllerData* data)
 {
-	BOOL write = FALSE;
-	BOOL read = FALSE;
-	while (!write || !read)
-	{
-		ULONG dataTransferred;
-		write = WinUsb_WritePipe(
-			deviceData.WinusbHandle,
-			2,
-			buffer,
-			bufferLength,
-			&dataTransferred,
-			NULL
-		);
-
-		ULONG dataReceived;
-		read = WinUsb_ReadPipe(
-			deviceData.WinusbHandle,
-			129,
-			replyBuffer,
-			expectedReplyLength,
-			&dataReceived,
-			NULL
-		);
-	}
-
-	return write;
-}
-
-VOID TestTower(TowerController* controller)
-{
-	controller->SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED);
-	controller->SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT);
-	controller->SetLEDColor(TowerLED::VLL, TowerLEDColor::OFF);
+	SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, data);
+	SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT, data);
+	SetLEDColor(TowerLED::VLL, TowerLEDColor::OFF, data);
 
 	INT len;
 	CHAR* buffer = 0;
 
-	controller->GetCopyright(buffer, len);
+	GetCopyright(buffer, len, data);
 	for (int i = 0; i < len; i++)
 	{
 		printf("%c", buffer[i]);
 	}
 
-	controller->GetCredits(buffer, len);
+	GetCredits(buffer, len, data);
 	for (int i = 0; i < len; i++)
 	{
 		printf("%c", buffer[i]);
 	}
 }
 
-VOID BeepRCXAndMicroScout(TowerController* controller)
+VOID BeepRCXAndMicroScout(ControllerData* controllerData)
 {
 	/* MicroScout */
 
 	printf("Sending beep command to MicroScout...\n");
-	controller->SetMode(TowerMode::VLL);
-	VLL_Beep1Immediate(controller);
+	IBT::SetMode(TowerMode::VLL, controllerData);
+	VLL_Beep1Immediate(controllerData);
 	printf("Sent beep command to MicroScout!\n");
 
 #if DRAMATIC_PAUSE == 1
@@ -179,7 +80,7 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 
 	/* RCX */
 	printf("Sending beep command to RCX...\n");
-	controller->SetMode(TowerMode::IR);
+	SetMode(TowerMode::IR, controllerData);
 
 	UCHAR replyBuffer[10];
 	ULONG replyLen = 10;
@@ -190,8 +91,8 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 
 	UCHAR ping[] = { 0x55, 0xff, 0x00, 0x10, 0xef, 0x10, 0xef };
 	ULONG pingLen = 7;
-	controller->WriteData(ping, pingLen, bytesWritten);
-	controller->ReadData(replyBuffer, replyLen, bytesRead);
+	WriteData(ping, pingLen, bytesWritten, controllerData);
+	ReadData(replyBuffer, replyLen, bytesRead, controllerData);
 	replyByte = *(replyBuffer + 3) & 0xf7;
 
 #if DEBUG == 1
@@ -201,8 +102,8 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 
 	UCHAR stop[] = { 0x55, 0xff, 0x00, 0x50, 0xaf, 0x50, 0xaf };
 	ULONG stopLen = 7;
-	controller->WriteData(stop, stopLen, bytesWritten);
-	controller->ReadData(replyBuffer, replyLen, bytesRead);
+	WriteData(stop, stopLen, bytesWritten, controllerData);
+	ReadData(replyBuffer, replyLen, bytesRead, controllerData);
 	replyByte = *(replyBuffer + 3) & 0xf7;
 
 #if DEBUG == 1
@@ -213,8 +114,8 @@ VOID BeepRCXAndMicroScout(TowerController* controller)
 	UCHAR beep[] = { 0x55, 0xff, 0x00, 0x51, 0xae, 0x05, 0xfa, 0x56, 0xa9 };
 	ULONG beepLen = 9;
 	// expects 0xA6
-	controller->WriteData(beep, beepLen, bytesWritten);
-	controller->ReadData(replyBuffer, replyLen, bytesRead);
+	WriteData(beep, beepLen, bytesWritten, controllerData);
+	ReadData(replyBuffer, replyLen, bytesRead, controllerData);
 	replyByte = *(replyBuffer + 3) & 0xf7;
 
 #if DEBUG == 1

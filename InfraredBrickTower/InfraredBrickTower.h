@@ -3,4 +3,4 @@
 #include "WinUsbTowerInterface.h"
 #include "TowerController.h"
 
-VOID OpenTowerController(TowerController*& controller);
+//VOID OpenTowerController(TowerController*& controller);

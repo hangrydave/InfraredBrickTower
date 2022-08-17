@@ -8,318 +8,329 @@
 // This number isn't pulled from documentation or anything, I've just found I need a small pause between things for it to work, and this is reasonably small
 #define WRITE_PAUSE_TIME 150
 
-TowerController::TowerController(const HostTowerCommInterface* usbInterface)
+//TowerController(const HostTowerCommInterface* usbInterface)
+//{
+//	usbInterface = usbInterface;
+//
+//	readAttemptCount = 0;
+//	writeAttemptCount = 0;
+//
+//	lastRequestError = TowerRequestError::SUCCESS;
+//	lastReplyLength = 0;
+//
+//	replyBufferSize = 1000;
+//	replyBuffer = new BYTE[replyBufferSize];
+//}
+//
+//~TowerController()
+//{
+//	delete replyBuffer;
+//}
+
+namespace IBT
 {
-	this->usbInterface = usbInterface;
-
-	this->readAttemptCount = 0;
-	this->writeAttemptCount = 0;
-
-	this->lastRequestError = TowerRequestError::SUCCESS;
-	this->lastReplyLength = 0;
-
-	this->replyBufferSize = 1000;
-	this->replyBuffer = new BYTE[this->replyBufferSize];
-}
-
-TowerController::~TowerController()
-{
-	delete this->replyBuffer;
-}
-
-VOID TowerController::ReadData(
-	PUCHAR buffer,
-	ULONG bufferLength,
-	ULONG& lengthRead)
-{
-	while (this->GetTransmitterState() == TowerTransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
-
-	this->readAttemptCount = 0;
-	BOOL success = FALSE;
-	while (!success && this->readAttemptCount < MAX_READ_ATTEMPTS)
+	VOID ReadData(
+		PUCHAR buffer,
+		ULONG bufferLength,
+		ULONG& lengthRead,
+		ControllerData* data)
 	{
-		success = this->usbInterface->Read(buffer, bufferLength, lengthRead);
+		while (GetTransmitterState(data) == TowerTransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
 
-		if (lengthRead == 1)
+		INT readAttemptCount = 0;
+		BOOL success = FALSE;
+		while (!success && readAttemptCount < MAX_READ_ATTEMPTS)
 		{
-			// this happens after the thing is plugged in. there are better ways to handle this, i'm sure, but... ez pz
-			success = this->usbInterface->Read(buffer + 1, bufferLength, lengthRead);
-			lengthRead++;
+			success = data->commInterface->Read(buffer, bufferLength, lengthRead);
+
+			if (lengthRead == 1)
+			{
+				// this happens after the thing is plugged in. there are better ways to handle this, i'm sure, but... ez pz
+				success = data->commInterface->Read(buffer + 1, bufferLength, lengthRead);
+				lengthRead++;
+			}
+
+			readAttemptCount++;
+		}
+	}
+
+	VOID WriteData(
+		PUCHAR buffer,
+		ULONG bufferLength,
+		ULONG& lengthWritten,
+		ControllerData* data)
+	{
+		while (GetTransmitterState(data) == TowerTransmitterState::BUSY) { printf("Tower busy, can't write...\n"); }
+
+		INT writeAttemptCount = 0;
+		BOOL success = FALSE;
+		while (!success && writeAttemptCount < MAX_WRITE_ATTEMPTS)
+		{
+			success = data->commInterface->Write(buffer, bufferLength, lengthWritten);
+			Sleep(WRITE_PAUSE_TIME); // give time to finish
+			writeAttemptCount++;
 		}
 
-		this->readAttemptCount++;
-	}
-}
-
-VOID TowerController::WriteData(
-	PUCHAR buffer,
-	ULONG bufferLength,
-	ULONG& lengthWritten)
-{
-	while (this->GetTransmitterState() == TowerTransmitterState::BUSY) { printf("Tower busy, can't write...\n"); }
-
-	this->writeAttemptCount = 0;
-	BOOL success = FALSE;
-	while (!success && this->writeAttemptCount < MAX_WRITE_ATTEMPTS)
-	{
-		success = this->usbInterface->Write(buffer, bufferLength, lengthWritten);
-		Sleep(WRITE_PAUSE_TIME); // give time to finish
-		this->writeAttemptCount++;
 	}
 
-}
-
-TowerRequestError TowerController::GetLastRequestError()
-{
-	return lastRequestError;
-}
-
-VOID TowerController::Flush(TowerBuffer buffer)
-{
-	BYTE loByte = (BYTE)buffer;
-	BYTE hiByte = 0;
-	MakeRequest(
-		TowerRequestType::FLUSH,
-		loByte,
-		hiByte);
-}
-
-VOID TowerController::Reset()
-{
-	MakeRequest(TowerRequestType::RESET);
-}
-
-TowerPower TowerController::GetPower()
-{
-	BYTE loByte = 0;
-	BYTE hiByte = 0;
-	MakeRequest(
-		TowerRequestType::GET_POWER,
-		loByte,
-		hiByte);
-
-	return (TowerPower) *(this->replyBuffer + 4);
-}
-
-TowerStatData TowerController::GetStatistics()
-{
-	MakeRequest(TowerRequestType::GET_STATISTICS);
-
-	return *reinterpret_cast<TowerStatData*>(this->replyBuffer + 4);
-}
-
-VOID TowerController::ResetStatistics()
-{
-	MakeRequest(TowerRequestType::RESET_STATISTICS);
-}
-
-TowerCommSpeed TowerController::GetTransmissionSpeed()
-{
-	MakeRequest(TowerRequestType::GET_TRANSMISSION_SPEED);
-
-	return (TowerCommSpeed) *(this->replyBuffer + 4);
-}
-
-VOID TowerController::SetTransmissionSpeed(TowerCommSpeed speed)
-{
-	MakeRequest(
-		TowerRequestType::SET_TRANSMISSION_SPEED,
-		(BYTE)speed,
-		0);
-}
-
-TowerCommSpeed TowerController::GetReceivingSpeed()
-{
-	MakeRequest(TowerRequestType::GET_RECEIVING_SPEED);
-
-	return (TowerCommSpeed) *(this->replyBuffer + 4);
-}
-
-VOID TowerController::SetReceivingSpeed(TowerCommSpeed speed)
-{
-	MakeRequest(
-		TowerRequestType::SET_RECEIVING_SPEED,
-		(BYTE)speed,
-		0);
-}
-
-TowerTransmitterState TowerController::GetTransmitterState()
-{
-	MakeRequest(TowerRequestType::GET_TRANSMITTER_STATE);
-
-	return (TowerTransmitterState) *(this->replyBuffer + 4);
-}
-
-TowerLEDColor TowerController::GetLEDColor(TowerLED led)
-{
-	BYTE loByte = (BYTE)led;
-	BYTE hiByte = 0;
-	MakeRequest(
-		TowerRequestType::GET_LED,
-		loByte,
-		hiByte);
-
-	return (TowerLEDColor) *(this->replyBuffer + 5);
-}
-
-VOID TowerController::SetLEDColor(TowerLED led, TowerLEDColor color)
-{
-	BYTE loByte = (BYTE)led;
-	BYTE hiByte = (BYTE)color;
-	MakeRequest(
-		TowerRequestType::SET_LED,
-		loByte,
-		hiByte);
-}
-
-TowerCapabilitiesData TowerController::GetCapabilities(TowerCapabilityLink link)
-{
-	MakeRequest(TowerRequestType::GET_CAPABILITIES, (WORD)link);
-
-	return *reinterpret_cast<TowerCapabilitiesData*>(this->replyBuffer + 4);
-}
-
-TowerVersionData TowerController::GetVersion()
-{
-	MakeRequest(TowerRequestType::GET_VERSION);
-
-	return *reinterpret_cast<TowerVersionData*>(this->replyBuffer + 4);
-}
-
-VOID TowerController::GetCopyright(CHAR*& buffer, INT& length)
-{
-	MakeRequest(TowerRequestType::GET_COPYRIGHT);
-
-	ReadStringFromReplyBuffer(buffer, length);
-}
-
-VOID TowerController::GetCredits(CHAR*& buffer, INT& length)
-{
-	MakeRequest(TowerRequestType::GET_CREDITS);
-
-	ReadStringFromReplyBuffer(buffer, length);
-}
-
-VOID TowerController::ReadStringFromReplyBuffer(CHAR*& buffer, INT& length)
-{
-	// the vendor requests that reply with a string put the length at the front of the buffer
-	UINT stringLength = *((WORD*)(this->replyBuffer));
-	stringLength--; // the last character is garbage
-
-	// the string is formatted "L I K E   T H I S" so we need to fix that
-
-	length = 0;
-	buffer = new CHAR[stringLength / 2];
-
-	// start at 4; skip the non-string stuff
-	for (UINT i = 4; i < stringLength; i++)
+	VOID Flush(TowerBuffer buffer, ControllerData* data)
 	{
-		char c = this->replyBuffer[i];
+		BYTE loByte = (BYTE)buffer;
+		BYTE hiByte = 0;
+		MakeRequest(
+			TowerRequestType::FLUSH,
+			loByte,
+			hiByte,
+			data);
+	}
 
-		if (c == '\0' && i < this->lastReplyLength - 1)
+	VOID Reset(ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::RESET, data);
+	}
+
+	TowerPower GetPower(ControllerData* data)
+	{
+		BYTE loByte = 0;
+		BYTE hiByte = 0;
+		MakeRequest(
+			TowerRequestType::GET_POWER,
+			loByte,
+			hiByte,
+			data);
+
+		return (TowerPower) *(data->replyBuffer + 4);
+	}
+
+	TowerStatData GetStatistics(ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_STATISTICS, data);
+
+		return *reinterpret_cast<TowerStatData*>(data->replyBuffer + 4);
+	}
+
+	VOID ResetStatistics(ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::RESET_STATISTICS, data);
+	}
+
+	TowerCommSpeed GetTransmissionSpeed(ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_TRANSMISSION_SPEED, data);
+
+		return (TowerCommSpeed) *(data->replyBuffer + 4);
+	}
+
+	VOID SetTransmissionSpeed(TowerCommSpeed speed, ControllerData* data)
+	{
+		MakeRequest(
+			TowerRequestType::SET_TRANSMISSION_SPEED,
+			(BYTE)speed,
+			0,
+			data);
+	}
+
+	TowerCommSpeed GetReceivingSpeed(ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_RECEIVING_SPEED, data);
+
+		return (TowerCommSpeed) *(data->replyBuffer + 4);
+	}
+
+	VOID SetReceivingSpeed(TowerCommSpeed speed, ControllerData* data)
+	{
+		MakeRequest(
+			TowerRequestType::SET_RECEIVING_SPEED,
+			(BYTE)speed,
+			0,
+			data);
+	}
+
+	TowerTransmitterState GetTransmitterState(ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_TRANSMITTER_STATE, data);
+
+		return (TowerTransmitterState) *(data->replyBuffer + 4);
+	}
+
+	TowerLEDColor GetLEDColor(TowerLED led, ControllerData* data)
+	{
+		BYTE loByte = (BYTE)led;
+		BYTE hiByte = 0;
+		MakeRequest(
+			TowerRequestType::GET_LED,
+			loByte,
+			hiByte,
+			data);
+
+		return (TowerLEDColor) *(data->replyBuffer + 5);
+	}
+
+	VOID SetLEDColor(TowerLED led, TowerLEDColor color, ControllerData* data)
+	{
+		BYTE loByte = (BYTE)led;
+		BYTE hiByte = (BYTE)color;
+		MakeRequest(
+			TowerRequestType::SET_LED,
+			loByte,
+			hiByte,
+			data);
+	}
+
+	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_CAPABILITIES, (WORD)link, data);
+
+		return *reinterpret_cast<TowerCapabilitiesData*>(data->replyBuffer + 4);
+	}
+
+	TowerVersionData GetVersion(ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_VERSION, data);
+
+		return *reinterpret_cast<TowerVersionData*>(data->replyBuffer + 4);
+	}
+
+	VOID GetCopyright(CHAR*& buffer, INT& length, ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_COPYRIGHT, data);
+
+		ReadStringFromReplyBuffer(buffer, length, data);
+	}
+
+	VOID GetCredits(CHAR*& buffer, INT& length, ControllerData* data)
+	{
+		MakeRequest(TowerRequestType::GET_CREDITS, data);
+
+		ReadStringFromReplyBuffer(buffer, length, data);
+	}
+
+	VOID ReadStringFromReplyBuffer(CHAR*& buffer, INT& length, ControllerData* data)
+	{
+		// the vendor requests that reply with a string put the length at the front of the buffer
+		UINT stringLength = *((WORD*)(data->replyBuffer));
+		stringLength--; // the last character is garbage
+
+		// the string is formatted "L I K E   T H I S" so we need to fix that
+
+		length = 0;
+		buffer = new CHAR[stringLength / 2];
+
+		// start at 4; skip the non-string stuff
+		for (UINT i = 4; i < stringLength; i++)
 		{
-			char prev = this->replyBuffer[i - 1];
-			char next = this->replyBuffer[i + 1];
+			char c = data->replyBuffer[i];
 
-			if (prev == '\0' && next == '\0')
+			if (c == '\0' && i < data->lastReplyLength - 1)
+			{
+				char prev = data->replyBuffer[i - 1];
+				char next = data->replyBuffer[i + 1];
+
+				if (prev == '\0' && next == '\0')
+				{
+					buffer[length++] = c;
+				}
+			}
+			else
 			{
 				buffer[length++] = c;
 			}
 		}
+	}
+
+	VOID SetParameter(
+		TowerParamType parameter,
+		BYTE value,
+		ControllerData* data)
+	{
+		MakeRequest(
+			TowerRequestType::SET_PARAMETER,
+			(BYTE)parameter,
+			value,
+			data);
+	}
+
+	BYTE GetParameter(TowerParamType parameter, ControllerData* data)
+	{
+		MakeRequest(
+			TowerRequestType::GET_PARAMETER,
+			(BYTE)parameter,
+			0,
+			data);
+
+		return *(data->replyBuffer + 3);
+	}
+
+	VOID MakeRequest(TowerRequestType request, ControllerData* data)
+	{
+		MakeRequest(request, 0, data);
+	}
+
+	VOID MakeRequest(
+		TowerRequestType request,
+		BYTE loByte,
+		BYTE hiByte,
+		ControllerData* data)
+	{
+		WORD value = ((hiByte << 8) | loByte);
+		MakeRequest(request, value, data);
+	}
+
+	VOID MakeRequest(
+		TowerRequestType request,
+		WORD value,
+		ControllerData* data)
+	{
+		// not used rn, will implement when used
+		WORD index = 0;
+
+		BOOL success = data->commInterface->ControlTransfer(
+			(BYTE)request,
+			value,
+			index,
+			REPLY_BUFFER_LENGTH,
+			data->replyBuffer,
+			data->lastReplyLength);
+
+		if (!success)
+		{
+			data->lastRequestError = TowerRequestError::BAD_PARAMETER;
+		}
 		else
 		{
-			buffer[length++] = c;
+			BYTE errorByte = *(data->replyBuffer + 2);
+			data->lastRequestError = (TowerRequestError)errorByte;
 		}
-	}
-}
 
-VOID TowerController::SetParameter(
-	TowerParamType parameter,
-	BYTE value)
-{
-	MakeRequest(
-		TowerRequestType::SET_PARAMETER,
-		(BYTE)parameter,
-		value);
-}
-
-BYTE TowerController::GetParameter(TowerParamType parameter)
-{
-	MakeRequest(
-		TowerRequestType::GET_PARAMETER,
-		(BYTE)parameter,
-		0);
-
-	return *(this->replyBuffer + 3);
-}
-
-VOID TowerController::MakeRequest(TowerRequestType request)
-{
-	MakeRequest(request, 0);
-}
-
-VOID TowerController::MakeRequest(
-	TowerRequestType request,
-	BYTE loByte,
-	BYTE hiByte)
-{
-	WORD value = ((hiByte << 8) | loByte);
-	MakeRequest(request, value);
-}
-
-VOID TowerController::MakeRequest(
-	TowerRequestType request,
-	WORD value)
-{
-	// not used rn, will implement when used
-	WORD index = 0;
-
-	BOOL success = usbInterface->ControlTransfer(
-		(BYTE)request,
-		value,
-		index,
-		this->replyBufferSize,
-		this->replyBuffer,
-		this->lastReplyLength);
-
-	if (!success)
-	{
-		this->lastRequestError = TowerRequestError::BAD_PARAMETER;
-	}
-	else
-	{
-		BYTE errorByte = *(this->replyBuffer + 2);
-		this->lastRequestError = (TowerRequestError)errorByte;
-	}
-
-	if (this->lastRequestError != TowerRequestError::SUCCESS)
-	{
+		if (data->lastRequestError != TowerRequestError::SUCCESS)
+		{
 #if DEBUG == 1
-		__debugbreak();
+			__debugbreak();
 #endif
 
-		printf("Tower request error: ");
-		switch (this->lastRequestError)
-		{
-		case TowerRequestError::BAD_PARAMETER:
-			printf("bad param");
-			break;
-		case TowerRequestError::BUSY:
-			printf("busy");
-			break;
-		case TowerRequestError::NOT_ENOUGH_POWER:
-			printf("not enough power");
-			break;
-		case TowerRequestError::WRONG_MODE:
-			printf("wrong mode");
-			break;
-		case TowerRequestError::INTERNAL_ERROR:
-			printf("internal error");
-			break;
-		case TowerRequestError::BAD_REQUEST:
-			printf("bad request");
-			break;
+			printf("Tower request error: ");
+			switch (data->lastRequestError)
+			{
+			case TowerRequestError::BAD_PARAMETER:
+				printf("bad param");
+				break;
+			case TowerRequestError::BUSY:
+				printf("busy");
+				break;
+			case TowerRequestError::NOT_ENOUGH_POWER:
+				printf("not enough power");
+				break;
+			case TowerRequestError::WRONG_MODE:
+				printf("wrong mode");
+				break;
+			case TowerRequestError::INTERNAL_ERROR:
+				printf("internal error");
+				break;
+			case TowerRequestError::BAD_REQUEST:
+				printf("bad request");
+				break;
+			}
+			printf("\n");
 		}
-		printf("\n");
 	}
 }

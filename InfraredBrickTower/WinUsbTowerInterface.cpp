@@ -1,41 +1,134 @@
 #include "pch.h"
+
 #include "WinUsbTowerInterface.h"
 #include <stdio.h>
 
-WinUsbTowerInterface::WinUsbTowerInterface(const WINUSB_INTERFACE_HANDLE* handle)
-{
-	this->handle = handle;
+#define READ_TIMEOUT 1000
+#define WRITE_TIMEOUT 1000
 
-	ULONG timeout = 1000;
+BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
+{
+	DEVICE_DATA           deviceData;
+	HRESULT               hr;
+	USB_DEVICE_DESCRIPTOR deviceDesc;
+	BOOL                  bResult;
+	BOOL                  noDevice;
+	ULONG                 lengthReceived;
+
+	//
+	// Find a device connected to the system that has WinUSB installed using our
+	// INF
+	//
+	hr = OpenDevice(&deviceData, &noDevice);
+
+	if (FAILED(hr))
+	{
+		if (noDevice)
+		{
+			printf("Device not connected or driver not installed\n");
+		}
+		else
+		{
+			printf("Failed looking for device, HRESULT 0x%x\n", hr);
+		}
+
+		return FALSE;
+	}
+
+	//
+	// Get device descriptor
+	//
+	bResult = WinUsb_GetDescriptor(deviceData.WinusbHandle,
+		USB_DEVICE_DESCRIPTOR_TYPE,
+		0,
+		0,
+		(PBYTE)&deviceDesc,
+		sizeof(deviceDesc),
+		&lengthReceived);
+
+	if (FALSE == bResult || lengthReceived != sizeof(deviceDesc))
+	{
+		printf("Error among LastError %d or lengthReceived %d\n",
+			FALSE == bResult ? GetLastError() : 0,
+			lengthReceived);
+		CloseDevice(&deviceData);
+		return FALSE;
+	}
+
+	USB_CONFIGURATION_DESCRIPTOR configDescriptor;
+	ULONG cdLenReceived;
+	WinUsb_GetDescriptor(
+		deviceData.WinusbHandle,
+		USB_CONFIGURATION_DESCRIPTOR_TYPE,
+		0,
+		0,
+		(PBYTE)&configDescriptor,
+		sizeof(configDescriptor),
+		&cdLenReceived
+	);
+
+	ULONG timeout = WRITE_TIMEOUT;
 	PULONG timeoutPointer = &timeout;
 
 	BOOL policySetResult = WinUsb_SetPipePolicy(
-		*handle,
+		deviceData.WinusbHandle,
 		TOWER_WRITE_PIPE_ID,
 		PIPE_TRANSFER_TIMEOUT,
 		8,
 		timeoutPointer
 	);
 
-	PrintErrorIfAny("WinUSB set read pipe policy error");
-#if DEBUG == 1
 	if (!policySetResult)
+	{
+		printf("WinUSB set read pipe policy error");
+#if DEBUG == 1
 		__debugbreak();
 #endif
+		return FALSE;
+	}
 
+	timeout = READ_TIMEOUT;
+	timeoutPointer = &timeout;
 	policySetResult = WinUsb_SetPipePolicy(
-		*handle,
+		deviceData.WinusbHandle,
 		TOWER_READ_PIPE_ID,
 		PIPE_TRANSFER_TIMEOUT,
 		8,
 		timeoutPointer
 	);
 
-	PrintErrorIfAny("WinUSB set read pipe policy error");
-#if DEBUG == 1
 	if (!policySetResult)
+	{
+		printf("WinUSB set read pipe policy error");
+#if DEBUG == 1
 		__debugbreak();
 #endif
+		return FALSE;
+	}
+
+	towerInterface = new WinUsbTowerInterface(
+		deviceData.HandlesOpen,
+		deviceData.WinusbHandle,
+		deviceData.DeviceHandle,
+		deviceData.DevicePath);
+	return TRUE;
+}
+
+WinUsbTowerInterface::WinUsbTowerInterface(
+	BOOL handlesOpen,
+	WINUSB_INTERFACE_HANDLE winUsbHandle,
+	HANDLE deviceHandle,
+	PTCHAR devicePath)
+{
+	this->handlesOpen = handlesOpen;
+	this->winUsbHandle = winUsbHandle;
+	this->deviceHandle = deviceHandle;
+	this->devicePath = devicePath;
+}
+
+WinUsbTowerInterface::~WinUsbTowerInterface()
+{
+	delete this->devicePath;
 }
 
 BOOL WinUsbTowerInterface::ControlTransfer(
@@ -54,7 +147,7 @@ BOOL WinUsbTowerInterface::ControlTransfer(
 	setupPacket.Length = bufferLength;
 
 	BOOL success = WinUsb_ControlTransfer(
-		*(this->handle),
+		this->winUsbHandle,
 		setupPacket,
 		buffer,
 		bufferLength,
@@ -77,7 +170,7 @@ BOOL WinUsbTowerInterface::Write(
 	ULONG& lengthWritten) const
 {
 	BOOL success = WinUsb_WritePipe(
-		*(this->handle),
+		this->winUsbHandle,
 		TOWER_WRITE_PIPE_ID,
 		buffer,
 		bufferLength,
@@ -100,7 +193,7 @@ BOOL WinUsbTowerInterface::Read(
 	ULONG& lengthRead) const
 {
 	BOOL success = WinUsb_ReadPipe(
-		*(this->handle),
+		this->winUsbHandle,
 		TOWER_READ_PIPE_ID,
 		buffer,
 		bufferLength,
