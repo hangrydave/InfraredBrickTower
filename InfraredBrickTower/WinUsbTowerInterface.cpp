@@ -130,7 +130,6 @@ WinUsbTowerInterface::WinUsbTowerInterface(
 
 WinUsbTowerInterface::~WinUsbTowerInterface()
 {
-	delete this->devicePath;
 }
 
 BOOL WinUsbTowerInterface::ControlTransfer(
