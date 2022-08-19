@@ -10,8 +10,10 @@
 
 using namespace IBT;
 
-VOID TestTower(ControllerData* data);
+BOOL StringsAreEqual(char* strOne, char* strTwo);
+VOID MicroScoutCLI(ControllerData* controllerData);
 
+VOID TestTower(ControllerData* data);
 VOID BeepRCXAndMicroScout(ControllerData* controllerData);
 
 LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
@@ -30,8 +32,10 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	ControllerData* controllerData = new ControllerData(usbTowerInterface);
 
-	TestTower(controllerData);
-	BeepRCXAndMicroScout(controllerData);
+	/*TestTower(controllerData);
+	BeepRCXAndMicroScout(controllerData);*/
+
+	MicroScoutCLI(controllerData);
 
 	delete usbTowerInterface;
 	delete controllerData;
@@ -40,12 +44,228 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	return 0;
 }
 
-VOID TestTower(ControllerData* data)
+BOOL StringsAreEqual(char* strOne, char* strTwo)
+{
+	INT strOneLen = strlen(strOne);
+	INT strTwoLen = strlen(strTwo);
+
+	INT len = strOneLen > strTwoLen ? strOneLen : strTwoLen;
+
+	BOOL hasPassedWhitespaceOne = FALSE;
+	BOOL hasPassedWhitespaceTwo = FALSE;
+
+	INT strTwoIndex = 0;
+	for (INT strOneIndex = 0; strOneIndex < len; strOneIndex++, strTwoIndex++)
+	{
+		char a = ' ';
+		if (strOneIndex < strOneLen)
+		{
+			a = strOne[strOneIndex];
+		}
+
+		BOOL aIsWhitespace = a == ' ' || a == '\t';
+		if (!aIsWhitespace)
+		{
+			hasPassedWhitespaceOne = TRUE;
+		}
+
+		char b = ' ';
+		if (strTwoIndex < strTwoLen)
+		{
+			b = strTwo[strTwoIndex];
+		}
+
+		BOOL bIsWhitespace = b == ' ' || b == '\t';
+		if (!bIsWhitespace)
+		{
+			hasPassedWhitespaceTwo = TRUE;
+		}
+
+		if (!hasPassedWhitespaceOne)
+		{
+			strTwoIndex--;
+			continue;
+		}
+
+		if (!hasPassedWhitespaceTwo)
+		{
+			strOneIndex--;
+			continue;
+		}
+
+		if (strOneIndex >= strOneLen && !bIsWhitespace)
+		{
+			return FALSE;
+		}
+
+		if (strTwoIndex >= strTwoLen && !aIsWhitespace)
+		{
+			return FALSE;
+		}
+
+		if (a != b && !aIsWhitespace && !bIsWhitespace)
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+enum MSCLIMode
+{
+	DIRECT,
+	PROGRAM
+};
+
+VOID MicroScoutCLI(ControllerData* data)
 {
 	SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, data);
-	SetLEDColor(TowerLED::VLL, TowerLEDColor::DEFAULT, data);
-	SetLEDColor(TowerLED::VLL, TowerLEDColor::OFF, data);
+	SetMode(TowerMode::VLL, data);
+	
+	char input[256];
 
+	MSCLIMode mode = DIRECT;
+	BOOL pMode = mode == PROGRAM;
+	while (!StringsAreEqual(input, "quit"))
+	{
+		scanf_s("%s", input);
+
+		if (StringsAreEqual(input, "beep1"))
+		{
+			pMode
+				? VLL_Beep1(data)
+				: VLL_Beep1Immediate(data);
+		}
+		else if (StringsAreEqual(input, "beep2"))
+		{
+			pMode
+				? VLL_Beep2(data)
+				: VLL_Beep2Immediate(data);
+		}
+		else if (StringsAreEqual(input, "beep3"))
+		{
+			pMode
+				? VLL_Beep3(data)
+				: VLL_Beep3Immediate(data);
+		}
+		else if (StringsAreEqual(input, "beep4"))
+		{
+			pMode
+				? VLL_Beep4(data)
+				: VLL_Beep4Immediate(data);
+		}
+		else if (StringsAreEqual(input, "beep5"))
+		{
+			pMode
+				? VLL_Beep5(data)
+				: VLL_Beep5Immediate(data);
+		}
+		else if (StringsAreEqual(input, "fwd"))
+		{
+			if (mode == DIRECT)
+			{
+				VLL_ForwardImmediate(data);
+			}
+			else if (mode == PROGRAM)
+			{
+				printf("enter half, one, two, or five:");
+				scanf_s("%s", input);
+				if (StringsAreEqual(input, "half"))
+				{
+					VLL_ForwardHalf(data);
+				}
+				else if (StringsAreEqual(input, "one"))
+				{
+					VLL_ForwardOne(data);
+				}
+				else if (StringsAreEqual(input, "two"))
+				{
+					VLL_ForwardTwo(data);
+				}
+				else if (StringsAreEqual(input, "five"))
+				{
+					VLL_ForwardFive(data);
+				}
+				else
+				{
+					printf("invalid; canceling fwd command\n");
+				}
+			}
+		}
+		else if (StringsAreEqual(input, "bkwd"))
+		{
+			if (mode == DIRECT)
+			{
+				VLL_BackwardImmediate(data);
+			}
+			else if (mode == PROGRAM)
+			{
+				printf("enter half, one, two, or five:");
+				scanf_s("%s", input);
+				if (StringsAreEqual(input, "half"))
+				{
+					VLL_BackwardHalf(data);
+				}
+				else if (StringsAreEqual(input, "one"))
+				{
+					VLL_BackwardOne(data);
+				}
+				else if (StringsAreEqual(input, "two"))
+				{
+					VLL_BackwardTwo(data);
+				}
+				else if (StringsAreEqual(input, "five"))
+				{
+					VLL_BackwardFive(data);
+				}
+				else
+				{
+					printf("invalid; canceling bkwd command\n");
+				}
+			}
+		}
+		else if (StringsAreEqual(input, "stop"))
+		{
+			VLL_Stop(data);
+		}
+		else if (StringsAreEqual(input, "run"))
+		{
+			VLL_Run(data);
+		}
+		else if (StringsAreEqual(input, "delete"))
+		{
+			VLL_Delete(data);
+		}
+		else if (StringsAreEqual(input, "programmode"))
+		{
+			mode = PROGRAM;
+		}
+		else if (StringsAreEqual(input, "directmode"))
+		{
+			mode = DIRECT;
+		}
+		else if (StringsAreEqual(input, "waitlight"))
+		{
+			VLL_WaitLight(data);
+		}
+		else if (StringsAreEqual(input, "seeklight"))
+		{
+			VLL_SeekLight(data);
+		}
+		else if (StringsAreEqual(input, "code"))
+		{
+			VLL_Code(data);
+		}
+		else if (StringsAreEqual(input, "keepalive"))
+		{
+			VLL_KeepAlive(data);
+		}
+	}
+}
+
+VOID TestTower(ControllerData* data)
+{
 	INT len;
 	CHAR* buffer = 0;
 
