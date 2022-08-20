@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TowerController.h"
 #include <string>
+#include <stdlib.h>
 
 #define MAX_WRITE_ATTEMPTS 3
 #define MAX_READ_ATTEMPTS 3
@@ -172,50 +173,30 @@ namespace IBT
 		return *reinterpret_cast<TowerVersionData*>(data->replyBuffer + 4);
 	}
 
-	VOID GetCopyright(CHAR*& buffer, INT& length, ControllerData* data)
+	VOID GetCopyright(ControllerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_COPYRIGHT, data);
 
-		ReadStringFromReplyBuffer(buffer, length, data);
+		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID GetCredits(CHAR*& buffer, INT& length, ControllerData* data)
+	VOID GetCredits(ControllerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_CREDITS, data);
 
-		ReadStringFromReplyBuffer(buffer, length, data);
+		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID ReadStringFromReplyBuffer(CHAR*& buffer, INT& length, ControllerData* data)
+	VOID ReadStringFromReplyBuffer(ControllerData* data)
 	{
 		// the vendor requests that reply with a string put the length at the front of the buffer
-		UINT stringLength = *((WORD*)(data->replyBuffer));
-		stringLength--; // the last character is garbage
-
-		// the string is formatted "L I K E   T H I S" so we need to fix that
-
-		length = 0;
-		buffer = new CHAR[stringLength / 2];
+		data->stringLength = *((WORD*)(data->replyBuffer));
 
 		// start at 4; skip the non-string stuff
-		for (UINT i = 4; i < stringLength; i++)
+		for (UINT i = 4; i < data->stringLength; i += 2)
 		{
-			char c = data->replyBuffer[i];
-
-			if (c == '\0' && i < data->lastReplyLength - 1)
-			{
-				char prev = data->replyBuffer[i - 1];
-				char next = data->replyBuffer[i + 1];
-
-				if (prev == '\0' && next == '\0')
-				{
-					buffer[length++] = c;
-				}
-			}
-			else
-			{
-				buffer[length++] = c;
-			}
+			WCHAR wide = (WCHAR) data->replyBuffer[i];
+			data->stringBuffer[(i - 4) / 2] = wide;
 		}
 	}
 

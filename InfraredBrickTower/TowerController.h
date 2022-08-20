@@ -279,6 +279,8 @@ inline VOID Set##outputType##(Tower##outputType newValue, ControllerData* data) 
 		TowerRequestError lastRequestError = TowerRequestError::SUCCESS;
 		ULONG lastReplyLength = 0;
 		BYTE* replyBuffer = new BYTE[REPLY_BUFFER_LENGTH];
+		ULONG stringLength = 0;
+		WCHAR stringBuffer[REPLY_BUFFER_LENGTH / 2];
 	};
 
 	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, ControllerData* data);
@@ -313,10 +315,10 @@ inline VOID Set##outputType##(Tower##outputType newValue, ControllerData* data) 
 
 	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, ControllerData* data);
 	TowerVersionData GetVersion(ControllerData* data);
-	VOID GetCopyright(CHAR*& buffer, INT& length, ControllerData* data);
-	VOID GetCredits(CHAR*& buffer, INT& length, ControllerData* data);
+	VOID GetCopyright(ControllerData* data);
+	VOID GetCredits(ControllerData* data);
 
-	VOID ReadStringFromReplyBuffer(CHAR*& buffer, INT& length, ControllerData* data);
+	VOID ReadStringFromReplyBuffer(ControllerData* data);
 
 	VOID SetParameter(
 		TowerParamType parameter,
