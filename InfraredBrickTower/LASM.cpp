@@ -7,10 +7,10 @@ namespace LASM
 		return (~commandByte & 0xff) == reply;
 	}
 
-	VOID BuildCommand(Command* command)
+	VOID ComposeMessage(MessageData* messageData)
 	{
-		BYTE* baseCommandPointer = command->dataToTransmit;
-		BYTE* dataPtr = command->dataToTransmit;
+		BYTE* baseCommandPointer = messageData->composedData;
+		BYTE* dataPtr = messageData->composedData;
 
 		// preamble
 		*(dataPtr++) = 0x55;
@@ -20,14 +20,14 @@ namespace LASM
 		UINT dataSum = 0;
 
 		// command, reply, and repeat both
-		*(dataPtr++) = command->commandByte;
-		*(dataPtr++) = ~command->commandByte;
+		*(dataPtr++) = messageData->commandByte;
+		*(dataPtr++) = ~messageData->commandByte;
 
-		dataSum += command->commandByte;
+		dataSum += messageData->commandByte;
 
-		for (UINT i = 0; i < command->paramsLength; i++)
+		for (UINT i = 0; i < messageData->paramsLength; i++)
 		{
-			BYTE paramByte = command->params[i];
+			BYTE paramByte = messageData->params[i];
 			*(dataPtr++) = paramByte;
 			*(dataPtr++) = ~paramByte;
 
@@ -38,7 +38,7 @@ namespace LASM
 		*(dataPtr++) = dataSum;
 		*(dataPtr++) = ~dataSum;
 
-		command->transmissionLength = (dataPtr - baseCommandPointer);
+		messageData->composedLength = (dataPtr - baseCommandPointer);
 	}
 
 	//VOID BuildCmd_PlaySystemSound(const Command* command, BYTE sound)

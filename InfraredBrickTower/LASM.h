@@ -137,7 +137,7 @@ namespace LASM
 
 	BOOL IsReplyByteGood(LASMCommandByte commandByte, BYTE reply);
 
-	struct Command
+	struct MessageData
 	{
 		LASMCommandByte commandByte;
 		BYTE params[16];
@@ -145,8 +145,8 @@ namespace LASM
 		BYTE replyByte;
 		Availability availability;
 
-		BYTE dataToTransmit[16];
-		UINT transmissionLength;
+		BYTE composedData[16];
+		UINT composedLength;
 		/*Command(LASMCommandByte commandByte, BYTE* params, UINT paramsLength, Availability availability)
 		{
 			this->commandByte = commandByte;
@@ -157,15 +157,15 @@ namespace LASM
 		}*/
 	};
 
-	VOID BuildCommand(Command* command);
+	VOID ComposeMessage(MessageData* messageData);
 
-	inline VOID InitCommand(Command* commandStruct, LASMCommandByte commandByte)
+	inline VOID InitCommand(MessageData* messageData, LASMCommandByte commandByte)
 	{
-		commandStruct->commandByte = commandByte;
-		commandStruct->replyByte = ~commandByte & 0xf7;
-		commandStruct->availability = BOTH;
+		messageData->commandByte = commandByte;
+		messageData->replyByte = ~commandByte & 0xf7;
+		messageData->availability = BOTH;
 
-		BuildCommand(commandStruct);
+		ComposeMessage(messageData);
 	}
 
 	enum class SystemSound
@@ -177,26 +177,26 @@ namespace LASM
 		ERROR_SOUND = 4,
 		FAST_SWEEP_UP = 5
 	};
-	inline VOID BuildCmd_PlaySystemSound(Command* commandStruct, SystemSound sound)
+	inline VOID ComposePlaySystemSound(MessageData* messageData, SystemSound sound)
 	{
-		commandStruct->commandByte = PlaySystemSound;
-		commandStruct->params[0] = (BYTE)sound;
-		commandStruct->paramsLength = 1;
-		BuildCommand(commandStruct);
+		messageData->commandByte = PlaySystemSound;
+		messageData->params[0] = (BYTE)sound;
+		messageData->paramsLength = 1;
+		ComposeMessage(messageData);
 	}
 
 //#define Params
 
 #define Cmd(name, availabilityArg) \
-inline VOID BuildCmd_##name##(Command* commandStruct) \
+inline VOID Compose##name##(MessageData* messageData) \
 { \
-	commandStruct->commandByte = name##; \
-	commandStruct->paramsLength = 0; \
-	BuildCommand(commandStruct); \
+	messageData->commandByte = name##; \
+	messageData->paramsLength = 0; \
+	ComposeMessage(messageData); \
 }
 
 #define ParamCmd(name, commandByteArg, replyByteArg, availability, ...) \
-VOID BuildCmd_##name##(Command* commandStruct, ##__VA_ARGS__);
+VOID Compose_##name##(MessageData* messageData, ##__VA_ARGS__);
 //{ \
 //	commandStruct->commandByte = ##commandByteArg; \
 //	commandStruct->params = ##params; \

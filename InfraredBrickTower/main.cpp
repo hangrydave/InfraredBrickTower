@@ -238,21 +238,21 @@ VOID BeepRCX(TowerData* towerData)
 
 	BOOL isReplyByteGood;
 
-	LASM::Command lasmCommand;
-	LASM::BuildCmd_PBAliveOrNot(&lasmCommand);
-	WriteData(lasmCommand.dataToTransmit, lasmCommand.transmissionLength, lengthWritten, towerData);
+	LASM::MessageData lasmCommand;
+	LASM::ComposePBAliveOrNot(&lasmCommand);
+	WriteData(lasmCommand.composedData, lasmCommand.composedLength, lengthWritten, towerData);
 	ReadData(replyBuffer, replyLen, lengthRead, towerData);
 	isReplyByteGood = LASM::IsReplyByteGood(LASM::PBAliveOrNot, *(replyBuffer + 3));
 	assert(isReplyByteGood);
 
-	LASM::BuildCmd_StopAllTasks(&lasmCommand);
-	WriteData(lasmCommand.dataToTransmit, lasmCommand.transmissionLength, lengthWritten, towerData);
+	LASM::ComposeStopAllTasks(&lasmCommand);
+	WriteData(lasmCommand.composedData, lasmCommand.composedLength, lengthWritten, towerData);
 	ReadData(replyBuffer, replyLen, lengthRead, towerData);
 	isReplyByteGood = LASM::IsReplyByteGood(LASM::StopAllTasks, *(replyBuffer + 3));
 	assert(isReplyByteGood);
 
-	LASM::BuildCmd_PlaySystemSound(&lasmCommand, LASM::SystemSound::FAST_SWEEP_UP);
-	WriteData(lasmCommand.dataToTransmit, lasmCommand.transmissionLength, lengthWritten, towerData);
+	LASM::ComposePlaySystemSound(&lasmCommand, LASM::SystemSound::FAST_SWEEP_UP);
+	WriteData(lasmCommand.composedData, lasmCommand.composedLength, lengthWritten, towerData);
 	ReadData(replyBuffer, replyLen, lengthRead, towerData);
 	isReplyByteGood = LASM::IsReplyByteGood(LASM::PlaySystemSound, *(replyBuffer + 3));
 	assert(isReplyByteGood);
