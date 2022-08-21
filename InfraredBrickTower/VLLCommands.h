@@ -169,11 +169,11 @@ so, i've got the checksum and the data. what about the start bit and the stop bi
 #define DELETE_PROGRAM		{ 0x51, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x15, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x0b, 0x00 }
 
 #define GenerateVLLFunction(commandName, commandData) \
-inline BOOL VLL_##commandName##(IBT::ControllerData* controllerData) \
+inline BOOL VLL_##commandName##(Tower::TowerData* towerData) \
 { \
 	BYTE bytes[] = commandData; \
 	ULONG lengthWritten; \
-	IBT::WriteData(bytes, PACKET_LENGTH, lengthWritten, controllerData); \
+	Tower::WriteData(bytes, PACKET_LENGTH, lengthWritten, towerData); \
 	return lengthWritten == PACKET_LENGTH; \
 }
 

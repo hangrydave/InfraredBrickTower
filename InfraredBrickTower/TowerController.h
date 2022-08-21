@@ -5,7 +5,7 @@
 
 #include "HostTowerCommInterface.h"
 
-namespace IBT
+namespace Tower
 {
 
 	/*
@@ -23,11 +23,11 @@ namespace IBT
 		anyway, this might be bad, idk and tbqh idc
 	*/
 #define GenerateParameterSetterAndGetter(paramType, outputType) \
-inline Tower##outputType Get##outputType##(ControllerData* data) \
+inline Tower##outputType Get##outputType##(TowerData* data) \
 { \
 	return (Tower##outputType) GetParameter(##paramType##, data); \
 } \
-inline VOID Set##outputType##(Tower##outputType newValue, ControllerData* data) \
+inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 { \
 	SetParameter(##paramType##, (BYTE)newValue, data); \
 }
@@ -267,9 +267,9 @@ inline VOID Set##outputType##(Tower##outputType newValue, ControllerData* data) 
 
 #define REPLY_BUFFER_LENGTH 1000
 
-	struct ControllerData
+	struct TowerData
 	{
-		ControllerData(HostTowerCommInterface* commInterface)
+		TowerData(HostTowerCommInterface* commInterface)
 		{
 			this->commInterface = commInterface;
 		}
@@ -283,59 +283,59 @@ inline VOID Set##outputType##(Tower##outputType newValue, ControllerData* data) 
 		WCHAR stringBuffer[REPLY_BUFFER_LENGTH / 2];
 	};
 
-	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, ControllerData* data);
-	VOID ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, ControllerData* data);
+	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, TowerData* data);
+	VOID ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, TowerData* data);
 
-	VOID Flush(TowerBuffer buffer, ControllerData* data);
-	VOID Reset(ControllerData* data);
+	VOID Flush(TowerBuffer buffer, TowerData* data);
+	VOID Reset(TowerData* data);
 
-	TowerPower GetPower(ControllerData* data);
+	TowerPower GetPower(TowerData* data);
 
-	TowerLEDColor GetLEDColor(TowerLED led, ControllerData* data);
-	VOID SetLEDColor(TowerLED led, TowerLEDColor color, ControllerData* data);
+	TowerLEDColor GetLEDColor(TowerLED led, TowerData* data);
+	VOID SetLEDColor(TowerLED led, TowerLEDColor color, TowerData* data);
 
-	TowerStatData GetStatistics(ControllerData* data);
-	VOID ResetStatistics(ControllerData* data);
+	TowerStatData GetStatistics(TowerData* data);
+	VOID ResetStatistics(TowerData* data);
 
 	/*TowerIRCParam GetIRCParameter();
 	VOID SetIRCParameter(TowerIRCParam param);*/
 
-	TowerCommSpeed GetTransmissionSpeed(ControllerData* data);
-	VOID SetTransmissionSpeed(TowerCommSpeed speed, ControllerData* data);
+	TowerCommSpeed GetTransmissionSpeed(TowerData* data);
+	VOID SetTransmissionSpeed(TowerCommSpeed speed, TowerData* data);
 
-	TowerCommSpeed GetReceivingSpeed(ControllerData* data);
-	VOID SetReceivingSpeed(TowerCommSpeed speed, ControllerData* data);
+	TowerCommSpeed GetReceivingSpeed(TowerData* data);
+	VOID SetReceivingSpeed(TowerCommSpeed speed, TowerData* data);
 
-	TowerTransmitterState GetTransmitterState(ControllerData* data);
+	TowerTransmitterState GetTransmitterState(TowerData* data);
 
 	/*BYTE GetTransmissionCarrierFrequency();
 	VOID SetTransmissionCarrierFrequency();
 	BYTE GetTransmissionCarrierDutyCycle();
 	VOID SetTransmissionCarrierDutyCycle();*/
 
-	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, ControllerData* data);
-	TowerVersionData GetVersion(ControllerData* data);
-	VOID GetCopyright(ControllerData* data);
-	VOID GetCredits(ControllerData* data);
+	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, TowerData* data);
+	TowerVersionData GetVersion(TowerData* data);
+	VOID GetCopyright(TowerData* data);
+	VOID GetCredits(TowerData* data);
 
-	VOID ReadStringFromReplyBuffer(ControllerData* data);
+	VOID ReadStringFromReplyBuffer(TowerData* data);
 
 	VOID SetParameter(
 		TowerParamType parameter,
 		BYTE value,
-		ControllerData* data);
-	BYTE GetParameter(TowerParamType parameter, ControllerData* data);
+		TowerData* data);
+	BYTE GetParameter(TowerParamType parameter, TowerData* data);
 
-	VOID MakeRequest(TowerRequestType request, ControllerData* data);
+	VOID MakeRequest(TowerRequestType request, TowerData* data);
 	VOID MakeRequest(
 		TowerRequestType request,
 		WORD value,
-		ControllerData* data);
+		TowerData* data);
 	VOID MakeRequest(
 		TowerRequestType request,
 		BYTE loByte,
 		BYTE hiByte,
-		ControllerData* data);
+		TowerData* data);
 
 	GenerateParameterSetterAndGetter(TowerParamType::MODE, Mode)
 	GenerateParameterSetterAndGetter(TowerParamType::RANGE, Range)

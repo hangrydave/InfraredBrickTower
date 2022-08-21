@@ -9,13 +9,13 @@
 // This number isn't pulled from documentation or anything, I've just found I need a small pause between things for it to work, and this is reasonably small
 #define WRITE_PAUSE_TIME 150
 
-namespace IBT
+namespace Tower
 {
 	VOID ReadData(
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthRead,
-		ControllerData* data)
+		TowerData* data)
 	{
 		while (GetTransmitterState(data) == TowerTransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
 
@@ -40,7 +40,7 @@ namespace IBT
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthWritten,
-		ControllerData* data)
+		TowerData* data)
 	{
 		while (GetTransmitterState(data) == TowerTransmitterState::BUSY) { printf("Tower busy, can't write...\n"); }
 
@@ -55,7 +55,7 @@ namespace IBT
 
 	}
 
-	VOID Flush(TowerBuffer buffer, ControllerData* data)
+	VOID Flush(TowerBuffer buffer, TowerData* data)
 	{
 		BYTE loByte = (BYTE)buffer;
 		BYTE hiByte = 0;
@@ -66,12 +66,12 @@ namespace IBT
 			data);
 	}
 
-	VOID Reset(ControllerData* data)
+	VOID Reset(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::RESET, data);
 	}
 
-	TowerPower GetPower(ControllerData* data)
+	TowerPower GetPower(TowerData* data)
 	{
 		BYTE loByte = 0;
 		BYTE hiByte = 0;
@@ -84,26 +84,26 @@ namespace IBT
 		return (TowerPower) *(data->replyBuffer + 4);
 	}
 
-	TowerStatData GetStatistics(ControllerData* data)
+	TowerStatData GetStatistics(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_STATISTICS, data);
 
 		return *reinterpret_cast<TowerStatData*>(data->replyBuffer + 4);
 	}
 
-	VOID ResetStatistics(ControllerData* data)
+	VOID ResetStatistics(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::RESET_STATISTICS, data);
 	}
 
-	TowerCommSpeed GetTransmissionSpeed(ControllerData* data)
+	TowerCommSpeed GetTransmissionSpeed(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_TRANSMISSION_SPEED, data);
 
 		return (TowerCommSpeed) *(data->replyBuffer + 4);
 	}
 
-	VOID SetTransmissionSpeed(TowerCommSpeed speed, ControllerData* data)
+	VOID SetTransmissionSpeed(TowerCommSpeed speed, TowerData* data)
 	{
 		MakeRequest(
 			TowerRequestType::SET_TRANSMISSION_SPEED,
@@ -112,14 +112,14 @@ namespace IBT
 			data);
 	}
 
-	TowerCommSpeed GetReceivingSpeed(ControllerData* data)
+	TowerCommSpeed GetReceivingSpeed(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_RECEIVING_SPEED, data);
 
 		return (TowerCommSpeed) *(data->replyBuffer + 4);
 	}
 
-	VOID SetReceivingSpeed(TowerCommSpeed speed, ControllerData* data)
+	VOID SetReceivingSpeed(TowerCommSpeed speed, TowerData* data)
 	{
 		MakeRequest(
 			TowerRequestType::SET_RECEIVING_SPEED,
@@ -128,14 +128,14 @@ namespace IBT
 			data);
 	}
 
-	TowerTransmitterState GetTransmitterState(ControllerData* data)
+	TowerTransmitterState GetTransmitterState(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_TRANSMITTER_STATE, data);
 
 		return (TowerTransmitterState) *(data->replyBuffer + 4);
 	}
 
-	TowerLEDColor GetLEDColor(TowerLED led, ControllerData* data)
+	TowerLEDColor GetLEDColor(TowerLED led, TowerData* data)
 	{
 		BYTE loByte = (BYTE)led;
 		BYTE hiByte = 0;
@@ -148,7 +148,7 @@ namespace IBT
 		return (TowerLEDColor) *(data->replyBuffer + 5);
 	}
 
-	VOID SetLEDColor(TowerLED led, TowerLEDColor color, ControllerData* data)
+	VOID SetLEDColor(TowerLED led, TowerLEDColor color, TowerData* data)
 	{
 		BYTE loByte = (BYTE)led;
 		BYTE hiByte = (BYTE)color;
@@ -159,35 +159,35 @@ namespace IBT
 			data);
 	}
 
-	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, ControllerData* data)
+	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_CAPABILITIES, (WORD)link, data);
 
 		return *reinterpret_cast<TowerCapabilitiesData*>(data->replyBuffer + 4);
 	}
 
-	TowerVersionData GetVersion(ControllerData* data)
+	TowerVersionData GetVersion(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_VERSION, data);
 
 		return *reinterpret_cast<TowerVersionData*>(data->replyBuffer + 4);
 	}
 
-	VOID GetCopyright(ControllerData* data)
+	VOID GetCopyright(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_COPYRIGHT, data);
 
 		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID GetCredits(ControllerData* data)
+	VOID GetCredits(TowerData* data)
 	{
 		MakeRequest(TowerRequestType::GET_CREDITS, data);
 
 		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID ReadStringFromReplyBuffer(ControllerData* data)
+	VOID ReadStringFromReplyBuffer(TowerData* data)
 	{
 		// the vendor requests that reply with a string put the length at the front of the buffer
 		data->stringLength = *((WORD*)(data->replyBuffer));
@@ -203,7 +203,7 @@ namespace IBT
 	VOID SetParameter(
 		TowerParamType parameter,
 		BYTE value,
-		ControllerData* data)
+		TowerData* data)
 	{
 		MakeRequest(
 			TowerRequestType::SET_PARAMETER,
@@ -212,7 +212,7 @@ namespace IBT
 			data);
 	}
 
-	BYTE GetParameter(TowerParamType parameter, ControllerData* data)
+	BYTE GetParameter(TowerParamType parameter, TowerData* data)
 	{
 		MakeRequest(
 			TowerRequestType::GET_PARAMETER,
@@ -223,7 +223,7 @@ namespace IBT
 		return *(data->replyBuffer + 3);
 	}
 
-	VOID MakeRequest(TowerRequestType request, ControllerData* data)
+	VOID MakeRequest(TowerRequestType request, TowerData* data)
 	{
 		MakeRequest(request, 0, data);
 	}
@@ -232,7 +232,7 @@ namespace IBT
 		TowerRequestType request,
 		BYTE loByte,
 		BYTE hiByte,
-		ControllerData* data)
+		TowerData* data)
 	{
 		WORD value = ((hiByte << 8) | loByte);
 		MakeRequest(request, value, data);
@@ -241,7 +241,7 @@ namespace IBT
 	VOID MakeRequest(
 		TowerRequestType request,
 		WORD value,
-		ControllerData* data)
+		TowerData* data)
 	{
 		// not used rn, will implement when used
 		WORD index = 0;

@@ -3,18 +3,21 @@
 #include "TowerController.h"
 #include "WinUsbTowerInterface.h"
 #include "VLLCommands.h"
+#include "LASM.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
 
-using namespace IBT;
+using namespace Tower;
 
 BOOL StringsAreEqual(char* strOne, char* strTwo);
-VOID MicroScoutCLI(ControllerData* controllerData);
+VOID MicroScoutCLI(TowerData* towerData);
 
-VOID TestTower(ControllerData* data);
-VOID BeepRCXAndMicroScout(ControllerData* controllerData);
+VOID TestTower(TowerData* data);
+VOID BeepRCX(TowerData* towerData);
+VOID BeepMicroScout(TowerData* towerData);
+VOID BeepRCXAndMicroScout(TowerData* towerData);
 
 LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 {
@@ -30,23 +33,18 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 		return 0;
 	}
 
-	ControllerData* controllerData = new ControllerData(usbTowerInterface);
+	TowerData* towerData = new TowerData(usbTowerInterface);
 
-	//TestTower(controllerData);
-
-	/*TestTower(controllerData);
-	BeepRCXAndMicroScout(controllerData);*/
-
-	MicroScoutCLI(controllerData);
+	BeepRCX(towerData);
 
 	delete usbTowerInterface;
-	delete controllerData;
+	delete towerData;
 
 	system("pause");
 	return 0;
 }
 
-VOID MicroScoutCLI(ControllerData* data)
+VOID MicroScoutCLI(TowerData* data)
 {
 	enum MSCLIMode
 	{
@@ -213,7 +211,7 @@ VOID MicroScoutCLI(ControllerData* data)
 	}
 }
 
-VOID TestTower(ControllerData* data)
+VOID TestTower(TowerData* data)
 {
 	GetCopyright(data);
 	wprintf(data->stringBuffer);
@@ -222,13 +220,50 @@ VOID TestTower(ControllerData* data)
 	wprintf(data->stringBuffer);
 }
 
-VOID BeepRCXAndMicroScout(ControllerData* controllerData)
+VOID BeepMicroScout(TowerData* towerData)
+{
+	Tower::SetMode(TowerMode::VLL, towerData);
+	VLL_Beep1Immediate(towerData);
+}
+
+VOID BeepRCX(TowerData* towerData)
+{
+	SetMode(TowerMode::IR, towerData);
+
+	ULONG lengthWritten;
+	ULONG lengthRead;
+	UCHAR replyBuffer[10];
+	ULONG replyLen = 10;
+	BYTE replyByte;
+
+	BOOL isReplyByteGood;
+
+	LASM::Command lasmCommand;
+	LASM::BuildCmd_PBAliveOrNot(&lasmCommand);
+	WriteData(lasmCommand.dataToTransmit, lasmCommand.transmissionLength, lengthWritten, towerData);
+	ReadData(replyBuffer, replyLen, lengthRead, towerData);
+	isReplyByteGood = LASM::IsReplyByteGood(LASM::PBAliveOrNot, *(replyBuffer + 3));
+	assert(isReplyByteGood);
+
+	LASM::BuildCmd_StopAllTasks(&lasmCommand);
+	WriteData(lasmCommand.dataToTransmit, lasmCommand.transmissionLength, lengthWritten, towerData);
+	ReadData(replyBuffer, replyLen, lengthRead, towerData);
+	isReplyByteGood = LASM::IsReplyByteGood(LASM::StopAllTasks, *(replyBuffer + 3));
+	assert(isReplyByteGood);
+
+	LASM::BuildCmd_PlaySystemSound(&lasmCommand, LASM::SystemSound::FAST_SWEEP_UP);
+	WriteData(lasmCommand.dataToTransmit, lasmCommand.transmissionLength, lengthWritten, towerData);
+	ReadData(replyBuffer, replyLen, lengthRead, towerData);
+	isReplyByteGood = LASM::IsReplyByteGood(LASM::PlaySystemSound, *(replyBuffer + 3));
+	assert(isReplyByteGood);
+}
+
+VOID BeepRCXAndMicroScout(TowerData* towerData)
 {
 	/* MicroScout */
 
 	printf("Sending beep command to MicroScout...\n");
-	IBT::SetMode(TowerMode::VLL, controllerData);
-	VLL_Beep1Immediate(controllerData);
+	BeepMicroScout(towerData);
 	printf("Sent beep command to MicroScout!\n");
 
 #if DRAMATIC_PAUSE == 1
@@ -239,49 +274,7 @@ VOID BeepRCXAndMicroScout(ControllerData* controllerData)
 
 	/* RCX */
 	printf("Sending beep command to RCX...\n");
-	SetMode(TowerMode::IR, controllerData);
-
-	UCHAR replyBuffer[10];
-	ULONG replyLen = 10;
-	BYTE replyByte;
-
-	ULONG bytesWritten = 0;
-	ULONG bytesRead = 0;
-
-	UCHAR ping[] = { 0x55, 0xff, 0x00, 0x10, 0xef, 0x10, 0xef };
-	ULONG pingLen = 7;
-	WriteData(ping, pingLen, bytesWritten, controllerData);
-	ReadData(replyBuffer, replyLen, bytesRead, controllerData);
-	replyByte = *(replyBuffer + 3) & 0xf7;
-
-#if DEBUG == 1
-	if (replyByte != 0xE7)
-		__debugbreak();
-#endif
-
-	UCHAR stop[] = { 0x55, 0xff, 0x00, 0x50, 0xaf, 0x50, 0xaf };
-	ULONG stopLen = 7;
-	WriteData(stop, stopLen, bytesWritten, controllerData);
-	ReadData(replyBuffer, replyLen, bytesRead, controllerData);
-	replyByte = *(replyBuffer + 3) & 0xf7;
-
-#if DEBUG == 1
-	if (replyByte != 0xA7)
-		__debugbreak();
-#endif
-
-	UCHAR beep[] = { 0x55, 0xff, 0x00, 0x51, 0xae, 0x05, 0xfa, 0x56, 0xa9 };
-	ULONG beepLen = 9;
-	// expects 0xA6
-	WriteData(beep, beepLen, bytesWritten, controllerData);
-	ReadData(replyBuffer, replyLen, bytesRead, controllerData);
-	replyByte = *(replyBuffer + 3) & 0xf7;
-
-#if DEBUG == 1
-	if (replyByte != 0xA6)
-		__debugbreak();
-#endif
-
+	BeepRCX(towerData);
 	printf("Sent beep command to RCX!\n\n");
 }
 
