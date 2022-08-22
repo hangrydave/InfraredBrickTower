@@ -157,6 +157,26 @@ namespace LASM
 		}*/
 	};
 
+	enum class SystemSound
+	{
+		KEY_CLICK = 0,
+		BEEP = 1,
+		SWEEP_DOWN = 2,
+		SWEEP_UP = 3,
+		ERROR_SOUND = 4,
+		FAST_SWEEP_UP = 5
+	};
+
+	class LASMBuilder
+	{
+	private:
+		const UINT messageCount = 16;
+		MessageData messages[16];
+		UINT currentMessageIndex = 0;
+	public:
+		VOID PlaySystemSound(SystemSound sound);
+	};
+
 	VOID ComposeMessage(MessageData* messageData);
 
 	inline VOID InitCommand(MessageData* messageData, LASMCommandByte commandByte)
@@ -168,22 +188,9 @@ namespace LASM
 		ComposeMessage(messageData);
 	}
 
-	enum class SystemSound
-	{
-		KEY_CLICK = 0,
-		BEEP = 1,
-		SWEEP_DOWN = 2,
-		SWEEP_UP = 3,
-		ERROR_SOUND = 4,
-		FAST_SWEEP_UP = 5
-	};
-	inline VOID ComposePlaySystemSound(MessageData* messageData, SystemSound sound)
-	{
-		messageData->commandByte = PlaySystemSound;
-		messageData->params[0] = (BYTE)sound;
-		messageData->paramsLength = 1;
-		ComposeMessage(messageData);
-	}
+	//VOID ComposePlaySystemSound(MessageData* messageData, SystemSound sound);
+
+	//VOID ComposeOnOffFloat
 
 //#define Params
 

@@ -7,6 +7,14 @@ namespace LASM
 		return (~commandByte & 0xff) == reply;
 	}
 
+	/*VOID ComposePlaySystemSound(MessageData* messageData, SystemSound sound)
+	{
+		messageData->commandByte = PlaySystemSound;
+		messageData->params[0] = (BYTE)sound;
+		messageData->paramsLength = 1;
+		ComposeMessage(messageData);
+	}*/
+
 	VOID ComposeMessage(MessageData* messageData)
 	{
 		BYTE* baseCommandPointer = messageData->composedData;

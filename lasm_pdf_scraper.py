@@ -1,3 +1,4 @@
+from random import shuffle
 from PyPDF2 import PdfFileReader
 
 reader = PdfFileReader("lasm.pdf")
@@ -47,9 +48,42 @@ for i in range(11, 97):
         text_between = text[0 : reply_index]
     else:
         text_between = text[0 : availability_index]
+    
+    text_between = text_between.strip()
+    
+    params = []
+
+    prev_char = ' '
+    line_started_with_num = False
+    start_index = 0
+    current_index = 0
+
+    for c in text_between:
+        if prev_char == '\n':
+            line_started_with_num = c.isnumeric()
+
+        should_add_param = False
+
+        is_at_end = current_index == len(text_between) - 1
+        should_add_param = should_add_param or is_at_end
+        should_add_param = should_add_param or (prev_char != "\n" and (c == "B" and text_between[current_index : current_index + 3] == "Bit"))
+        should_add_param = should_add_param or (not line_started_with_num and (prev_char.islower() or prev_char == ')' or prev_char.isnumeric()) and c.isupper())
+        if should_add_param:
+            param = ""
+            if is_at_end:
+                param = text_between[start_index : current_index + 1]
+            else:
+                param = text_between[start_index : current_index]
+            params.append(param)
+            start_index = current_index
+
+        prev_char = c
+        current_index = current_index + 1
 
     if len(text_between.strip()) != 0:
-        print(cmd_name + "\t\tHAS PARAMETERS")
+        print(cmd_name)
+        for param in params:
+            print("PARAM: " + param.replace("\n", ""))
 
     # get reply
     reply = "NO_REPLY"
@@ -82,6 +116,6 @@ for i in range(11, 97):
 
 cmd_byte_enum = cmd_byte_enum + "}\n"
 
-print(cmd_byte_enum)
-print()
-print(cmd_macro_calls)
+# print(cmd_byte_enum)
+# print()
+# print(cmd_macro_calls)

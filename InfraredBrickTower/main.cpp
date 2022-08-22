@@ -238,7 +238,7 @@ VOID BeepRCX(TowerData* towerData)
 
 	BOOL isReplyByteGood;
 
-	LASM::MessageData lasmCommand;
+	/*LASM::MessageData lasmCommand;
 	LASM::ComposePBAliveOrNot(&lasmCommand);
 	WriteData(lasmCommand.composedData, lasmCommand.composedLength, lengthWritten, towerData);
 	ReadData(replyBuffer, replyLen, lengthRead, towerData);
@@ -255,7 +255,7 @@ VOID BeepRCX(TowerData* towerData)
 	WriteData(lasmCommand.composedData, lasmCommand.composedLength, lengthWritten, towerData);
 	ReadData(replyBuffer, replyLen, lengthRead, towerData);
 	isReplyByteGood = LASM::IsReplyByteGood(LASM::PlaySystemSound, *(replyBuffer + 3));
-	assert(isReplyByteGood);
+	assert(isReplyByteGood);*/
 }
 
 VOID BeepRCXAndMicroScout(TowerData* towerData)
