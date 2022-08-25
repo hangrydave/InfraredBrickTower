@@ -1,24 +1,56 @@
 #include "LASM.h"
+#include "stdio.h"
 
 namespace LASM
 {
-	BOOL IsReplyByteGood(LASMCommandByte commandByte, BYTE reply)
+	BOOL ValidateReply(LASMCommandByte commandByte, BYTE* replyBuffer, UINT replyLength)
 	{
-		return (~commandByte & 0xff) == reply;
+		BYTE complement = ~commandByte & 0xff;
+
+		// first off, it can't be guaranteed that the typical preamble of 0x55 0xFF 0x00 will be there;
+		// occasionally, just a part of it will be there.
+		// so, i'll search through the buffer for the complement.
+		UINT complementIndex = -1;
+		for (UINT i = 0; i < replyLength; i++)
+		{
+			BYTE b = replyBuffer[i];
+			if (b == complement)
+			{
+				complementIndex = i;
+				break;
+			}
+		}
+
+		if (complementIndex == -1)
+		{
+			return FALSE;
+		}
+
+		// now it's expected that there is a pattern like <complement> <command> <complement> <command>.
+		// the presence of that will determine if the reply is good or not.
+		return replyBuffer[complementIndex] == complement &&
+			replyBuffer[complementIndex + 1] == commandByte &&
+			replyBuffer[complementIndex + 2] == complement &&
+			replyBuffer[complementIndex + 3] == commandByte;
 	}
 
-	/*VOID ComposePlaySystemSound(MessageData* messageData, SystemSound sound)
+	CommandData Cmd_PlaySystemSound(SystemSound sound)
 	{
-		messageData->commandByte = PlaySystemSound;
-		messageData->params[0] = (BYTE)sound;
-		messageData->paramsLength = 1;
-		ComposeMessage(messageData);
-	}*/
+		BYTE params[1]{ (BYTE)sound };
+		return ComposeCommand(PlaySystemSound, params, 1);
+	}
 
-	VOID ComposeMessage(MessageData* messageData)
+	CommandData ComposeCommand(LASMCommandByte lasmCommand)
 	{
-		BYTE* baseCommandPointer = messageData->composedData;
-		BYTE* dataPtr = messageData->composedData;
+		return ComposeCommand(lasmCommand, nullptr, 0);
+	}
+
+	CommandData ComposeCommand(LASMCommandByte lasmCommand, BYTE* params, UINT paramsLength)
+	{
+		CommandData commandData = CommandData(lasmCommand);
+
+		BYTE* baseCommandPointer = commandData.data;
+		BYTE* dataPtr = commandData.data;
 
 		// preamble
 		*(dataPtr++) = 0x55;
@@ -28,14 +60,14 @@ namespace LASM
 		UINT dataSum = 0;
 
 		// command, reply, and repeat both
-		*(dataPtr++) = messageData->commandByte;
-		*(dataPtr++) = ~messageData->commandByte;
+		*(dataPtr++) = lasmCommand;
+		*(dataPtr++) = ~lasmCommand;
 
-		dataSum += messageData->commandByte;
+		dataSum += lasmCommand;
 
-		for (UINT i = 0; i < messageData->paramsLength; i++)
+		for (UINT i = 0; i < paramsLength; i++)
 		{
-			BYTE paramByte = messageData->params[i];
+			BYTE paramByte = params[i];
 			*(dataPtr++) = paramByte;
 			*(dataPtr++) = ~paramByte;
 
@@ -46,11 +78,8 @@ namespace LASM
 		*(dataPtr++) = dataSum;
 		*(dataPtr++) = ~dataSum;
 
-		messageData->composedLength = (dataPtr - baseCommandPointer);
-	}
+		commandData.dataLength = (dataPtr - baseCommandPointer);
 
-	//VOID BuildCmd_PlaySystemSound(const Command* command, BYTE sound)
-	//{
-	//	//command()
-	//}
+		return commandData;
+	}
 }

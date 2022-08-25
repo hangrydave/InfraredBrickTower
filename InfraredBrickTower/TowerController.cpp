@@ -11,7 +11,13 @@
 
 namespace Tower
 {
-	VOID ReadData(
+	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, TowerData* data)
+	{
+		ULONG lengthRead;
+		return ReadData(buffer, bufferLength, lengthRead, data);
+	}
+
+	BOOL ReadData(
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthRead,
@@ -27,13 +33,25 @@ namespace Tower
 
 			if (lengthRead == 1)
 			{
-				// this happens after the thing is plugged in. there are better ways to handle this, i'm sure, but... ez pz
-				success = data->commInterface->Read(buffer + 1, bufferLength, lengthRead);
-				lengthRead++;
-			}
+				// this happens after the thing is plugged in.
+				// maybe are better ways to handle this, i'm sure, but... ez pz
 
+				// UPDATE: this happens EVERY TIME... no idea why?
+				success = data->commInterface->Read(buffer + 1, bufferLength - 1, lengthRead);
+				lengthRead++;
+
+			}
 			readAttemptCount++;
 		}
+
+		return lengthRead > 0;
+	}
+
+	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, TowerData* data)
+	{
+		ULONG lengthWritten;
+		WriteData(buffer, bufferLength, lengthWritten, data);
+		return bufferLength == lengthWritten;
 	}
 
 	VOID WriteData(

@@ -1,3 +1,4 @@
+import cmd
 from random import shuffle
 from PyPDF2 import PdfFileReader
 
@@ -80,10 +81,10 @@ for i in range(11, 97):
         prev_char = c
         current_index = current_index + 1
 
-    if len(text_between.strip()) != 0:
-        print(cmd_name)
-        for param in params:
-            print("PARAM: " + param.replace("\n", ""))
+    # if len(text_between.strip()) != 0:
+    #     print(cmd_name)
+        # for param in params:
+        #     print("PARAM: " + param.replace("\n", ""))
 
     # get reply
     reply = "NO_REPLY"
@@ -110,6 +111,9 @@ for i in range(11, 97):
     #     reply = reply.upper()
     #     print(str(calculated_reply == reply) + "\t\t" + cmd_name + "\t\t" + calculated_reply + "\t\t" + reply)
 
+    if len(text_between.strip()) != 0:
+        cmd_macro_calls = cmd_macro_calls + "// "
+
     cmd_macro_calls = cmd_macro_calls + "Cmd(" + cmd_name + ", " + availability + ");\n"
     # if cmd_name_2 != None:
     #    cmd_macro_calls = cmd_macro_calls + "Cmd(" + cmd_name_2 + ", " + availability + ");\n"
@@ -118,4 +122,4 @@ cmd_byte_enum = cmd_byte_enum + "}\n"
 
 # print(cmd_byte_enum)
 # print()
-# print(cmd_macro_calls)
+print(cmd_macro_calls)

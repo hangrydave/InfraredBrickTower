@@ -135,29 +135,9 @@ namespace LASM
 		ViewSourceValue = 0xE5,
 	};
 
-	BOOL IsReplyByteGood(LASMCommandByte commandByte, BYTE reply);
+	BOOL ValidateReply(LASMCommandByte commandByte, BYTE* replyBuffer, UINT replyLength);
 
-	struct MessageData
-	{
-		LASMCommandByte commandByte;
-		BYTE params[16];
-		UINT paramsLength;
-		BYTE replyByte;
-		Availability availability;
-
-		BYTE composedData[16];
-		UINT composedLength;
-		/*Command(LASMCommandByte commandByte, BYTE* params, UINT paramsLength, Availability availability)
-		{
-			this->commandByte = commandByte;
-			this->replyByte = ~commandByte & 0xf7;
-			this->params = params;
-			this->paramsLength = paramsLength;
-			this->availability = availability;
-		}*/
-	};
-
-	enum class SystemSound
+	enum SystemSound : BYTE
 	{
 		KEY_CLICK = 0,
 		BEEP = 1,
@@ -167,51 +147,86 @@ namespace LASM
 		FAST_SWEEP_UP = 5
 	};
 
-	class LASMBuilder
+#define MAX_COMMAND_LENGTH 8
+
+	struct CommandData
+	{
+		LASMCommandByte command;
+		BYTE* data = new BYTE[MAX_COMMAND_LENGTH];
+		UINT dataLength;
+
+		CommandData(LASMCommandByte command)
+		{
+			this->command = command;
+			dataLength = MAX_COMMAND_LENGTH;
+			data = new BYTE[dataLength];
+		}
+
+		~CommandData()
+		{
+			delete data;
+		}
+	};
+
+	//struct CommandData
+	//{
+	//	LASMCommandByte commandByte;
+
+	//	union
+	//	{
+	//		BYTE data[MAX_COMMAND_LENGTH];
+	//		BYTE* ptr;
+	//	} composed;
+
+	//	BYTE params[16];
+	//	UINT paramsLength;
+	//	BYTE replyByte;
+	//	Availability availability;
+
+	//	BYTE composedData[16];
+	//	UINT composedLength;
+	//	/*Command(LASMCommandByte commandByte, BYTE* params, UINT paramsLength, Availability availability)
+	//	{
+	//		this->commandByte = commandByte;
+	//		this->replyByte = ~commandByte & 0xf7;
+	//		this->params = params;
+	//		this->paramsLength = paramsLength;
+	//		this->availability = availability;
+	//	}*/
+	//};
+
+	/*class LASMBuilder
 	{
 	private:
 		const UINT messageCount = 16;
-		MessageData messages[16];
+		CommandData messages[16];
 		UINT currentMessageIndex = 0;
 	public:
 		VOID PlaySystemSound(SystemSound sound);
-	};
+	};*/
 
-	VOID ComposeMessage(MessageData* messageData);
+	CommandData ComposeCommand(LASMCommandByte lasmCommand);
+	CommandData ComposeCommand(LASMCommandByte lasmCommand, BYTE* params, UINT paramsLength);
 
-	inline VOID InitCommand(MessageData* messageData, LASMCommandByte commandByte)
+	CommandData Cmd_PlaySystemSound(SystemSound sound);
+
+	/*inline VOID InitCommand(CommandData* messageData, LASMCommandByte commandByte)
 	{
 		messageData->commandByte = commandByte;
 		messageData->replyByte = ~commandByte & 0xf7;
 		messageData->availability = BOTH;
 
-		ComposeMessage(messageData);
-	}
+		ComposeCommand(messageData);
+	}*/
 
-	//VOID ComposePlaySystemSound(MessageData* messageData, SystemSound sound);
-
-	//VOID ComposeOnOffFloat
-
-//#define Params
-
-#define Cmd(name, availabilityArg) \
-inline VOID Compose##name##(MessageData* messageData) \
+#define Cmd(command, availabilityArg) \
+inline CommandData Cmd_##command##() \
 { \
-	messageData->commandByte = name##; \
-	messageData->paramsLength = 0; \
-	ComposeMessage(messageData); \
+	return ComposeCommand(##command##); \
 }
 
-#define ParamCmd(name, commandByteArg, replyByteArg, availability, ...) \
-VOID Compose_##name##(MessageData* messageData, ##__VA_ARGS__);
-//{ \
-//	commandStruct->commandByte = ##commandByteArg; \
-//	commandStruct->params = ##params; \
-//	commandStruct->paramsLength = ##paramsLength; \
-//	commandStruct->replyByte = ##replyByte; \
-//	commandStruct->availability = ##availability; \
-//}
-// VOID BuildCmd_##name##(BYTE* commandData, UINT& commandLength, BYTE& expectedReply ##__VA_ARGS__);
+//#define ParamCmd(name, commandByteArg, replyByteArg, availability, ...) \
+//VOID Compose_##name##(CommandData* messageData, ##__VA_ARGS__);
 
 #define COMMA ,
 #define NO_PARAM NoParam
@@ -234,74 +249,74 @@ VOID Compose_##name##(MessageData* messageData, ##__VA_ARGS__);
 	Cmd(UnmuteSound, BOTH);
 	Cmd(ClearAllEvents, BOTH);
 	Cmd(EndOfSub, BOTH);
-	Cmd(OnOffFloat, BOTH);
-	Cmd(PbTXPower, BOTH);
+	//Cmd(OnOffFloat, BOTH);
+	//Cmd(PbTXPower, BOTH);
 	//Cmd(PlaySystemSound, BOTH);
-	Cmd(DeleteTask, BOTH);
-	Cmd(StartTask, BOTH);
-	Cmd(StopTask, BOTH);
-	Cmd(SelectProgram, BOTH);
-	Cmd(ClearTimer, BOTH);
-	Cmd(PBPowerDownTime, BOTH);
-	Cmd(DeleteSub, BOTH);
-	Cmd(ClearSensorValue, BOTH);
-	Cmd(SetFwdSetRwdRewDir, BOTH);
-	Cmd(Gosub, BOTH);
-	Cmd(SJump, BOTH);
-	Cmd(SCheckLoopCounter, BOTH);
-	Cmd(ConnectDisconnect, BOTH);
-	Cmd(SetNormSetInvAltDir, BOTH);
-	Cmd(IncCounter, BOTH);
-	Cmd(DecCounter, BOTH);
-	Cmd(ClearCounter, BOTH);
-	Cmd(SetPriority, BOTH);
-	Cmd(InternMessage, BOTH);
-	Cmd(PlayToneVar, BOTH);
-	Cmd(Poll, BOTH);
-	Cmd(SetWatch, BOTH);
-	Cmd(SetSensorType, BOTH);
-	Cmd(SetSensorMode, BOTH);
-	Cmd(SetDataLog, BOTH);
-	Cmd(DataLogNext, BOTH);
-	Cmd(LJump, BOTH);
-	Cmd(SetLoopCounter, BOTH);
-	Cmd(LCheckLoopCounter, BOTH);
-	Cmd(SendPBMessage, BOTH);
-	Cmd(SendUARTData, BOTH);
-	Cmd(RemoteCommand, BOTH);
-	Cmd(SDecVarJumpLTZero, BOTH);
-	Cmd(DirectEvent, BOTH);
-	Cmd(SetPower, BOTH);
-	Cmd(PlayTone, BOTH);
-	Cmd(SelectDisplay, BOTH);
-	Cmd(Wait, BOTH);
-	Cmd(UploadRam, BOTH);
-	Cmd(EnterAccessControl, BOTH);
-	Cmd(SetEvent, BOTH);
-	Cmd(SetMaxPower, BOTH);
-	Cmd(LDecVarJumpLTZero, BOTH);
-	Cmd(CalibrateEvent, BOTH);
-	Cmd(SetVar, BOTH);
-	Cmd(SumVar, BOTH);
-	Cmd(SubVar, BOTH);
-	Cmd(DivVar, BOTH);
-	Cmd(MulVar, BOTH);
-	Cmd(SgnVar, BOTH);
-	Cmd(AbsVar, BOTH);
-	Cmd(AndVar, BOTH);
-	Cmd(OrVar, BOTH);
-	Cmd(Upload, BOTH);
-	Cmd(SEnterEventCheck, BOTH);
-	Cmd(SetSourceValue, BOTH);
-	Cmd(UnlockPBrick, BOTH);
-	Cmd(BeginOfTask, BOTH);
-	Cmd(BeginOfSub, BOTH);
-	Cmd(ContinueFirmwareDownLoad, BOTH);
-	Cmd(GoIntoBootMode, BOTH);
-	Cmd(BeginFirmwareDownLoad, BOTH);
-	Cmd(SCheckDo, BOTH);
-	Cmd(LCheckDo, BOTH);
-	Cmd(UnlockFirmware, BOTH);
-	Cmd(LEnterEventCheck, BOTH);
-	Cmd(ViewSourceValue, BOTH);
+	//Cmd(DeleteTask, BOTH);
+	//Cmd(StartTask, BOTH);
+	//Cmd(StopTask, BOTH);
+	//Cmd(SelectProgram, BOTH);
+	//Cmd(ClearTimer, BOTH);
+	//Cmd(PBPowerDownTime, BOTH);
+	//Cmd(DeleteSub, BOTH);
+	//Cmd(ClearSensorValue, BOTH);
+	//Cmd(SetFwdSetRwdRewDir, BOTH);
+	//Cmd(Gosub, BOTH);
+	//Cmd(SJump, BOTH);
+	//Cmd(SCheckLoopCounter, BOTH);
+	//Cmd(ConnectDisconnect, BOTH);
+	//Cmd(SetNormSetInvAltDir, BOTH);
+	//Cmd(IncCounter, BOTH);
+	//Cmd(DecCounter, BOTH);
+	//Cmd(ClearCounter, BOTH);
+	//Cmd(SetPriority, BOTH);
+	//Cmd(InternMessage, BOTH);
+	//Cmd(PlayToneVar, BOTH);
+	//Cmd(Poll, BOTH);
+	//Cmd(SetWatch, BOTH);
+	//Cmd(SetSensorType, BOTH);
+	//Cmd(SetSensorMode, BOTH);
+	//Cmd(SetDataLog, BOTH);
+	//Cmd(DataLogNext, BOTH);
+	//Cmd(LJump, BOTH);
+	//Cmd(SetLoopCounter, BOTH);
+	//Cmd(LCheckLoopCounter, BOTH);
+	//Cmd(SendPBMessage, BOTH);
+	//Cmd(SendUARTData, BOTH);
+	//Cmd(RemoteCommand, BOTH);
+	//Cmd(SDecVarJumpLTZero, BOTH);
+	//Cmd(DirectEvent, BOTH);
+	//Cmd(SetPower, BOTH);
+	//Cmd(PlayTone, BOTH);
+	//Cmd(SelectDisplay, BOTH);
+	//Cmd(Wait, BOTH);
+	//Cmd(UploadRam, BOTH);
+	//Cmd(EnterAccessControl, BOTH);
+	//Cmd(SetEvent, BOTH);
+	//Cmd(SetMaxPower, BOTH);
+	//Cmd(LDecVarJumpLTZero, BOTH);
+	//Cmd(CalibrateEvent, BOTH);
+	//Cmd(SetVar, BOTH);
+	//Cmd(SumVar, BOTH);
+	//Cmd(SubVar, BOTH);
+	//Cmd(DivVar, BOTH);
+	//Cmd(MulVar, BOTH);
+	//Cmd(SgnVar, BOTH);
+	//Cmd(AbsVar, BOTH);
+	//Cmd(AndVar, BOTH);
+	//Cmd(OrVar, BOTH);
+	//Cmd(Upload, BOTH);
+	//Cmd(SEnterEventCheck, BOTH);
+	//Cmd(SetSourceValue, BOTH);
+	//Cmd(UnlockPBrick, BOTH);
+	//Cmd(BeginOfTask, BOTH);
+	//Cmd(BeginOfSub, BOTH);
+	//Cmd(ContinueFirmwareDownLoad, BOTH);
+	//Cmd(GoIntoBootMode, BOTH);
+	//Cmd(BeginFirmwareDownLoad, BOTH);
+	//Cmd(SCheckDo, BOTH);
+	//Cmd(LCheckDo, BOTH);
+	//Cmd(UnlockFirmware, BOTH);
+	//Cmd(LEnterEventCheck, BOTH);
+	//Cmd(ViewSourceValue, BOTH);*/
 }
