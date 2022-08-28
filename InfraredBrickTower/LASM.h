@@ -161,11 +161,6 @@ namespace LASM
 			dataLength = MAX_COMMAND_LENGTH;
 			data = new BYTE[dataLength];
 		}
-
-		~CommandData()
-		{
-			delete data;
-		}
 	};
 
 	//struct CommandData
@@ -234,21 +229,21 @@ inline CommandData Cmd_##command##() \
 #define NO_REPLY -1
 
 	// dumped from the LASM pdf from the RCX 2.0 sdk using a python script i wrote that's included in the root folder of this repo
-	Cmd(PBAliveOrNot, BOTH);
-	Cmd(MemMap, BOTH);
-	Cmd(PBBattery, BOTH);
-	Cmd(DeleteAllTasks, BOTH);
-	Cmd(StopAllTasks, BOTH);
-	Cmd(PBTurnOff, BOTH);
-	Cmd(DeleteAllSubs, BOTH);
-	Cmd(ClearSound, BOTH);
-	Cmd(ClearPBMessage, BOTH);
-	Cmd(ExitAccessControl, BOTH);
-	Cmd(ExitEventCheck, BOTH);
-	Cmd(MuteSound, BOTH);
-	Cmd(UnmuteSound, BOTH);
-	Cmd(ClearAllEvents, BOTH);
-	Cmd(EndOfSub, BOTH);
+	Cmd(PBAliveOrNot, BOTH)
+	Cmd(MemMap, BOTH)
+	Cmd(PBBattery, BOTH)
+	Cmd(DeleteAllTasks, BOTH)
+	Cmd(StopAllTasks, BOTH)
+	Cmd(PBTurnOff, BOTH)
+	Cmd(DeleteAllSubs, BOTH)
+	Cmd(ClearSound, BOTH)
+	Cmd(ClearPBMessage, BOTH)
+	Cmd(ExitAccessControl, BOTH)
+	Cmd(ExitEventCheck, BOTH)
+	Cmd(MuteSound, BOTH)
+	Cmd(UnmuteSound, BOTH)
+	Cmd(ClearAllEvents, BOTH)
+	Cmd(EndOfSub, BOTH)
 	//Cmd(OnOffFloat, BOTH);
 	//Cmd(PbTXPower, BOTH);
 	//Cmd(PlaySystemSound, BOTH);

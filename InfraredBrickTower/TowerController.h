@@ -285,9 +285,9 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 
 		~TowerData()
 		{
-			delete commInterface;
-			delete replyBuffer;
-			delete stringBuffer;
+			//delete commInterface;
+			//delete replyBuffer;
+			//delete stringBuffer;
 		}
 	};
 
