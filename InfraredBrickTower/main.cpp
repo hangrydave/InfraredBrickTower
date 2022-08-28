@@ -9,15 +9,13 @@
 #include <stdio.h>
 #include <iostream>
 
-using namespace Tower;
-
 BOOL StringsAreEqual(char* strOne, char* strTwo);
-VOID MicroScoutCLI(TowerData* towerData);
+VOID MicroScoutCLI(Tower::TowerData* towerData);
 
-VOID TestTower(TowerData* data);
-VOID BeepRCX(TowerData* towerData);
-VOID BeepMicroScout(TowerData* towerData);
-VOID BeepRCXAndMicroScout(TowerData* towerData);
+VOID TestTower(Tower::TowerData* data);
+VOID BeepRCX(Tower::TowerData* towerData);
+VOID BeepMicroScout(Tower::TowerData* towerData);
+VOID BeepRCXAndMicroScout(Tower::TowerData* towerData);
 
 LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 {
@@ -33,7 +31,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 		return 0;
 	}
 
-	TowerData* towerData = new TowerData(usbTowerInterface);
+	Tower::TowerData* towerData = new Tower::TowerData(usbTowerInterface);
 
 	BeepRCX(towerData);
 
@@ -44,7 +42,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	return 0;
 }
 
-VOID MicroScoutCLI(TowerData* data)
+VOID MicroScoutCLI(Tower::TowerData* data)
 {
 	enum MSCLIMode
 	{
@@ -52,8 +50,8 @@ VOID MicroScoutCLI(TowerData* data)
 		PROGRAM
 	};
 
-	SetIndicatorLEDMode(TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, data);
-	SetMode(TowerMode::VLL, data);
+	SetIndicatorLEDMode(Tower::TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, data);
+	SetMode(Tower::TowerMode::VLL, data);
 	
 	char* help = "Commands:\n\nquit, help\n\nbeep1, beep2, beep3, beep4, beep5\n\nfwd, bwd\n\nstop, run, delete\n\nwaitlight, seeklight, code, keepalive\n\nUse \"directmode\" for immediate control and \"programmode\" to program the MicroScout.\n";
 	printf(help);
@@ -211,7 +209,7 @@ VOID MicroScoutCLI(TowerData* data)
 	}
 }
 
-VOID TestTower(TowerData* data)
+VOID TestTower(Tower::TowerData* data)
 {
 	GetCopyright(data);
 	wprintf(data->stringBuffer);
@@ -220,15 +218,15 @@ VOID TestTower(TowerData* data)
 	wprintf(data->stringBuffer);
 }
 
-VOID BeepMicroScout(TowerData* towerData)
+VOID BeepMicroScout(Tower::TowerData* towerData)
 {
-	Tower::SetMode(TowerMode::VLL, towerData);
+	Tower::SetMode(Tower::TowerMode::VLL, towerData);
 	VLL_Beep1Immediate(towerData);
 }
 
-VOID BeepRCX(TowerData* towerData)
+VOID BeepRCX(Tower::TowerData* towerData)
 {
-	SetMode(TowerMode::IR, towerData);
+	SetMode(Tower::TowerMode::IR, towerData);
 
 	ULONG lengthWritten;
 	ULONG lengthRead = 0;
@@ -239,32 +237,25 @@ VOID BeepRCX(TowerData* towerData)
 	BOOL readSuccess;
 	BOOL validateSuccess;
 
-	LASM::CommandData aliveOrNot = LASM::Cmd_PBAliveOrNot();
-	writeSuccess = WriteData(aliveOrNot.data.get(), aliveOrNot.dataLength, lengthWritten, towerData);
-	readSuccess = ReadData(replyBuffer, replyLength, lengthRead, towerData);
-	validateSuccess = LASM::ValidateReply(aliveOrNot.command, replyBuffer, replyLength);
+	LASM::CommandData command = LASM::Cmd_PBAliveOrNot();
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	assert(writeSuccess && readSuccess && validateSuccess);
 
-	if (!writeSuccess || !readSuccess || !validateSuccess)
-		__debugbreak();
+	command = LASM::Cmd_StopAllTasks();
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	assert(writeSuccess && readSuccess && validateSuccess);
 
-	LASM::CommandData stopAllTasks = LASM::Cmd_StopAllTasks();
-	writeSuccess = WriteData(stopAllTasks.data.get(), stopAllTasks.dataLength, lengthWritten, towerData);
-	readSuccess = ReadData(replyBuffer, replyLength, lengthRead, towerData);
-	validateSuccess = LASM::ValidateReply(stopAllTasks.command, replyBuffer, replyLength);
-
-	if (!writeSuccess || !readSuccess || !validateSuccess)
-		__debugbreak();
-
-	LASM::CommandData playSound = LASM::Cmd_PlaySystemSound(LASM::BEEP);
-	writeSuccess = WriteData(playSound.data.get(), playSound.dataLength, lengthWritten, towerData);
-	readSuccess = ReadData(replyBuffer, replyLength, lengthRead, towerData);
-	validateSuccess = LASM::ValidateReply(playSound.command, replyBuffer, replyLength);
-
-	if (!writeSuccess || !readSuccess || !validateSuccess)
-		__debugbreak();
+	command = LASM::Cmd_PlaySystemSound(LASM::BEEP);
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
 }
 
-VOID BeepRCXAndMicroScout(TowerData* towerData)
+VOID BeepRCXAndMicroScout(Tower::TowerData* towerData)
 {
 	/* MicroScout */
 
