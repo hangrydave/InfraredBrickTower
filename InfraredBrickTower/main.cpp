@@ -249,7 +249,7 @@ VOID BeepRCX(Tower::RequestData* towerData)
 	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
 	assert(writeSuccess && readSuccess && validateSuccess);
 
-	command = LASM::Cmd_PlaySystemSound(LASM::BEEP);
+	command = LASM::Cmd_PlaySystemSound(LASM::SystemSound::BEEP);
 	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
 	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
 	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
