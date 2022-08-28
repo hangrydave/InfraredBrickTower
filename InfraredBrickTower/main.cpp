@@ -10,12 +10,12 @@
 #include <iostream>
 
 BOOL StringsAreEqual(char* strOne, char* strTwo);
-VOID MicroScoutCLI(Tower::TowerData* towerData);
+VOID MicroScoutCLI(Tower::RequestData* towerData);
 
-VOID TestTower(Tower::TowerData* data);
-VOID BeepRCX(Tower::TowerData* towerData);
-VOID BeepMicroScout(Tower::TowerData* towerData);
-VOID BeepRCXAndMicroScout(Tower::TowerData* towerData);
+VOID TestTower(Tower::RequestData* data);
+VOID BeepRCX(Tower::RequestData* towerData);
+VOID BeepMicroScout(Tower::RequestData* towerData);
+VOID BeepRCXAndMicroScout(Tower::RequestData* towerData);
 
 LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 {
@@ -31,7 +31,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 		return 0;
 	}
 
-	Tower::TowerData* towerData = new Tower::TowerData(usbTowerInterface);
+	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
 	BeepRCX(towerData);
 
@@ -42,7 +42,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	return 0;
 }
 
-VOID MicroScoutCLI(Tower::TowerData* data)
+VOID MicroScoutCLI(Tower::RequestData* data)
 {
 	enum MSCLIMode
 	{
@@ -50,8 +50,8 @@ VOID MicroScoutCLI(Tower::TowerData* data)
 		PROGRAM
 	};
 
-	SetIndicatorLEDMode(Tower::TowerIndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, data);
-	SetMode(Tower::TowerMode::VLL, data);
+	Tower::SetIndicatorLEDMode(Tower::IndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, data);
+	Tower::SetCommMode(Tower::CommMode::VLL, data);
 	
 	char* help = "Commands:\n\nquit, help\n\nbeep1, beep2, beep3, beep4, beep5\n\nfwd, bwd\n\nstop, run, delete\n\nwaitlight, seeklight, code, keepalive\n\nUse \"directmode\" for immediate control and \"programmode\" to program the MicroScout.\n";
 	printf(help);
@@ -209,7 +209,7 @@ VOID MicroScoutCLI(Tower::TowerData* data)
 	}
 }
 
-VOID TestTower(Tower::TowerData* data)
+VOID TestTower(Tower::RequestData* data)
 {
 	GetCopyright(data);
 	wprintf(data->stringBuffer);
@@ -218,15 +218,15 @@ VOID TestTower(Tower::TowerData* data)
 	wprintf(data->stringBuffer);
 }
 
-VOID BeepMicroScout(Tower::TowerData* towerData)
+VOID BeepMicroScout(Tower::RequestData* towerData)
 {
-	Tower::SetMode(Tower::TowerMode::VLL, towerData);
+	Tower::SetCommMode(Tower::CommMode::VLL, towerData);
 	VLL_Beep1Immediate(towerData);
 }
 
-VOID BeepRCX(Tower::TowerData* towerData)
+VOID BeepRCX(Tower::RequestData* towerData)
 {
-	SetMode(Tower::TowerMode::IR, towerData);
+	SetCommMode(Tower::CommMode::IR, towerData);
 
 	ULONG lengthWritten;
 	ULONG lengthRead = 0;
@@ -255,7 +255,7 @@ VOID BeepRCX(Tower::TowerData* towerData)
 	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
 }
 
-VOID BeepRCXAndMicroScout(Tower::TowerData* towerData)
+VOID BeepRCXAndMicroScout(Tower::RequestData* towerData)
 {
 	/* MicroScout */
 

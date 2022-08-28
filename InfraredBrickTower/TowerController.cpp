@@ -11,7 +11,7 @@
 
 namespace Tower
 {
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, TowerData* data)
+	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data)
 	{
 		ULONG lengthRead;
 		return ReadData(buffer, bufferLength, lengthRead, data);
@@ -21,9 +21,9 @@ namespace Tower
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthRead,
-		TowerData* data)
+		RequestData* data)
 	{
-		while (GetTransmitterState(data) == TowerTransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
+		while (GetTransmitterState(data) == TransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
 
 		INT readAttemptCount = 0;
 		BOOL success = FALSE;
@@ -47,7 +47,7 @@ namespace Tower
 		return lengthRead > 0;
 	}
 
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, TowerData* data)
+	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data)
 	{
 		ULONG lengthWritten;
 		return WriteData(buffer, bufferLength, lengthWritten, data);
@@ -57,9 +57,9 @@ namespace Tower
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthWritten,
-		TowerData* data)
+		RequestData* data)
 	{
-		while (GetTransmitterState(data) == TowerTransmitterState::BUSY) { printf("Tower busy, can't write...\n"); }
+		while (GetTransmitterState(data) == TransmitterState::BUSY) { printf("Tower busy, can't write...\n"); }
 
 		INT writeAttemptCount = 0;
 		BOOL success = FALSE;
@@ -73,139 +73,139 @@ namespace Tower
 		return bufferLength == lengthWritten;
 	}
 
-	VOID Flush(TowerBuffer buffer, TowerData* data)
+	VOID Flush(CommBuffer buffer, RequestData* data)
 	{
 		BYTE loByte = (BYTE)buffer;
 		BYTE hiByte = 0;
 		MakeRequest(
-			TowerRequestType::FLUSH,
+			RequestType::FLUSH,
 			loByte,
 			hiByte,
 			data);
 	}
 
-	VOID Reset(TowerData* data)
+	VOID Reset(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::RESET, data);
+		MakeRequest(RequestType::RESET, data);
 	}
 
-	TowerPower GetPower(TowerData* data)
+	Power GetPower(RequestData* data)
 	{
 		BYTE loByte = 0;
 		BYTE hiByte = 0;
 		MakeRequest(
-			TowerRequestType::GET_POWER,
+			RequestType::GET_POWER,
 			loByte,
 			hiByte,
 			data);
 
-		return (TowerPower) *(data->replyBuffer + 4);
+		return (Power) *(data->replyBuffer + 4);
 	}
 
-	TowerStatData GetStatistics(TowerData* data)
+	StatisticsData GetStatistics(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_STATISTICS, data);
+		MakeRequest(RequestType::GET_STATISTICS, data);
 
-		return *reinterpret_cast<TowerStatData*>(data->replyBuffer + 4);
+		return *reinterpret_cast<StatisticsData*>(data->replyBuffer + 4);
 	}
 
-	VOID ResetStatistics(TowerData* data)
+	VOID ResetStatistics(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::RESET_STATISTICS, data);
+		MakeRequest(RequestType::RESET_STATISTICS, data);
 	}
 
-	TowerCommSpeed GetTransmissionSpeed(TowerData* data)
+	CommSpeed GetTransmissionSpeed(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_TRANSMISSION_SPEED, data);
+		MakeRequest(RequestType::GET_TRANSMISSION_SPEED, data);
 
-		return (TowerCommSpeed) *(data->replyBuffer + 4);
+		return (CommSpeed) *(data->replyBuffer + 4);
 	}
 
-	VOID SetTransmissionSpeed(TowerCommSpeed speed, TowerData* data)
+	VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data)
 	{
 		MakeRequest(
-			TowerRequestType::SET_TRANSMISSION_SPEED,
+			RequestType::SET_TRANSMISSION_SPEED,
 			(BYTE)speed,
 			0,
 			data);
 	}
 
-	TowerCommSpeed GetReceivingSpeed(TowerData* data)
+	CommSpeed GetReceivingSpeed(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_RECEIVING_SPEED, data);
+		MakeRequest(RequestType::GET_RECEIVING_SPEED, data);
 
-		return (TowerCommSpeed) *(data->replyBuffer + 4);
+		return (CommSpeed) *(data->replyBuffer + 4);
 	}
 
-	VOID SetReceivingSpeed(TowerCommSpeed speed, TowerData* data)
+	VOID SetReceivingSpeed(CommSpeed speed, RequestData* data)
 	{
 		MakeRequest(
-			TowerRequestType::SET_RECEIVING_SPEED,
+			RequestType::SET_RECEIVING_SPEED,
 			(BYTE)speed,
 			0,
 			data);
 	}
 
-	TowerTransmitterState GetTransmitterState(TowerData* data)
+	TransmitterState GetTransmitterState(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_TRANSMITTER_STATE, data);
+		MakeRequest(RequestType::GET_TRANSMITTER_STATE, data);
 
-		return (TowerTransmitterState) *(data->replyBuffer + 4);
+		return (TransmitterState) *(data->replyBuffer + 4);
 	}
 
-	TowerLEDColor GetLEDColor(TowerLED led, TowerData* data)
+	LEDColor GetLEDColor(LED led, RequestData* data)
 	{
 		BYTE loByte = (BYTE)led;
 		BYTE hiByte = 0;
 		MakeRequest(
-			TowerRequestType::GET_LED,
+			RequestType::GET_LED,
 			loByte,
 			hiByte,
 			data);
 
-		return (TowerLEDColor) *(data->replyBuffer + 5);
+		return (LEDColor) *(data->replyBuffer + 5);
 	}
 
-	VOID SetLEDColor(TowerLED led, TowerLEDColor color, TowerData* data)
+	VOID SetLEDColor(LED led, LEDColor color, RequestData* data)
 	{
 		BYTE loByte = (BYTE)led;
 		BYTE hiByte = (BYTE)color;
 		MakeRequest(
-			TowerRequestType::SET_LED,
+			RequestType::SET_LED,
 			loByte,
 			hiByte,
 			data);
 	}
 
-	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, TowerData* data)
+	CapabilitiesData GetCapabilities(CapabilityLink link, RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_CAPABILITIES, (WORD)link, data);
+		MakeRequest(RequestType::GET_CAPABILITIES, (WORD)link, data);
 
-		return *reinterpret_cast<TowerCapabilitiesData*>(data->replyBuffer + 4);
+		return *reinterpret_cast<CapabilitiesData*>(data->replyBuffer + 4);
 	}
 
-	TowerVersionData GetVersion(TowerData* data)
+	VersionData GetVersion(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_VERSION, data);
+		MakeRequest(RequestType::GET_VERSION, data);
 
-		return *reinterpret_cast<TowerVersionData*>(data->replyBuffer + 4);
+		return *reinterpret_cast<VersionData*>(data->replyBuffer + 4);
 	}
 
-	VOID GetCopyright(TowerData* data)
+	VOID GetCopyright(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_COPYRIGHT, data);
+		MakeRequest(RequestType::GET_COPYRIGHT, data);
 
 		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID GetCredits(TowerData* data)
+	VOID GetCredits(RequestData* data)
 	{
-		MakeRequest(TowerRequestType::GET_CREDITS, data);
+		MakeRequest(RequestType::GET_CREDITS, data);
 
 		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID ReadStringFromReplyBuffer(TowerData* data)
+	VOID ReadStringFromReplyBuffer(RequestData* data)
 	{
 		// the vendor requests that reply with a string put the length at the front of the buffer
 		data->stringLength = *((WORD*)(data->replyBuffer));
@@ -219,21 +219,21 @@ namespace Tower
 	}
 
 	VOID SetParameter(
-		TowerParamType parameter,
+		ParamType parameter,
 		BYTE value,
-		TowerData* data)
+		RequestData* data)
 	{
 		MakeRequest(
-			TowerRequestType::SET_PARAMETER,
+			RequestType::SET_PARAMETER,
 			(BYTE)parameter,
 			value,
 			data);
 	}
 
-	BYTE GetParameter(TowerParamType parameter, TowerData* data)
+	BYTE GetParameter(ParamType parameter, RequestData* data)
 	{
 		MakeRequest(
-			TowerRequestType::GET_PARAMETER,
+			RequestType::GET_PARAMETER,
 			(BYTE)parameter,
 			0,
 			data);
@@ -241,25 +241,25 @@ namespace Tower
 		return *(data->replyBuffer + 3);
 	}
 
-	VOID MakeRequest(TowerRequestType request, TowerData* data)
+	VOID MakeRequest(RequestType request, RequestData* data)
 	{
 		MakeRequest(request, 0, data);
 	}
 
 	VOID MakeRequest(
-		TowerRequestType request,
+		RequestType request,
 		BYTE loByte,
 		BYTE hiByte,
-		TowerData* data)
+		RequestData* data)
 	{
 		WORD value = ((hiByte << 8) | loByte);
 		MakeRequest(request, value, data);
 	}
 
 	VOID MakeRequest(
-		TowerRequestType request,
+		RequestType request,
 		WORD value,
-		TowerData* data)
+		RequestData* data)
 	{
 		// not used rn, will implement when used
 		WORD index = 0;
@@ -274,15 +274,15 @@ namespace Tower
 
 		if (!success)
 		{
-			data->lastRequestError = TowerRequestError::BAD_PARAMETER;
+			data->lastRequestError = RequestError::BAD_PARAMETER;
 		}
 		else
 		{
 			BYTE errorByte = *(data->replyBuffer + 2);
-			data->lastRequestError = (TowerRequestError)errorByte;
+			data->lastRequestError = (RequestError)errorByte;
 		}
 
-		if (data->lastRequestError != TowerRequestError::SUCCESS)
+		if (data->lastRequestError != RequestError::SUCCESS)
 		{
 #if DEBUG == 1
 			__debugbreak();
@@ -291,22 +291,22 @@ namespace Tower
 			printf("Tower request error: ");
 			switch (data->lastRequestError)
 			{
-			case TowerRequestError::BAD_PARAMETER:
+			case RequestError::BAD_PARAMETER:
 				printf("bad param");
 				break;
-			case TowerRequestError::BUSY:
+			case RequestError::BUSY:
 				printf("busy");
 				break;
-			case TowerRequestError::NOT_ENOUGH_POWER:
+			case RequestError::NOT_ENOUGH_POWER:
 				printf("not enough power");
 				break;
-			case TowerRequestError::WRONG_MODE:
+			case RequestError::WRONG_MODE:
 				printf("wrong mode");
 				break;
-			case TowerRequestError::INTERNAL_ERROR:
+			case RequestError::INTERNAL_ERROR:
 				printf("internal error");
 				break;
-			case TowerRequestError::BAD_REQUEST:
+			case RequestError::BAD_REQUEST:
 				printf("bad request");
 				break;
 			}

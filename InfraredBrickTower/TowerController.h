@@ -25,16 +25,16 @@ namespace Tower
 		anyway, this might be bad, idk and tbqh idc
 	*/
 #define GenerateParameterSetterAndGetter(paramType, outputType) \
-inline Tower##outputType Get##outputType##(TowerData* data) \
+inline outputType Get##outputType##(RequestData* data) \
 { \
-	return (Tower##outputType) GetParameter(##paramType##, data); \
+	return (##outputType) GetParameter(##paramType##, data); \
 } \
-inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
+inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
 { \
 	SetParameter(##paramType##, (BYTE)newValue, data); \
 }
 
-	enum class TowerRequestType : BYTE
+	enum class RequestType : BYTE
 	{
 		GET_PARAMETER = 0x01,
 		SET_PARAMETER = 0x02,
@@ -62,7 +62,7 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		GET_CREDITS = 0xFF
 	};
 
-	enum class TowerRequestError : BYTE
+	enum class RequestError : BYTE
 	{
 		SUCCESS = 0x00,
 		BAD_PARAMETER = 0x01,
@@ -73,7 +73,7 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		BAD_REQUEST = 0xFF
 	};
 
-	enum class TowerParamType : BYTE
+	enum class ParamType : BYTE
 	{
 		MODE = 0x01,
 		RANGE = 0x02,
@@ -84,7 +84,7 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		ERROR_SIGNAL = 0x99
 	};
 
-	enum class TowerMode : BYTE
+	enum class CommMode : BYTE
 	{
 		VLL = 0x01,
 		IR = 0x02,
@@ -92,20 +92,20 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		RADIO = 0x08
 	};
 
-	enum class TowerRange : BYTE
+	enum class CommRange : BYTE
 	{
 		SHORT = 0x01,
 		MEDIUM = 0x02,
 		LONG = 0x03
 	};
 
-	enum class TowerErrorDetection : BYTE
+	enum class ErrorDetectionMode : BYTE
 	{
 		ON = 0x01,
 		OFF = 0x02
 	};
 
-	enum class TowerErrorStatus : BYTE
+	enum class ErrorStatus : BYTE
 	{
 		OK = 0,
 		// Function/parameter error
@@ -132,44 +132,44 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		UNDEFINED = 255
 	};
 
-	enum class TowerEndian : BYTE
+	enum class Endian : BYTE
 	{
 		LITTLE = 0x01,
 		BIG = 0x02
 	};
 
-	enum class TowerIndicatorLEDMode : BYTE
+	enum class IndicatorLEDMode : BYTE
 	{
 		FIRMWARE_CONTROLLED = 0x01,
 		HOST_SOFTWARE_CONTROLLED = 0x02
 	};
 
-	enum class TowerErrorSignal : BYTE
+	enum class ErrorSignalMode : BYTE
 	{
 		LED_ON = 0x01,
 		LED_OFF = 0x02
 	};
 
-	enum class TowerBuffer : BYTE
+	enum class CommBuffer : BYTE
 	{
 		TRANSMISSION_BUFFER = 0x01,
 		RECEIVER_BUFFER = 0x02,
 		ALL_BUFFERS = 0x03
 	};
 
-	enum class TowerPower : BYTE
+	enum class Power : BYTE
 	{
 		LOW = 0x01,
 		HIGH = 0x02
 	};
 
-	enum class TowerLED : BYTE
+	enum class LED : BYTE
 	{
 		ID = 0x01,
 		VLL = 0x02
 	};
 
-	enum class TowerLEDColor : BYTE
+	enum class LEDColor : BYTE
 	{
 		OFF = 0x00,
 		GREEN = 0x01,
@@ -179,13 +179,13 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		DEFAULT = 0xFF
 	};
 
-	enum class TowerIRCParam : BYTE
+	enum class IRCParam : BYTE
 	{
 		PACKET_SIZE = 0x01,
 		TRANSMISSION_DELAY = 0x02
 	};
 
-	enum class TowerCommSpeed : WORD
+	enum class CommSpeed : WORD
 	{
 		COMM_BAUD_1200 = 0x0004,
 		COMM_BAUD_2400 = 0x0008,
@@ -194,13 +194,13 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		COMM_BAUD_19200 = 0x0040
 	};
 
-	enum class TowerTransmitterState : BYTE
+	enum class TransmitterState : BYTE
 	{
 		READY = 0x01,
 		BUSY = 0x02
 	};
 
-	enum class TowerCapabilityLink : BYTE
+	enum class CapabilityLink : BYTE
 	{
 		VLL = 0x01,
 		IR = 0x02,
@@ -208,14 +208,14 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		//RADIO = 0x08		unsupported
 	};
 
-	enum class TowerCapabilityCommDirection : BYTE
+	enum class CapabilityCommDirection : BYTE
 	{
 		TRANSMIT = 0x01,
 		RECEIVE = 0x02,
 		BOTH = 0x03
 	};
 
-	enum class TowerCapabilityCommRange : BYTE
+	enum class CapabilityCommRange : BYTE
 	{
 		SHORT = 0x01,
 		MEDIUM = 0x02,
@@ -223,7 +223,7 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 		ALL = 0x07
 	};
 
-	enum class TowerCapabilityCommSpeed : WORD
+	enum class CapabilityCommSpeed : WORD
 	{
 		COMM_BAUD_1200 = 0x0004,
 		COMM_BAUD_2400 = 0x0008,
@@ -233,12 +233,12 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 	};
 
 #pragma pack(push, 1)
-	struct TowerCapabilitiesData
+	struct CapabilitiesData
 	{
-		TowerCapabilityCommDirection direction;
-		TowerCapabilityCommRange range;
-		TowerCapabilityCommSpeed transmitRate;
-		TowerCapabilityCommSpeed receiveRate;
+		CapabilityCommDirection direction;
+		CapabilityCommRange range;
+		CapabilityCommSpeed transmitRate;
+		CapabilityCommSpeed receiveRate;
 		BYTE minCarrierFrequency; // what is this
 		BYTE maxCarrierFrequency; // what is this
 		WORD minDutyCycle; // what is this
@@ -249,7 +249,7 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-	struct TowerVersionData
+	struct VersionData
 	{
 		BYTE majorVersion;
 		BYTE minorVersion;
@@ -258,7 +258,7 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-	struct TowerStatData
+	struct StatisticsData
 	{
 		WORD receivedBytesCount;
 		WORD overrunErrorCount;
@@ -269,89 +269,89 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 
 #define REPLY_BUFFER_LENGTH 1000
 
-	struct TowerData
+	struct RequestData
 	{
 		HostTowerCommInterface* commInterface;
 
-		TowerRequestError lastRequestError = TowerRequestError::SUCCESS;
+		RequestError lastRequestError = RequestError::SUCCESS;
 		ULONG lastReplyLength = 0;
 		BYTE replyBuffer[REPLY_BUFFER_LENGTH];
 		ULONG stringLength = 0;
 		WCHAR stringBuffer[REPLY_BUFFER_LENGTH];
 
-		TowerData(HostTowerCommInterface* commInterface)
+		RequestData(HostTowerCommInterface* commInterface)
 		{
 			this->commInterface = commInterface;
 		}
 
-		~TowerData()
+		~RequestData()
 		{
 		}
 	};
 
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, TowerData* data);
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, TowerData* data);
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, TowerData* data);
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, TowerData* data);
+	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
+	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
+	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
+	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
 
-	VOID Flush(TowerBuffer buffer, TowerData* data);
-	VOID Reset(TowerData* data);
+	VOID Flush(CommBuffer buffer, RequestData* data);
+	VOID Reset(RequestData* data);
 
-	TowerPower GetPower(TowerData* data);
+	Power GetPower(RequestData* data);
 
-	TowerLEDColor GetLEDColor(TowerLED led, TowerData* data);
-	VOID SetLEDColor(TowerLED led, TowerLEDColor color, TowerData* data);
+	LEDColor GetLEDColor(LED led, RequestData* data);
+	VOID SetLEDColor(LED led, LEDColor color, RequestData* data);
 
-	TowerStatData GetStatistics(TowerData* data);
-	VOID ResetStatistics(TowerData* data);
+	StatisticsData GetStatistics(RequestData* data);
+	VOID ResetStatistics(RequestData* data);
 
 	/*TowerIRCParam GetIRCParameter();
 	VOID SetIRCParameter(TowerIRCParam param);*/
 
-	TowerCommSpeed GetTransmissionSpeed(TowerData* data);
-	VOID SetTransmissionSpeed(TowerCommSpeed speed, TowerData* data);
+	CommSpeed GetTransmissionSpeed(RequestData* data);
+	VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data);
 
-	TowerCommSpeed GetReceivingSpeed(TowerData* data);
-	VOID SetReceivingSpeed(TowerCommSpeed speed, TowerData* data);
+	CommSpeed GetReceivingSpeed(RequestData* data);
+	VOID SetReceivingSpeed(CommSpeed speed, RequestData* data);
 
-	TowerTransmitterState GetTransmitterState(TowerData* data);
+	TransmitterState GetTransmitterState(RequestData* data);
 
 	/*BYTE GetTransmissionCarrierFrequency();
 	VOID SetTransmissionCarrierFrequency();
 	BYTE GetTransmissionCarrierDutyCycle();
 	VOID SetTransmissionCarrierDutyCycle();*/
 
-	TowerCapabilitiesData GetCapabilities(TowerCapabilityLink link, TowerData* data);
-	TowerVersionData GetVersion(TowerData* data);
-	VOID GetCopyright(TowerData* data);
-	VOID GetCredits(TowerData* data);
+	CapabilitiesData GetCapabilities(CapabilityLink link, RequestData* data);
+	VersionData GetVersion(RequestData* data);
+	VOID GetCopyright(RequestData* data);
+	VOID GetCredits(RequestData* data);
 
-	VOID ReadStringFromReplyBuffer(TowerData* data);
+	VOID ReadStringFromReplyBuffer(RequestData* data);
 
 	VOID SetParameter(
-		TowerParamType parameter,
+		ParamType parameter,
 		BYTE value,
-		TowerData* data);
-	BYTE GetParameter(TowerParamType parameter, TowerData* data);
+		RequestData* data);
+	BYTE GetParameter(ParamType parameter, RequestData* data);
 
-	VOID MakeRequest(TowerRequestType request, TowerData* data);
+	VOID MakeRequest(RequestType request, RequestData* data);
 	VOID MakeRequest(
-		TowerRequestType request,
+		RequestType request,
 		WORD value,
-		TowerData* data);
+		RequestData* data);
 	VOID MakeRequest(
-		TowerRequestType request,
+		RequestType request,
 		BYTE loByte,
 		BYTE hiByte,
-		TowerData* data);
+		RequestData* data);
 
-	GenerateParameterSetterAndGetter(TowerParamType::MODE, Mode)
-	GenerateParameterSetterAndGetter(TowerParamType::RANGE, Range)
-	GenerateParameterSetterAndGetter(TowerParamType::ERROR_DETECTION, ErrorDetection)
-	GenerateParameterSetterAndGetter(TowerParamType::ERROR_STATUS, ErrorStatus)
-	GenerateParameterSetterAndGetter(TowerParamType::ENDIAN, Endian)
-	GenerateParameterSetterAndGetter(TowerParamType::INDICATOR_LED_MODE, IndicatorLEDMode)
-	GenerateParameterSetterAndGetter(TowerParamType::ERROR_SIGNAL, ErrorSignal)
+	GenerateParameterSetterAndGetter(ParamType::MODE, CommMode)
+	GenerateParameterSetterAndGetter(ParamType::RANGE, CommRange)
+	GenerateParameterSetterAndGetter(ParamType::ERROR_DETECTION, ErrorDetectionMode)
+	GenerateParameterSetterAndGetter(ParamType::ERROR_STATUS, ErrorStatus)
+	GenerateParameterSetterAndGetter(ParamType::ENDIAN, Endian)
+	GenerateParameterSetterAndGetter(ParamType::INDICATOR_LED_MODE, IndicatorLEDMode)
+	GenerateParameterSetterAndGetter(ParamType::ERROR_SIGNAL, ErrorSignalMode)
 }
 
 #endif TOWERCONTROLLER_H
