@@ -37,7 +37,7 @@ namespace Tower
 				// maybe are better ways to handle this, i'm sure, but... ez pz
 
 				// UPDATE: this happens EVERY TIME... no idea why?
-				success = data->commInterface->Read(buffer + 1, bufferLength - 1, lengthRead);
+				success = data->commInterface->Read(buffer, bufferLength, lengthRead);
 				lengthRead++;
 
 			}
@@ -50,11 +50,10 @@ namespace Tower
 	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, TowerData* data)
 	{
 		ULONG lengthWritten;
-		WriteData(buffer, bufferLength, lengthWritten, data);
-		return bufferLength == lengthWritten;
+		return WriteData(buffer, bufferLength, lengthWritten, data);
 	}
 
-	VOID WriteData(
+	BOOL WriteData(
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthWritten,
@@ -71,6 +70,7 @@ namespace Tower
 			writeAttemptCount++;
 		}
 
+		return bufferLength == lengthWritten;
 	}
 
 	VOID Flush(TowerBuffer buffer, TowerData* data)

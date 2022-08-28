@@ -234,34 +234,30 @@ VOID BeepRCX(TowerData* towerData)
 	ULONG lengthRead = 0;
 	UCHAR replyBuffer[10];
 	ULONG replyLength = 10;
-	for (int i = 0; i < replyLength; i++)
-	{
-		replyBuffer[i] = 0;
-	}
 
 	BOOL writeSuccess;
 	BOOL readSuccess;
 	BOOL validateSuccess;
 
 	LASM::CommandData aliveOrNot = LASM::Cmd_PBAliveOrNot();
-	writeSuccess = WriteData(aliveOrNot.data, aliveOrNot.dataLength, towerData);
-	readSuccess = ReadData(replyBuffer, replyLength, towerData);
+	writeSuccess = WriteData(aliveOrNot.data.get(), aliveOrNot.dataLength, lengthWritten, towerData);
+	readSuccess = ReadData(replyBuffer, replyLength, lengthRead, towerData);
 	validateSuccess = LASM::ValidateReply(aliveOrNot.command, replyBuffer, replyLength);
 
 	if (!writeSuccess || !readSuccess || !validateSuccess)
 		__debugbreak();
 
 	LASM::CommandData stopAllTasks = LASM::Cmd_StopAllTasks();
-	writeSuccess = WriteData(stopAllTasks.data, stopAllTasks.dataLength, towerData);
-	readSuccess = ReadData(replyBuffer, replyLength, towerData);
+	writeSuccess = WriteData(stopAllTasks.data.get(), stopAllTasks.dataLength, lengthWritten, towerData);
+	readSuccess = ReadData(replyBuffer, replyLength, lengthRead, towerData);
 	validateSuccess = LASM::ValidateReply(stopAllTasks.command, replyBuffer, replyLength);
 
 	if (!writeSuccess || !readSuccess || !validateSuccess)
 		__debugbreak();
 
 	LASM::CommandData playSound = LASM::Cmd_PlaySystemSound(LASM::BEEP);
-	writeSuccess = WriteData(playSound.data, playSound.dataLength, towerData);
-	readSuccess = ReadData(replyBuffer, replyLength, towerData);
+	writeSuccess = WriteData(playSound.data.get(), playSound.dataLength, lengthWritten, towerData);
+	readSuccess = ReadData(replyBuffer, replyLength, lengthRead, towerData);
 	validateSuccess = LASM::ValidateReply(playSound.command, replyBuffer, replyLength);
 
 	if (!writeSuccess || !readSuccess || !validateSuccess)

@@ -3,6 +3,8 @@
 #ifndef TOWERCONTROLLER_H
 #define TOWERCONTROLLER_H
 
+#include <stdio.h>
+
 #include "HostTowerCommInterface.h"
 
 namespace Tower
@@ -273,26 +275,22 @@ inline VOID Set##outputType##(Tower##outputType newValue, TowerData* data) \
 
 		TowerRequestError lastRequestError = TowerRequestError::SUCCESS;
 		ULONG lastReplyLength = 0;
-		BYTE* replyBuffer = new BYTE[REPLY_BUFFER_LENGTH];
+		BYTE replyBuffer[REPLY_BUFFER_LENGTH];
 		ULONG stringLength = 0;
-		WCHAR* stringBuffer;
+		WCHAR stringBuffer[REPLY_BUFFER_LENGTH];
 
 		TowerData(HostTowerCommInterface* commInterface)
 		{
 			this->commInterface = commInterface;
-			stringBuffer = new WCHAR[REPLY_BUFFER_LENGTH / 2];
 		}
 
 		~TowerData()
 		{
-			//delete commInterface;
-			//delete replyBuffer;
-			//delete stringBuffer;
 		}
 	};
 
 	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, TowerData* data);
-	VOID WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, TowerData* data);
+	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, TowerData* data);
 	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, TowerData* data);
 	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, TowerData* data);
 

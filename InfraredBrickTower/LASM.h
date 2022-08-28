@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <memory>
 
 enum Availability
 {
@@ -147,19 +148,24 @@ namespace LASM
 		FAST_SWEEP_UP = 5
 	};
 
-#define MAX_COMMAND_LENGTH 8
+#define MAX_COMMAND_LENGTH 30 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
 	struct CommandData
 	{
 		LASMCommandByte command;
-		BYTE* data = new BYTE[MAX_COMMAND_LENGTH];
+		std::shared_ptr<BYTE[]> data;
 		UINT dataLength;
 
 		CommandData(LASMCommandByte command)
 		{
 			this->command = command;
 			dataLength = MAX_COMMAND_LENGTH;
-			data = new BYTE[dataLength];
+			data = std::make_unique<BYTE[]>(MAX_COMMAND_LENGTH);
+		}
+
+		~CommandData()
+		{
+			data.reset();
 		}
 	};
 

@@ -49,36 +49,37 @@ namespace LASM
 	{
 		CommandData commandData = CommandData(lasmCommand);
 
-		BYTE* baseCommandPointer = commandData.data;
-		BYTE* dataPtr = commandData.data;
+		std::shared_ptr<BYTE[]> data = commandData.data;
+
+		UINT index = 0;
 
 		// preamble
-		*(dataPtr++) = 0x55;
-		*(dataPtr++) = 0xFF;
-		*(dataPtr++) = 0x00;
+		data[index++] = 0x55;
+		data[index++] = 0xFF;
+		data[index++] = 0x00;
 
 		UINT dataSum = 0;
 
 		// command, reply, and repeat both
-		*(dataPtr++) = lasmCommand;
-		*(dataPtr++) = ~lasmCommand;
+		data[index++] = lasmCommand;
+		data[index++] = ~lasmCommand;
 
 		dataSum += lasmCommand;
 
 		for (UINT i = 0; i < paramsLength; i++)
 		{
 			BYTE paramByte = params[i];
-			*(dataPtr++) = paramByte;
-			*(dataPtr++) = ~paramByte;
+			data[index++] = paramByte;
+			data[index++] = ~paramByte;
 
 			dataSum += paramByte;
 		}
 
 		// checksum for the RCX is just the data sum, so...
-		*(dataPtr++) = dataSum;
-		*(dataPtr++) = ~dataSum;
+		data[index++] = dataSum;
+		data[index++] = ~dataSum;
 
-		commandData.dataLength = (dataPtr - baseCommandPointer);
+		commandData.dataLength = index;
 
 		return commandData;
 	}
