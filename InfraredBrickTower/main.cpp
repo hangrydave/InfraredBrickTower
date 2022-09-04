@@ -34,6 +34,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
 	BeepRCX(towerData);
+	//MicroScoutCLI(towerData);
 
 	delete usbTowerInterface;
 	delete towerData;

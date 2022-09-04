@@ -125,6 +125,8 @@ in binary, 2 is 10. mission accomplished!
 
 so, i've got the checksum and the data. what about the start bit and the stop bit?
 
+RCX2VLL.h from the Mindstorms SDK has some stuff to say on this. TODO: research later
+
 */
 
 
