@@ -5,6 +5,25 @@ namespace LASM
 {
 	BOOL ValidateReply(LASMCommandByte commandByte, BYTE* replyBuffer, UINT replyLength)
 	{
+		/*
+		
+		NOTES TO SELF
+
+
+		The format of these commands is
+
+		0			0x55  \
+		1			0xff   | Preamble
+		2			0x00  /
+		3			Command
+		...			Parameters
+		n - 2		Checksum
+		n - 1		Complement of checksum
+
+		Every byte after the preamble is followed immediately by its complement.
+
+		*/
+
 		BYTE complement = ~commandByte & 0xff;
 
 		// first off, it can't be guaranteed that the typical preamble of 0x55 0xFF 0x00 will be there;
@@ -40,6 +59,20 @@ namespace LASM
 		return ComposeCommand(PlaySystemSound, params, 1);
 	}
 
+	CommandData Cmd_SetPower(BYTE motorList, BYTE powerSource, BYTE powerValue)
+	{
+		BYTE squished = 0;
+		BYTE params[1]{ squished };
+		return ComposeCommand(SetPower, params, 1);
+	}
+
+	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motor, MotorDirection direction)
+	{
+		BYTE directionBits = (BYTE)direction << 6;
+		BYTE params[1]{ directionBits | motor };
+		return ComposeCommand(SetFwdSetRwdRewDir, params, 1);
+	}
+
 	CommandData ComposeCommand(LASMCommandByte lasmCommand)
 	{
 		return ComposeCommand(lasmCommand, nullptr, 0);
@@ -49,7 +82,8 @@ namespace LASM
 	{
 		CommandData commandData = CommandData(lasmCommand);
 
-		std::shared_ptr<BYTE[]> data = commandData.data;
+		std::shared_ptr<BYTE[]> sharedData = commandData.data;
+		BYTE data[MAX_COMMAND_LENGTH];
 
 		UINT index = 0;
 
@@ -80,6 +114,11 @@ namespace LASM
 		data[index++] = ~dataSum;
 
 		commandData.dataLength = index;
+
+		for (UINT i = 0; i < commandData.dataLength; i++)
+		{
+			sharedData[i] = data[i];
+		}
 
 		return commandData;
 	}

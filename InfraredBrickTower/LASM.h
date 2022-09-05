@@ -162,19 +162,17 @@ namespace LASM
 	CommandData ComposeCommand(LASMCommandByte lasmCommand);
 	CommandData ComposeCommand(LASMCommandByte lasmCommand, BYTE* params, UINT paramsLength);
 
-	enum class Motor : BYTE
-	{
-		A = 0b01,
-		B = 0b10,
-		C = 0b11
-	};
 	enum class MotorAction : BYTE
 	{
 		FLOAT = 0,
 		OFF = 1,
 		ON = 2
 	};
-	CommandData Cmd_OnOffFloat(Motor motor, MotorAction action);
+
+	const BYTE MOTOR_A = 0b01;
+	const BYTE MOTOR_B = 0b10;
+	const BYTE MOTOR_C = 0b100;
+	CommandData Cmd_OnOffFloat(BYTE motor, MotorAction action);
 
 	enum class IRTransmissionRange : BYTE
 	{
@@ -219,7 +217,7 @@ namespace LASM
 		REVERSE = 1,
 		FORWARDS = 2
 	};
-	CommandData Cmd_SetFwdSetRwdRewDir(Motor motor, MotorDirection direction);
+	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motor, MotorDirection direction);
 
 	// subroutine is number from 0 to 7
 	CommandData Cmd_GoSub(BYTE subroutine);
@@ -233,7 +231,7 @@ namespace LASM
 	CommandData Cmd_SJump(BYTE distance, JumpDirection direction);
 	CommandData Cmd_SCheckLoopCounter(BYTE distance);
 
-	CommandData Cmd_ConnectDisconnect(Motor motor, MotorAction action);
+	CommandData Cmd_ConnectDisconnect(BYTE motor, MotorAction action);
 
 	// counter is number from 0 to 2
 	CommandData Cmd_IncCounter(BYTE counter);
@@ -292,7 +290,9 @@ namespace LASM
 	CommandData Cmd_RemoteCommand();
 	CommandData Cmd_SDecVarJumpLTZero();
 	CommandData Cmd_DirectEvent();
-	CommandData Cmd_SetPower();
+
+	CommandData Cmd_SetPower(BYTE motorList, BYTE powerSource, BYTE powerValue);
+
 	CommandData Cmd_PlayTone();
 	CommandData Cmd_SelectDisplay();
 	CommandData Cmd_Wait();

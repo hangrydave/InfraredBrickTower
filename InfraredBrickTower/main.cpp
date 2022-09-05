@@ -13,6 +13,7 @@ BOOL StringsAreEqual(char* strOne, char* strTwo);
 VOID MicroScoutCLI(Tower::RequestData* towerData);
 
 VOID TestTower(Tower::RequestData* data);
+VOID DriveForwardsRCX(Tower::RequestData* towerData);
 VOID BeepRCX(Tower::RequestData* towerData);
 VOID BeepMicroScout(Tower::RequestData* towerData);
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData);
@@ -33,7 +34,9 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
-	BeepRCX(towerData);
+	DriveForwardsRCX(towerData);
+
+	//BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
 
 	delete usbTowerInterface;
@@ -41,6 +44,34 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	system("pause");
 	return 0;
+}
+
+VOID DriveForwardsRCX(Tower::RequestData* towerData)
+{
+	ULONG lengthWritten;
+	ULONG lengthRead = 0;
+	UCHAR replyBuffer[10];
+	ULONG replyLength = 10;
+
+	BOOL writeSuccess;
+	BOOL readSuccess;
+	BOOL validateSuccess;
+
+	LASM::CommandData command = LASM::Cmd_SetFwdSetRwdRewDir(
+		LASM::MOTOR_A | LASM::MOTOR_C,
+		LASM::MotorDirection::FORWARDS);
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
+	// no reply expected
+
+	BYTE secondCommand[9] {0x55, 0xff, 0x00, 0x21, 0xde, 0x85, 0x7a, 0xa6, 0x59};
+	writeSuccess = Tower::WriteData(secondCommand, 9, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+
+	Sleep(1000);
+
+	BYTE thirdCommand[9]{ 0x55, 0xff, 0x00, 0x29, 0xd6, 0x45, 0xba, 0x6e, 0x91 };
+	writeSuccess = Tower::WriteData(thirdCommand, 9, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
 }
 
 VOID MicroScoutCLI(Tower::RequestData* data)
