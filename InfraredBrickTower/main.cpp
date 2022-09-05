@@ -57,14 +57,23 @@ VOID DriveForwardsRCX(Tower::RequestData* towerData)
 	BOOL readSuccess;
 	BOOL validateSuccess;
 
-	LASM::CommandData command = LASM::Cmd_SetFwdSetRwdRewDir(
-		LASM::MOTOR_A | LASM::MOTOR_C,
+	LASM::CommandData command = LASM::Cmd_SetPower(
+		LASM::Motor::A | LASM::Motor::C,
+		LASM::ParamSource::CONSTANT,
+		6);
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	assert(writeSuccess && readSuccess && validateSuccess);
+
+	command = LASM::Cmd_SetFwdSetRwdRewDir(
+		LASM::Motor::A | LASM::Motor::C,
 		LASM::MotorDirection::FORWARDS);
 	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
 	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
 
 	command = LASM::Cmd_OnOffFloat(
-		LASM::MOTOR_A | LASM::MOTOR_C,
+		LASM::Motor::A | LASM::Motor::C,
 		LASM::MotorAction::ON);
 	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
 	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
@@ -74,13 +83,13 @@ VOID DriveForwardsRCX(Tower::RequestData* towerData)
 	Sleep(1000);
 
 	command = LASM::Cmd_SetFwdSetRwdRewDir(
-		LASM::MOTOR_A | LASM::MOTOR_C,
+		LASM::Motor::A | LASM::Motor::C,
 		LASM::MotorDirection::FORWARDS);
 	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
 	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
 
 	command = LASM::Cmd_OnOffFloat(
-		LASM::MOTOR_A | LASM::MOTOR_C,
+		LASM::Motor::A | LASM::Motor::C,
 		LASM::MotorAction::FLOAT);
 	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
 	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);

@@ -10,44 +10,9 @@ enum Availability
 	BOTH
 };
 
-//struct Params
-//{
-//};
-
-//struct NoParam : Params
-//{
-//	NoParam()
-//	{
-//		this->length = 0;
-//	}
-//};
-//
-//struct NumParam : Params
-//{
-//	NumParam()
-//	{
-//		this->length = 1;
-//	}
-//};
-
-
-//#define ParamCmd(name, command, reply, availability, paramsStructBody, paramLength) \
-//_Pragma("pack(push, 1)") \
-//struct name##Params : Params paramsStructBody##; \
-//_Pragma("pack(pop)") \
-//VOID BuildCmd_##name##(##name##Params paramStruct, BYTE* commandData, UINT& commandLength) \
-//{ \
-//	BuildCommand(##command##, paramStruct, paramLength, commandData, commandLength); \
-//}
-
-
-
-//expectedReply = reply##; \
-//BuildCommand(##command##, nullptr, 0, commandData, commandLength); \
-
 namespace LASM
 {
-	enum LASMCommandByte : BYTE
+	enum class Command : BYTE
 	{
 		PBAliveOrNot =				0x10,
 		MemMap =					0x20,
@@ -136,17 +101,48 @@ namespace LASM
 		ViewSourceValue =			0xE5,
 	};
 
-	BOOL ValidateReply(LASMCommandByte commandByte, BYTE* replyBuffer, UINT replyLength);
+	enum class ParamSource : BYTE
+	{
+		VARIABLE =		0,
+		TIMER =			1,
+		CONSTANT =		2,
+		MOTOR_STATUS =	3,
+		RANDOM =		4,
+		PROGRAM_SLOT =	8,
+		SENSOR_VALUE =	9,
+		SENSOR_TYPE =	10,
+		SENSOR_MODE =	11,
+		SENSOR_RAW =	12,
+		SENSOR_BOOL =	13,
+		WATCH =			14,
+		MESSAGE =		15,
+		GLOBAL_MOTOR_STATUS = 17,
+		COUNTER =		21,
+		TASK_EVENTS =	23,
+		EVENT_STATE =	25,
+		TEN_MS_TIMER =	26,
+		CLICK_COUNTER =	27,
+		UPPER_THRESHOLD = 28,
+		LOWER_THRESHOLD = 29,
+		HYSTERESIS =	30,
+		DURATION =		31,
+		UART_SETUP =	33,
+		BATTERY_LEVEL =	34,
+		FIRMWARE_VERSION = 35,
+		INDIRECT_VARIABLE = 36
+	};
+
+	BOOL ValidateReply(Command commandByte, BYTE* replyBuffer, UINT replyLength);
 
 #define MAX_COMMAND_LENGTH 30 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
 	struct CommandData
 	{
-		LASMCommandByte command;
+		Command command;
 		std::shared_ptr<BYTE[]> data;
 		UINT dataLength;
 
-		CommandData(LASMCommandByte command)
+		CommandData(Command command)
 		{
 			this->command = command;
 			dataLength = MAX_COMMAND_LENGTH;
@@ -159,8 +155,8 @@ namespace LASM
 		}
 	};
 
-	CommandData ComposeCommand(LASMCommandByte lasmCommand);
-	CommandData ComposeCommand(LASMCommandByte lasmCommand, BYTE* params, UINT paramsLength);
+	CommandData ComposeCommand(Command lasmCommand);
+	CommandData ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength);
 
 	enum class MotorAction : BYTE
 	{
@@ -169,9 +165,16 @@ namespace LASM
 		ON = 2
 	};
 
-	const BYTE MOTOR_A = 0b01;
-	const BYTE MOTOR_B = 0b10;
-	const BYTE MOTOR_C = 0b100;
+	namespace Motor
+	{
+		const BYTE A = 0b01;
+		const BYTE B = 0b10;
+		const BYTE C = 0b100;
+	}
+
+	//const BYTE MOTOR_A = 0b01;
+	//const BYTE MOTOR_B = 0b10;
+	//const BYTE MOTOR_C = 0b100;
 	CommandData Cmd_OnOffFloat(BYTE motors, MotorAction action);
 
 	enum class IRTransmissionRange : BYTE
@@ -291,7 +294,7 @@ namespace LASM
 	CommandData Cmd_SDecVarJumpLTZero();
 	CommandData Cmd_DirectEvent();
 
-	CommandData Cmd_SetPower(BYTE motorList, BYTE powerSource, BYTE powerValue);
+	CommandData Cmd_SetPower(BYTE motorList, ParamSource powerSource, BYTE powerValue);
 
 	CommandData Cmd_PlayTone();
 	CommandData Cmd_SelectDisplay();
@@ -334,11 +337,8 @@ namespace LASM
 #define Cmd(command, availabilityArg) \
 inline CommandData Cmd_##command##() \
 { \
-	return ComposeCommand(##command##); \
+	return ComposeCommand(Command::##command##); \
 }
-
-//#define ParamCmd(name, commandByteArg, replyByteArg, availability, ...) \
-//VOID Compose_##name##(CommandData* messageData, ##__VA_ARGS__);
 
 #define COMMA ,
 #define NO_PARAM NoParam

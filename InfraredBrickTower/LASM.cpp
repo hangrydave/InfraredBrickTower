@@ -3,7 +3,7 @@
 
 namespace LASM
 {
-	BOOL ValidateReply(LASMCommandByte commandByte, BYTE* replyBuffer, UINT replyLength)
+	BOOL ValidateReply(Command command, BYTE* replyBuffer, UINT replyLength)
 	{
 		/*
 		
@@ -24,6 +24,7 @@ namespace LASM
 
 		*/
 
+		BYTE commandByte = (BYTE)command;
 		BYTE complement = ~commandByte & 0xff;
 
 		// first off, it can't be guaranteed that the typical preamble of 0x55 0xFF 0x00 will be there;
@@ -57,35 +58,34 @@ namespace LASM
 	{
 		BYTE actionBits = (BYTE)action << 6;
 		BYTE params[1]{ actionBits | motors };
-		return ComposeCommand(OnOffFloat, params, 1);
+		return ComposeCommand(Command::OnOffFloat, params, 1);
 	}
 
 	CommandData Cmd_PlaySystemSound(SystemSound sound)
 	{
 		BYTE params[1]{ (BYTE)sound };
-		return ComposeCommand(PlaySystemSound, params, 1);
+		return ComposeCommand(Command::PlaySystemSound, params, 1);
 	}
 
-	CommandData Cmd_SetPower(BYTE motors, BYTE powerSource, BYTE powerValue)
+	CommandData Cmd_SetPower(BYTE motors, ParamSource powerSource, BYTE powerValue)
 	{
-		BYTE squished = 0;
-		BYTE params[1]{ squished };
-		return ComposeCommand(SetPower, params, 1);
+		BYTE params[3]{ motors, (BYTE)powerSource, powerValue};
+		return ComposeCommand(Command::SetPower, params, 3);
 	}
 
 	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction)
 	{
 		BYTE directionBits = (BYTE)direction << 6;
 		BYTE params[1]{ directionBits | motors };
-		return ComposeCommand(SetFwdSetRwdRewDir, params, 1);
+		return ComposeCommand(Command::SetFwdSetRwdRewDir, params, 1);
 	}
 
-	CommandData ComposeCommand(LASMCommandByte lasmCommand)
+	CommandData ComposeCommand(Command lasmCommand)
 	{
 		return ComposeCommand(lasmCommand, nullptr, 0);
 	}
 
-	CommandData ComposeCommand(LASMCommandByte lasmCommand, BYTE* params, UINT paramsLength)
+	CommandData ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength)
 	{
 		CommandData commandData = CommandData(lasmCommand);
 
@@ -102,10 +102,11 @@ namespace LASM
 		UINT dataSum = 0;
 
 		// command, reply, and repeat both
-		data[index++] = lasmCommand;
-		data[index++] = ~lasmCommand;
+		BYTE commandByte = (BYTE)lasmCommand;
+		data[index++] = commandByte;
+		data[index++] = ~commandByte;
 
-		dataSum += lasmCommand;
+		dataSum += commandByte;
 
 		for (UINT i = 0; i < paramsLength; i++)
 		{
