@@ -53,23 +53,30 @@ namespace LASM
 			replyBuffer[complementIndex + 3] == commandByte;
 	}
 
+	CommandData Cmd_OnOffFloat(BYTE motors, MotorAction action)
+	{
+		BYTE actionBits = (BYTE)action << 6;
+		BYTE params[1]{ actionBits | motors };
+		return ComposeCommand(OnOffFloat, params, 1);
+	}
+
 	CommandData Cmd_PlaySystemSound(SystemSound sound)
 	{
 		BYTE params[1]{ (BYTE)sound };
 		return ComposeCommand(PlaySystemSound, params, 1);
 	}
 
-	CommandData Cmd_SetPower(BYTE motorList, BYTE powerSource, BYTE powerValue)
+	CommandData Cmd_SetPower(BYTE motors, BYTE powerSource, BYTE powerValue)
 	{
 		BYTE squished = 0;
 		BYTE params[1]{ squished };
 		return ComposeCommand(SetPower, params, 1);
 	}
 
-	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motor, MotorDirection direction)
+	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction)
 	{
 		BYTE directionBits = (BYTE)direction << 6;
-		BYTE params[1]{ directionBits | motor };
+		BYTE params[1]{ directionBits | motors };
 		return ComposeCommand(SetFwdSetRwdRewDir, params, 1);
 	}
 

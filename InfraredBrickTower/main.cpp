@@ -61,17 +61,31 @@ VOID DriveForwardsRCX(Tower::RequestData* towerData)
 		LASM::MOTOR_A | LASM::MOTOR_C,
 		LASM::MotorDirection::FORWARDS);
 	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	// no reply expected
-
-	BYTE secondCommand[9] {0x55, 0xff, 0x00, 0x21, 0xde, 0x85, 0x7a, 0xa6, 0x59};
-	writeSuccess = Tower::WriteData(secondCommand, 9, towerData);
 	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+
+	command = LASM::Cmd_OnOffFloat(
+		LASM::MOTOR_A | LASM::MOTOR_C,
+		LASM::MotorAction::ON);
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	assert(writeSuccess && readSuccess && validateSuccess);
 
 	Sleep(1000);
 
-	BYTE thirdCommand[9]{ 0x55, 0xff, 0x00, 0x29, 0xd6, 0x45, 0xba, 0x6e, 0x91 };
-	writeSuccess = Tower::WriteData(thirdCommand, 9, towerData);
+	command = LASM::Cmd_SetFwdSetRwdRewDir(
+		LASM::MOTOR_A | LASM::MOTOR_C,
+		LASM::MotorDirection::FORWARDS);
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
 	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+
+	command = LASM::Cmd_OnOffFloat(
+		LASM::MOTOR_A | LASM::MOTOR_C,
+		LASM::MotorAction::FLOAT);
+	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
+	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	assert(writeSuccess && readSuccess && validateSuccess);
 }
 
 VOID MicroScoutCLI(Tower::RequestData* data)
