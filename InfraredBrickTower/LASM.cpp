@@ -67,10 +67,24 @@ namespace LASM
 		return ComposeCommand(Command::PlaySystemSound, params, 1);
 	}
 
+	CommandData Cmd_SelectProgram(BYTE program)
+	{
+		BYTE params[1]{ (BYTE)program };
+		return ComposeCommand(Command::SelectProgram, params, 1);
+	}
+
 	CommandData Cmd_SetPower(BYTE motors, ParamSource powerSource, BYTE powerValue)
 	{
 		BYTE params[3]{ motors, (BYTE)powerSource, powerValue};
 		return ComposeCommand(Command::SetPower, params, 3);
+	}
+
+	CommandData Cmd_PlayTone(WORD frequency, BYTE duration)
+	{
+		BYTE frequencyHi = (frequency & 0xff00) >> 8;
+		BYTE frequencyLo = frequency & 0x00ff;
+		BYTE params[3]{ frequencyLo, frequencyHi, duration };
+		return ComposeCommand(Command::PlayTone, params, 3);
 	}
 
 	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction)

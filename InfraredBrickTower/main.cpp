@@ -48,12 +48,16 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 VOID DriveMotors(Tower::RequestData* towerData)
 {
-	ULONG lengthWritten;
 	ULONG lengthRead = 0;
 	UCHAR replyBuffer[10];
 	ULONG replyLength = 10;
 
-	LASM::CommandData command = LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 6);
+	LASM::CommandData command = LASM::Cmd_StopAllTasks();
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_PlayTone(255, 40);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+
+	command = LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 6);
 	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
 	command = LASM::Cmd_SetFwdSetRwdRewDir(LASM::Motor::A | LASM::Motor::C, LASM::MotorDirection::FORWARDS);
 	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
@@ -268,7 +272,7 @@ VOID BeepMicroScout(Tower::RequestData* towerData)
 
 VOID BeepRCX(Tower::RequestData* towerData)
 {
-	SetCommMode(Tower::CommMode::IR, towerData);
+	Tower::SetCommMode(Tower::CommMode::IR, towerData);
 
 	ULONG lengthWritten;
 	ULONG lengthRead = 0;

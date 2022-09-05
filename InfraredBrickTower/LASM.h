@@ -293,8 +293,8 @@ namespace LASM
 	CommandData Cmd_DirectEvent();
 
 	CommandData Cmd_SetPower(BYTE motorList, ParamSource powerSource, BYTE powerValue);
+	CommandData Cmd_PlayTone(WORD frequency, BYTE duration);
 
-	CommandData Cmd_PlayTone();
 	CommandData Cmd_SelectDisplay();
 	CommandData Cmd_Wait();
 	CommandData Cmd_UploadRAM();
