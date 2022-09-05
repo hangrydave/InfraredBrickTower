@@ -167,14 +167,12 @@ namespace LASM
 
 	namespace Motor
 	{
+		// note to future me: this is not an enum because if it were an enum i wouldn't be able to do ORs on them
 		const BYTE A = 0b01;
 		const BYTE B = 0b10;
 		const BYTE C = 0b100;
 	}
 
-	//const BYTE MOTOR_A = 0b01;
-	//const BYTE MOTOR_B = 0b10;
-	//const BYTE MOTOR_C = 0b100;
 	CommandData Cmd_OnOffFloat(BYTE motors, MotorAction action);
 
 	enum class IRTransmissionRange : BYTE

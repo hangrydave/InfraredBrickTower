@@ -53,48 +53,35 @@ VOID DriveForwardsRCX(Tower::RequestData* towerData)
 	UCHAR replyBuffer[10];
 	ULONG replyLength = 10;
 
-	BOOL writeSuccess;
-	BOOL readSuccess;
-	BOOL validateSuccess;
-
-	LASM::CommandData command = LASM::Cmd_SetPower(
-		LASM::Motor::A | LASM::Motor::C,
-		LASM::ParamSource::CONSTANT,
-		6);
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
-	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
-	assert(writeSuccess && readSuccess && validateSuccess);
-
-	command = LASM::Cmd_SetFwdSetRwdRewDir(
-		LASM::Motor::A | LASM::Motor::C,
-		LASM::MotorDirection::FORWARDS);
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
-
-	command = LASM::Cmd_OnOffFloat(
-		LASM::Motor::A | LASM::Motor::C,
-		LASM::MotorAction::ON);
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
-	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
-	assert(writeSuccess && readSuccess && validateSuccess);
+	LASM::CommandData command = LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 6);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_SetFwdSetRwdRewDir(LASM::Motor::A | LASM::Motor::C, LASM::MotorDirection::FORWARDS);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::ON);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
 
 	Sleep(1000);
 
-	command = LASM::Cmd_SetFwdSetRwdRewDir(
-		LASM::Motor::A | LASM::Motor::C,
-		LASM::MotorDirection::FORWARDS);
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 0);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::FLOAT);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
 
-	command = LASM::Cmd_OnOffFloat(
-		LASM::Motor::A | LASM::Motor::C,
-		LASM::MotorAction::FLOAT);
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
-	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
-	assert(writeSuccess && readSuccess && validateSuccess);
+	Sleep(1000);
+
+	command = LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 6);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_SetFwdSetRwdRewDir(LASM::Motor::A | LASM::Motor::C, LASM::MotorDirection::REVERSE);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::ON);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+
+	Sleep(1000);
+
+	command = LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 0);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	command = LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::FLOAT);
+	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
 }
 
 VOID MicroScoutCLI(Tower::RequestData* data)
@@ -288,26 +275,41 @@ VOID BeepRCX(Tower::RequestData* towerData)
 	UCHAR replyBuffer[10];
 	ULONG replyLength = 10;
 
-	BOOL writeSuccess;
-	BOOL readSuccess;
+	BOOL sendSuccess;
 	BOOL validateSuccess;
 
 	LASM::CommandData command = LASM::Cmd_PBAliveOrNot();
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	sendSuccess = Tower::SendData(
+		command.data.get(),
+		command.dataLength,
+		replyBuffer,
+		replyLength,
+		lengthRead,
+		towerData);
 	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
-	assert(writeSuccess && readSuccess && validateSuccess);
+	assert(sendSuccess && validateSuccess);
 
 	command = LASM::Cmd_StopAllTasks();
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	sendSuccess = Tower::SendData(
+		command.data.get(),
+		command.dataLength,
+		replyBuffer,
+		replyLength,
+		lengthRead,
+		towerData);
 	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
-	assert(writeSuccess && readSuccess && validateSuccess);
+	assert(sendSuccess && validateSuccess);
 
 	command = LASM::Cmd_PlaySystemSound(LASM::SystemSound::BEEP);
-	writeSuccess = Tower::WriteData(command.data.get(), command.dataLength, lengthWritten, towerData);
-	readSuccess = Tower::ReadData(replyBuffer, replyLength, lengthRead, towerData);
+	sendSuccess = Tower::SendData(
+		command.data.get(),
+		command.dataLength,
+		replyBuffer,
+		replyLength,
+		lengthRead,
+		towerData);
 	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	assert(sendSuccess && validateSuccess);
 }
 
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData)

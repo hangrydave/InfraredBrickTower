@@ -11,6 +11,22 @@
 
 namespace Tower
 {
+	BOOL SendData(
+		PUCHAR inputBuffer,
+		ULONG inputBufferLength,
+		PUCHAR replyBuffer,
+		ULONG replyBufferLength,
+		ULONG& lengthRead,
+		RequestData* data)
+	{
+		BOOL writeSuccess = WriteData(inputBuffer, inputBufferLength, data);
+		if (!writeSuccess)
+			return FALSE;
+
+		BOOL readSuccess = ReadData(replyBuffer, replyBufferLength, lengthRead, data);
+		return readSuccess;
+	}
+
 	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data)
 	{
 		ULONG lengthRead;

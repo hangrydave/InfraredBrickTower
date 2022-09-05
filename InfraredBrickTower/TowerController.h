@@ -289,6 +289,14 @@ inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
 		}
 	};
 
+	BOOL SendData(
+		PUCHAR inputBuffer, 
+		ULONG inputBufferLength,
+		PUCHAR replyBuffer,
+		ULONG replyBufferLength,
+		ULONG& lengthRead,
+		RequestData* data);
+
 	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
 	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
 	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
