@@ -13,7 +13,7 @@ BOOL StringsAreEqual(char* strOne, char* strTwo);
 VOID MicroScoutCLI(Tower::RequestData* towerData);
 
 VOID TestTower(Tower::RequestData* data);
-VOID DriveForwardsRCX(Tower::RequestData* towerData);
+VOID DriveMotors(Tower::RequestData* towerData);
 VOID BeepRCX(Tower::RequestData* towerData);
 VOID BeepMicroScout(Tower::RequestData* towerData);
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData);
@@ -34,7 +34,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
-	DriveForwardsRCX(towerData);
+	DriveMotors(towerData);
 
 	//BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
@@ -46,7 +46,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	return 0;
 }
 
-VOID DriveForwardsRCX(Tower::RequestData* towerData)
+VOID DriveMotors(Tower::RequestData* towerData)
 {
 	ULONG lengthWritten;
 	ULONG lengthRead = 0;
