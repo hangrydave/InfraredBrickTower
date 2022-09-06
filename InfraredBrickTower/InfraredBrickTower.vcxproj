@@ -42,6 +42,7 @@
     <ClCompile Include="InfraredBrickTower.cpp" />
     <ClCompile Include="LASM.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RCXFileParser.cpp" />
     <ClCompile Include="TowerController.cpp" />
     <ClCompile Include="VLLCommands.cpp" />
     <ClCompile Include="WinUsbTowerInterface.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="LASM.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="HostTowerCommInterface.h" />
+    <ClInclude Include="RCXFileParser.h" />
     <ClInclude Include="TowerController.h" />
     <ClInclude Include="VLLCommands.h" />
     <ClInclude Include="WinUsbTowerInterface.h" />

@@ -4,6 +4,7 @@
 #include "WinUsbTowerInterface.h"
 #include "VLLCommands.h"
 #include "LASM.h"
+#include "RCXFileParser.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -23,24 +24,25 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	UNREFERENCED_PARAMETER(Argc);
 	UNREFERENCED_PARAMETER(Argv);
 
-	WinUsbTowerInterface* usbTowerInterface;
+	RCXParser::ParseFile();
+
+	/*WinUsbTowerInterface* usbTowerInterface;
 	BOOL gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
 	if (!gotInterface)
 	{
 		printf("Error getting WinUSB interface!\n");
 		system("pause");
 		return 0;
-	}
+	}*/
 
-	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
+	//Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
-	DriveMotors(towerData);
-
+	//DriveMotors(towerData);
 	//BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
 
-	delete usbTowerInterface;
-	delete towerData;
+	//delete usbTowerInterface;
+	//delete towerData;
 
 	system("pause");
 	return 0;
