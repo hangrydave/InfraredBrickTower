@@ -3,6 +3,35 @@
 #include <fstream>
 #include <Windows.h>
 
+/*
+
+A .rcx file looks something like this:
+
+>>> header <<<
+file signature
+rcx firmware version?
+chunk count
+symbol count
+target type (type of pbrick i think)
+reserved byte
+
+>>> chunks (as many as specified above) <<<
+>>> chunk definition <<<
+type
+number		// TODO: find more definition on these
+length
+data (size is length)
+
+>>> symbols (as many as specified in header) <<<
+>>> symbol definition <<<
+type
+index
+length
+reserved
+name (length is specified by the length field)
+
+*/
+
 namespace RCXParser
 {
 #pragma pack(push, 1)
@@ -10,7 +39,7 @@ namespace RCXParser
 	{
 		UINT32 signature;
 		UINT16 version;
-		UINT16 count;
+		UINT16 chunkCount;
 		UINT16 symbolCount;
 		BYTE targetType;
 		BYTE reserved;
@@ -52,8 +81,8 @@ namespace RCXParser
 		FileHeader header;
 		input.read(reinterpret_cast<char*>(&header), FILE_HEADER_LENGTH);
 
-		Chunk* chunks = new Chunk[header.count];
-		for (UINT i = 0; i < header.count; i++)
+		Chunk* chunks = new Chunk[header.chunkCount];
+		for (UINT i = 0; i < header.chunkCount; i++)
 		{
 			input.read(reinterpret_cast<char*>(&chunks[i]), CHUNK_HEADER_LENGTH);
 
