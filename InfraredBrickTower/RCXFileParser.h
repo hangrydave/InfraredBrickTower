@@ -57,7 +57,7 @@ namespace RCXParser
 		CHAR* name;
 	};
 #pragma pack(pop)
-#define SYMBOL_LENGTH 4
+#define SYMBOL_HEADER_LENGTH 4
 
 #pragma pack(push, 1)
 	struct RCXFile
@@ -102,7 +102,7 @@ namespace RCXParser
 		file.symbols = new Symbol[file.symbolCount];
 		for (UINT i = 0; i < file.symbolCount; i++)
 		{
-			input.read(reinterpret_cast<char*>(&file.symbols[i]), SYMBOL_LENGTH);
+			input.read(reinterpret_cast<char*>(&file.symbols[i]), SYMBOL_HEADER_LENGTH);
 			Symbol* symbol = &file.symbols[i];
 
 			symbol->name = new CHAR[symbol->length];
