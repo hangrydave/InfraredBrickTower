@@ -35,26 +35,13 @@ name (length is specified by the length field)
 namespace RCXParser
 {
 #pragma pack(push, 1)
-	struct FileHeader
-	{
-		UINT32 signature;
-		UINT16 version;
-		UINT16 chunkCount;
-		UINT16 symbolCount;
-		BYTE targetType;
-		BYTE reserved;
-	};
-#pragma pack(pop)
-#define FILE_HEADER_LENGTH 12
-
-#pragma pack(push, 1)
 	struct Chunk
 	{
 		BYTE type;
 		BYTE number;
 		WORD length;
 
-		BYTE* data; // this goes beyond the bound of CHUNK_HEADER_LENGTH
+		BYTE* data;
 	};
 #pragma pack(pop)
 #define CHUNK_HEADER_LENGTH 4
@@ -72,36 +59,54 @@ namespace RCXParser
 #pragma pack(pop)
 #define SYMBOL_LENGTH 4
 
+#pragma pack(push, 1)
+	struct RCXFile
+	{
+		UINT32 signature;
+		UINT16 version;
+		UINT16 chunkCount;
+		UINT16 symbolCount;
+		BYTE targetType;
+		BYTE reserved;
+
+		Chunk* chunks;
+		Symbol* symbols;
+	};
+#pragma pack(pop)
+#define FILE_HEADER_LENGTH 12
+
 	inline VOID ParseFile()
 	{
 		std::ifstream input("beep.rcx", std::ios::binary);
 		if (!input)
 			printf("die");
 		
-		FileHeader header;
-		input.read(reinterpret_cast<char*>(&header), FILE_HEADER_LENGTH);
+		RCXFile file;
+		input.read(reinterpret_cast<CHAR*>(&file), FILE_HEADER_LENGTH);
 
-		Chunk* chunks = new Chunk[header.chunkCount];
-		for (UINT i = 0; i < header.chunkCount; i++)
+		file.chunks = new Chunk[file.chunkCount];
+		for (UINT i = 0; i < file.chunkCount; i++)
 		{
-			input.read(reinterpret_cast<char*>(&chunks[i]), CHUNK_HEADER_LENGTH);
+			input.read(reinterpret_cast<CHAR*>(&file.chunks[i]), CHUNK_HEADER_LENGTH);
+			Chunk* chunk = &file.chunks[i];
 
-			WORD chunkLength = chunks[i].length;
-			chunks[i].data = new BYTE[chunkLength];
-			input.read(reinterpret_cast<char*>(chunks[i].data), chunkLength);
+			chunk->data = new BYTE[chunk->length];
+			input.read(reinterpret_cast<CHAR*>(chunk->data), chunk->length);
 
 			// from line 100 in rcxifile.h in the nqc project
 			// also line 240 in RCX_Image.cpp
-			UINT paddingBytes = (4 - chunkLength) & 3;
+			UINT paddingBytes = (4 - chunk->length) & 3;
 			input.seekg(paddingBytes, std::ios::cur);
 		}
 
-		Symbol* symbols = new Symbol[header.symbolCount];
-		for (UINT i = 0; i < header.symbolCount; i++)
+		file.symbols = new Symbol[file.symbolCount];
+		for (UINT i = 0; i < file.symbolCount; i++)
 		{
-			input.read(reinterpret_cast<char*>(&symbols[i]), SYMBOL_LENGTH);
-			symbols[i].name = new CHAR[256];
-			input.read(symbols[i].name, symbols[i].length);
+			input.read(reinterpret_cast<char*>(&file.symbols[i]), SYMBOL_LENGTH);
+			Symbol* symbol = &file.symbols[i];
+
+			symbol->name = new CHAR[symbol->length];
+			input.read(symbol->name, symbol->length);
 
 			// TODO: look at logic at line 261 onwards in RCX_Image.cpp
 			// sometimes there may not be a symbol, so just do a seek instead
