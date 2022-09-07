@@ -41,18 +41,12 @@
     <ClCompile Include="device.cpp" />
     <ClCompile Include="InfraredBrickTower.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="RCXFileParser.cpp" />
-    <ClCompile Include="TowerController.cpp" />
     <ClCompile Include="WinUsbTowerInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Config.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="InfraredBrickTower.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="HostTowerCommInterface.h" />
-    <ClInclude Include="RCXFileParser.h" />
-    <ClInclude Include="TowerController.h" />
     <ClInclude Include="WinUsbTowerInterface.h" />
   </ItemGroup>
   <ItemGroup>
@@ -60,7 +54,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PBrickLogic\PBrickLogic.vcxproj">
-      <Project>{b5c2c086-6cab-4869-8539-2074092d30a3}</Project>
+      <Project>{322a372e-0bd7-4478-8a93-538d28566c4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\TowerLogic\TowerLogic.vcxproj">
+      <Project>{f861c0be-c3a7-4ae8-82a3-0317cf07afb8}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -71,7 +68,6 @@
     <Configuration>Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <RootNamespace>InfraredBrickTower</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -200,13 +196,13 @@
       <PreprocessorDefinitions>_DEBUG;WINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP;WINAPI_PARTITION_DESKTOP=1;WINAPI_PARTITION_SYSTEM=1;WINAPI_PARTITION_APP=1;WINAPI_PARTITION_PC_APP=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\TowerLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <DriverSign>
       <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
     </DriverSign>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);onecoreuap.lib;winusb.lib;PBrickLogic.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);onecoreuap.lib;winusb.lib;PBrickLogic.lib;TowerLogic.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

@@ -1,39 +1,16 @@
 #pragma once
 
-#ifndef TOWERCONTROLLER_H
-#define TOWERCONTROLLER_H
+#ifdef TOWERLOGIC_EXPORTS
+#define TOWERLOGIC_API __declspec(dllexport)
+#else
+#define TOWERLOGIC_API __declspec(dllimport)
+#endif
 
 #include <stdio.h>
-
 #include "HostTowerCommInterface.h"
 
 namespace Tower
 {
-
-	/*
-		well...
-		I'm using a macro to generate the getters and setters for the GET_PARAMETER and SET_PARAMETER requests.
-
-		Q: why?
-		A: I didn't want to write a bunch of cookie cutter getters and setters for those.
-		Q: was it a good decision?
-		A: beats me if the broader C++ Community:TM: would approve! My reasoning is this:
-		   - realistically, are many people who aren't me going to use this? probably not, so does it matter? probably not
-		   - i would rather have a little bit of weird macro stuff than a bunch of space filled by near-identical methods
-		   - i wanted to learn macros
-
-		anyway, this might be bad, idk and tbqh idc
-	*/
-#define GenerateParameterSetterAndGetter(paramType, outputType) \
-inline outputType Get##outputType##(RequestData* data) \
-{ \
-	return (##outputType) GetParameter(##paramType##, data); \
-} \
-inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
-{ \
-	SetParameter(##paramType##, (BYTE)newValue, data); \
-}
-
 	enum class RequestType : BYTE
 	{
 		GET_PARAMETER = 0x01,
@@ -289,7 +266,7 @@ inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
 		}
 	};
 
-	BOOL SendData(
+	TOWERLOGIC_API BOOL SendData(
 		PUCHAR inputBuffer, 
 		ULONG inputBufferLength,
 		PUCHAR replyBuffer,
@@ -297,61 +274,85 @@ inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
 		ULONG& lengthRead,
 		RequestData* data);
 
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
+	TOWERLOGIC_API BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
+	TOWERLOGIC_API BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
+	TOWERLOGIC_API BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
+	TOWERLOGIC_API BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
 
-	VOID Flush(CommBuffer buffer, RequestData* data);
-	VOID Reset(RequestData* data);
+	TOWERLOGIC_API VOID Flush(CommBuffer buffer, RequestData* data);
+	TOWERLOGIC_API VOID Reset(RequestData* data);
 
-	Power GetPower(RequestData* data);
+	TOWERLOGIC_API Power GetPower(RequestData* data);
 
-	LEDColor GetLEDColor(LED led, RequestData* data);
-	VOID SetLEDColor(LED led, LEDColor color, RequestData* data);
+	TOWERLOGIC_API LEDColor GetLEDColor(LED led, RequestData* data);
+	TOWERLOGIC_API VOID SetLEDColor(LED led, LEDColor color, RequestData* data);
 
-	StatisticsData GetStatistics(RequestData* data);
-	VOID ResetStatistics(RequestData* data);
+	TOWERLOGIC_API StatisticsData GetStatistics(RequestData* data);
+	TOWERLOGIC_API VOID ResetStatistics(RequestData* data);
 
 	/*TowerIRCParam GetIRCParameter();
 	VOID SetIRCParameter(TowerIRCParam param);*/
 
-	CommSpeed GetTransmissionSpeed(RequestData* data);
-	VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data);
+	TOWERLOGIC_API CommSpeed GetTransmissionSpeed(RequestData* data);
+	TOWERLOGIC_API VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data);
 
-	CommSpeed GetReceivingSpeed(RequestData* data);
-	VOID SetReceivingSpeed(CommSpeed speed, RequestData* data);
+	TOWERLOGIC_API CommSpeed GetReceivingSpeed(RequestData* data);
+	TOWERLOGIC_API VOID SetReceivingSpeed(CommSpeed speed, RequestData* data);
 
-	TransmitterState GetTransmitterState(RequestData* data);
+	TOWERLOGIC_API TransmitterState GetTransmitterState(RequestData* data);
 
 	/*BYTE GetTransmissionCarrierFrequency();
 	VOID SetTransmissionCarrierFrequency();
 	BYTE GetTransmissionCarrierDutyCycle();
 	VOID SetTransmissionCarrierDutyCycle();*/
 
-	CapabilitiesData GetCapabilities(CapabilityLink link, RequestData* data);
-	VersionData GetVersion(RequestData* data);
-	VOID GetCopyright(RequestData* data);
-	VOID GetCredits(RequestData* data);
+	TOWERLOGIC_API CapabilitiesData GetCapabilities(CapabilityLink link, RequestData* data);
+	TOWERLOGIC_API VersionData GetVersion(RequestData* data);
+	TOWERLOGIC_API VOID GetCopyright(RequestData* data);
+	TOWERLOGIC_API VOID GetCredits(RequestData* data);
 
-	VOID ReadStringFromReplyBuffer(RequestData* data);
+	TOWERLOGIC_API VOID ReadStringFromReplyBuffer(RequestData* data);
 
-	VOID SetParameter(
+	TOWERLOGIC_API VOID SetParameter(
 		ParamType parameter,
 		BYTE value,
 		RequestData* data);
-	BYTE GetParameter(ParamType parameter, RequestData* data);
+	TOWERLOGIC_API BYTE GetParameter(ParamType parameter, RequestData* data);
 
-	VOID MakeRequest(RequestType request, RequestData* data);
-	VOID MakeRequest(
+	TOWERLOGIC_API VOID MakeRequest(RequestType request, RequestData* data);
+	TOWERLOGIC_API VOID MakeRequest(
 		RequestType request,
 		WORD value,
 		RequestData* data);
-	VOID MakeRequest(
+	TOWERLOGIC_API VOID MakeRequest(
 		RequestType request,
 		BYTE loByte,
 		BYTE hiByte,
 		RequestData* data);
+
+	/*
+		well...
+		I'm using a macro to generate the getters and setters for the GET_PARAMETER and SET_PARAMETER requests.
+
+		Q: why?
+		A: I didn't want to write a bunch of cookie cutter getters and setters for those.
+		Q: was it a good decision?
+		A: beats me if the broader C++ Community:TM: would approve! My reasoning is this:
+		   - realistically, are many people who aren't me going to use this? probably not, so does it matter? probably not
+		   - i would rather have a little bit of weird macro stuff than a bunch of space filled by near-identical methods
+		   - i wanted to learn macros
+
+		anyway, this might be bad, idk and tbqh idc
+	*/
+#define GenerateParameterSetterAndGetter(paramType, outputType) \
+TOWERLOGIC_API inline outputType Get##outputType##(RequestData* data) \
+{ \
+	return (##outputType) GetParameter(##paramType##, data); \
+} \
+TOWERLOGIC_API inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
+{ \
+	SetParameter(##paramType##, (BYTE)newValue, data); \
+}
 
 	GenerateParameterSetterAndGetter(ParamType::MODE, CommMode)
 	GenerateParameterSetterAndGetter(ParamType::RANGE, CommRange)
@@ -361,5 +362,3 @@ inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
 	GenerateParameterSetterAndGetter(ParamType::INDICATOR_LED_MODE, IndicatorLEDMode)
 	GenerateParameterSetterAndGetter(ParamType::ERROR_SIGNAL, ErrorSignalMode)
 }
-
-#endif TOWERCONTROLLER_H

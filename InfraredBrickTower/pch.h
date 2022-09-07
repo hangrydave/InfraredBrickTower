@@ -5,5 +5,3 @@
 #include <usb.h>
 
 #include "device.h"
-
-#include "Config.h"

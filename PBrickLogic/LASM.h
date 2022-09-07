@@ -1,18 +1,24 @@
 #pragma once
 
+#ifdef PBRICKLOGIC_EXPORTS
+#define PBRICKLOGIC_API __declspec(dllexport)
+#else
+#define PBRICKLOGIC_API __declspec(dllimport)
+#endif
+
 #include "pch.h"
 #include <Windows.h>
 #include <memory>
 
-enum Availability
-{
-	DIRECT,
-	PROGRAM,
-	BOTH
-};
-
 namespace LASM
 {
+	/*enum Availability
+	{
+		DIRECT,
+		PROGRAM,
+		BOTH
+	};*/
+
 	enum class Command : BYTE
 	{
 		PBAliveOrNot =				0x10,
@@ -133,7 +139,7 @@ namespace LASM
 		INDIRECT_VARIABLE = 36
 	};
 
-	BOOL ValidateReply(Command commandByte, BYTE* replyBuffer, UINT replyLength);
+	PBRICKLOGIC_API BOOL ValidateReply(Command commandByte, BYTE* replyBuffer, UINT replyLength);
 
 #define MAX_COMMAND_LENGTH 30 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
@@ -156,8 +162,7 @@ namespace LASM
 		}
 	};
 
-	CommandData ComposeCommand(Command lasmCommand);
-	CommandData ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength);
+	PBRICKLOGIC_API CommandData ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength);
 
 	enum class MotorAction : BYTE
 	{
@@ -174,14 +179,14 @@ namespace LASM
 		const BYTE C = 0b100;
 	}
 
-	CommandData Cmd_OnOffFloat(BYTE motors, MotorAction action);
+	PBRICKLOGIC_API CommandData Cmd_OnOffFloat(BYTE motors, MotorAction action);
 
 	enum class IRTransmissionRange : BYTE
 	{
 		SHORT = 0,
 		LONG = 1
 	};
-	CommandData Cmd_PbTXPower(IRTransmissionRange range);
+	PBRICKLOGIC_API CommandData Cmd_PbTXPower(IRTransmissionRange range);
 
 	enum class SystemSound : BYTE
 	{
@@ -192,26 +197,26 @@ namespace LASM
 		ERROR_SOUND = 4,
 		FAST_SWEEP_UP = 5
 	};
-	CommandData Cmd_PlaySystemSound(SystemSound sound);
+	PBRICKLOGIC_API CommandData Cmd_PlaySystemSound(SystemSound sound);
 
 	// task is number from 0 to 9
-	CommandData Cmd_DeleteTask(BYTE task);
-	CommandData Cmd_StartTask(BYTE task);
-	CommandData Cmd_StopTask(BYTE task);
+	PBRICKLOGIC_API CommandData Cmd_DeleteTask(BYTE task);
+	PBRICKLOGIC_API CommandData Cmd_StartTask(BYTE task);
+	PBRICKLOGIC_API CommandData Cmd_StopTask(BYTE task);
 
 	// program is number from 0 to 5
-	CommandData Cmd_SelectProgram(BYTE program);
+	PBRICKLOGIC_API CommandData Cmd_SelectProgram(BYTE program);
 
 	// timer is number from 0 to 3
-	CommandData Cmd_ClearTimer(BYTE timer);
+	PBRICKLOGIC_API CommandData Cmd_ClearTimer(BYTE timer);
 
-	CommandData Cmd_PBPowerDownTime(BYTE minutes);
+	PBRICKLOGIC_API CommandData Cmd_PBPowerDownTime(BYTE minutes);
 
 	// subroutine is number from 0 to 7
-	CommandData Cmd_DeleteSub(BYTE subroutine);
+	PBRICKLOGIC_API CommandData Cmd_DeleteSub(BYTE subroutine);
 
 	// sensor is number from 0 to 3
-	CommandData Cmd_ClearSensorValue(BYTE sensor);
+	PBRICKLOGIC_API CommandData Cmd_ClearSensorValue(BYTE sensor);
 
 	enum class MotorDirection : BYTE
 	{
@@ -219,10 +224,10 @@ namespace LASM
 		REVERSE = 1,
 		FORWARDS = 2
 	};
-	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction);
+	PBRICKLOGIC_API CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction);
 
 	// subroutine is number from 0 to 7
-	CommandData Cmd_GoSub(BYTE subroutine);
+	PBRICKLOGIC_API CommandData Cmd_GoSub(BYTE subroutine);
 
 	enum class JumpDirection : BYTE
 	{
@@ -230,30 +235,30 @@ namespace LASM
 		BACKWARDS = 1
 	};
 	// distance is number from 0 to 6
-	CommandData Cmd_SJump(BYTE distance, JumpDirection direction);
-	CommandData Cmd_SCheckLoopCounter(BYTE distance);
+	PBRICKLOGIC_API CommandData Cmd_SJump(BYTE distance, JumpDirection direction);
+	PBRICKLOGIC_API CommandData Cmd_SCheckLoopCounter(BYTE distance);
 
-	CommandData Cmd_ConnectDisconnect(BYTE motor, MotorAction action);
+	PBRICKLOGIC_API CommandData Cmd_ConnectDisconnect(BYTE motor, MotorAction action);
 
 	// counter is number from 0 to 2
-	CommandData Cmd_IncCounter(BYTE counter);
-	CommandData Cmd_DecCounter(BYTE counter);
-	CommandData Cmd_ClearCounter(BYTE counter);
+	PBRICKLOGIC_API CommandData Cmd_IncCounter(BYTE counter);
+	PBRICKLOGIC_API CommandData Cmd_DecCounter(BYTE counter);
+	PBRICKLOGIC_API CommandData Cmd_ClearCounter(BYTE counter);
 
 	// priority is number from 0 to 255 (0 is highest priority)
-	CommandData Cmd_SetPriority(BYTE priority);
+	PBRICKLOGIC_API CommandData Cmd_SetPriority(BYTE priority);
 
 	// dunno what irMessage is, page 48 of the Firmware Command Overview
-	CommandData Cmd_InternMessage(BYTE irMessage);
+	PBRICKLOGIC_API CommandData Cmd_InternMessage(BYTE irMessage);
 
 	// duration is in 1/100 second
-	CommandData Cmd_PlayToneVar(BYTE variableNumber, BYTE duration);
+	PBRICKLOGIC_API CommandData Cmd_PlayToneVar(BYTE variableNumber, BYTE duration);
 
 	// dunno what source and value are
-	CommandData Cmd_Poll(BYTE source, BYTE value);
+	PBRICKLOGIC_API CommandData Cmd_Poll(BYTE source, BYTE value);
 
 	// i assume 24 hour time, so hours is 0-23 and minutes is 0-59?
-	CommandData Cmd_SetWatch(BYTE hours, BYTE minutes);
+	PBRICKLOGIC_API CommandData Cmd_SetWatch(BYTE hours, BYTE minutes);
 
 	enum class SensorType : BYTE
 	{
@@ -264,7 +269,7 @@ namespace LASM
 		ANGLE = 4
 	};
 	// sensorNumber is 0-2 i think
-	CommandData Cmd_SetSensorType(BYTE sensorNumber, SensorType type);
+	PBRICKLOGIC_API CommandData Cmd_SetSensorType(BYTE sensorNumber, SensorType type);
 
 	enum class SensorMode : BYTE
 	{
@@ -278,55 +283,55 @@ namespace LASM
 		ANGLE_STEPS = 7
 	};
 	// slope is number from 0 to 31
-	CommandData Cmd_SetSensorMode(BYTE sensorNumber, BYTE slope, SensorMode mode);
+	PBRICKLOGIC_API CommandData Cmd_SetSensorMode(BYTE sensorNumber, BYTE slope, SensorMode mode);
 
-	CommandData Cmd_SetDataLog();
-	CommandData Cmd_DataLogNext();
+	PBRICKLOGIC_API CommandData Cmd_SetDataLog();
+	PBRICKLOGIC_API CommandData Cmd_DataLogNext();
 
-	CommandData Cmd_LJump(BYTE distance, JumpDirection direction);
+	PBRICKLOGIC_API CommandData Cmd_LJump(BYTE distance, JumpDirection direction);
 
-	CommandData Cmd_SetLoopCounter();
-	CommandData Cmd_LCheckLoopCounter();
-	CommandData Cmd_SendPBMessage();
-	CommandData Cmd_SendUARTData();
-	CommandData Cmd_RemoteCommand();
-	CommandData Cmd_SDecVarJumpLTZero();
-	CommandData Cmd_DirectEvent();
+	PBRICKLOGIC_API CommandData Cmd_SetLoopCounter();
+	PBRICKLOGIC_API CommandData Cmd_LCheckLoopCounter();
+	PBRICKLOGIC_API CommandData Cmd_SendPBMessage();
+	PBRICKLOGIC_API CommandData Cmd_SendUARTData();
+	PBRICKLOGIC_API CommandData Cmd_RemoteCommand();
+	PBRICKLOGIC_API CommandData Cmd_SDecVarJumpLTZero();
+	PBRICKLOGIC_API CommandData Cmd_DirectEvent();
 
-	CommandData Cmd_SetPower(BYTE motorList, ParamSource powerSource, BYTE powerValue);
-	CommandData Cmd_PlayTone(WORD frequency, BYTE duration);
+	PBRICKLOGIC_API CommandData Cmd_SetPower(BYTE motorList, ParamSource powerSource, BYTE powerValue);
+	PBRICKLOGIC_API CommandData Cmd_PlayTone(WORD frequency, BYTE duration);
 
-	CommandData Cmd_SelectDisplay();
-	CommandData Cmd_Wait();
-	CommandData Cmd_UploadRAM();
-	CommandData Cmd_EnterAccessControl();
-	CommandData Cmd_SetEvent();
-	CommandData Cmd_SetMaxPower();
-	CommandData Cmd_LDecVarJumpLTZero();
-	CommandData Cmd_CalibrateEvent();
-	CommandData Cmd_SetVar();
-	CommandData Cmd_SumVar();
-	CommandData Cmd_SubVar();
-	CommandData Cmd_DivVar();
-	CommandData Cmd_MulVar();
-	CommandData Cmd_SgnVar();
-	CommandData Cmd_AbsVar();
-	CommandData Cmd_AndVar();
-	CommandData Cmd_OrVar();
-	CommandData Cmd_Upload();
-	CommandData Cmd_SEnterEventCheck();
-	CommandData Cmd_SetSourceValue();
-	CommandData Cmd_UnlockPBrick();
-	CommandData Cmd_BeginOfTask();
-	CommandData Cmd_BeginOfSub();
-	CommandData Cmd_ContinueFirmwareDownload();
-	CommandData Cmd_GoIntoBootMode();
-	CommandData Cmd_BeginFirmwareDownload();
-	CommandData Cmd_SCheckDo();
-	CommandData Cmd_LCheckDo();
-	CommandData Cmd_UnlockFirmware();
-	CommandData Cmd_LEnterEventCheck();
-	CommandData Cmd_ViewSourceValue();
+	PBRICKLOGIC_API CommandData Cmd_SelectDisplay();
+	PBRICKLOGIC_API CommandData Cmd_Wait();
+	PBRICKLOGIC_API CommandData Cmd_UploadRAM();
+	PBRICKLOGIC_API CommandData Cmd_EnterAccessControl();
+	PBRICKLOGIC_API CommandData Cmd_SetEvent();
+	PBRICKLOGIC_API CommandData Cmd_SetMaxPower();
+	PBRICKLOGIC_API CommandData Cmd_LDecVarJumpLTZero();
+	PBRICKLOGIC_API CommandData Cmd_CalibrateEvent();
+	PBRICKLOGIC_API CommandData Cmd_SetVar();
+	PBRICKLOGIC_API CommandData Cmd_SumVar();
+	PBRICKLOGIC_API CommandData Cmd_SubVar();
+	PBRICKLOGIC_API CommandData Cmd_DivVar();
+	PBRICKLOGIC_API CommandData Cmd_MulVar();
+	PBRICKLOGIC_API CommandData Cmd_SgnVar();
+	PBRICKLOGIC_API CommandData Cmd_AbsVar();
+	PBRICKLOGIC_API CommandData Cmd_AndVar();
+	PBRICKLOGIC_API CommandData Cmd_OrVar();
+	PBRICKLOGIC_API CommandData Cmd_Upload();
+	PBRICKLOGIC_API CommandData Cmd_SEnterEventCheck();
+	PBRICKLOGIC_API CommandData Cmd_SetSourceValue();
+	PBRICKLOGIC_API CommandData Cmd_UnlockPBrick();
+	PBRICKLOGIC_API CommandData Cmd_BeginOfTask();
+	PBRICKLOGIC_API CommandData Cmd_BeginOfSub();
+	PBRICKLOGIC_API CommandData Cmd_ContinueFirmwareDownload();
+	PBRICKLOGIC_API CommandData Cmd_GoIntoBootMode();
+	PBRICKLOGIC_API CommandData Cmd_BeginFirmwareDownload();
+	PBRICKLOGIC_API CommandData Cmd_SCheckDo();
+	PBRICKLOGIC_API CommandData Cmd_LCheckDo();
+	PBRICKLOGIC_API CommandData Cmd_UnlockFirmware();
+	PBRICKLOGIC_API CommandData Cmd_LEnterEventCheck();
+	PBRICKLOGIC_API CommandData Cmd_ViewSourceValue();
 
 
 
@@ -334,9 +339,9 @@ namespace LASM
 
 
 #define Cmd(command, availabilityArg) \
-inline CommandData Cmd_##command##() \
+PBRICKLOGIC_API inline CommandData Cmd_##command##() \
 { \
-	return ComposeCommand(Command::##command##); \
+	return ComposeCommand(Command::##command##, nullptr, 0); \
 }
 
 #define COMMA ,
