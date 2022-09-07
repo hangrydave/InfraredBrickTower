@@ -2,8 +2,10 @@
 
 #include "TowerController.h"
 #include "WinUsbTowerInterface.h"
-#include "VLLCommands.h"
+#include "VLL.h"
 #include "LASM.h"
+
+
 #include "RCXFileParser.h"
 
 #include <assert.h>

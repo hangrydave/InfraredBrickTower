@@ -37,16 +37,10 @@
     <ClInclude Include="WinUsbTowerInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VLLCommands.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InfraredBrickTower.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LASM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RCXFileParser.h">
@@ -66,13 +60,7 @@
     <ClCompile Include="WinUsbTowerInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VLLCommands.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="InfraredBrickTower.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LASM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RCXFileParser.cpp">

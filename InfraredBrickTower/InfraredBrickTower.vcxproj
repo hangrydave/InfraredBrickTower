@@ -40,27 +40,28 @@
   <ItemGroup>
     <ClCompile Include="device.cpp" />
     <ClCompile Include="InfraredBrickTower.cpp" />
-    <ClCompile Include="LASM.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RCXFileParser.cpp" />
     <ClCompile Include="TowerController.cpp" />
-    <ClCompile Include="VLLCommands.cpp" />
     <ClCompile Include="WinUsbTowerInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="InfraredBrickTower.h" />
-    <ClInclude Include="LASM.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="HostTowerCommInterface.h" />
     <ClInclude Include="RCXFileParser.h" />
     <ClInclude Include="TowerController.h" />
-    <ClInclude Include="VLLCommands.h" />
     <ClInclude Include="WinUsbTowerInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PBrickLogic\PBrickLogic.vcxproj">
+      <Project>{b5c2c086-6cab-4869-8539-2074092d30a3}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{549C3FAC-B8E5-493C-9429-6AC4B636C8B4}</ProjectGuid>
@@ -70,7 +71,7 @@
     <Configuration>Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <RootNamespace>InfraredBrickTower</RootNamespace>
-    <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -97,6 +98,7 @@
     <DriverTargetPlatform>Universal</DriverTargetPlatform>
     <CharacterSet>Unicode</CharacterSet>
     <SupportsPackaging>true</SupportsPackaging>
+    <Driver_SpectreMitigation>Spectre</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -198,12 +200,14 @@
       <PreprocessorDefinitions>_DEBUG;WINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP;WINAPI_PARTITION_DESKTOP=1;WINAPI_PARTITION_SYSTEM=1;WINAPI_PARTITION_APP=1;WINAPI_PARTITION_PC_APP=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <DriverSign>
       <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
     </DriverSign>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);onecoreuap.lib;winusb.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);onecoreuap.lib;winusb.lib;PBrickLogic.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

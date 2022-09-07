@@ -3,6 +3,7 @@
 #ifndef VLLCOMMANDS_H
 #define VLLCOMMANDS_H
 
+#include "pch.h"
 #include <Windows.h>
 
 namespace VLL
