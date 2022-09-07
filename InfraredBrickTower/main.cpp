@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
+#include "Bababooey.h"
 
 //BOOL StringsAreEqual(char* strOne, char* strTwo);
 //VOID MicroScoutCLI(Tower::RequestData* towerData);
@@ -23,6 +24,8 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 {
 	UNREFERENCED_PARAMETER(Argc);
 	UNREFERENCED_PARAMETER(Argv);
+
+	shitzo();
 
 	//RCXParser::ParseFile();
 
