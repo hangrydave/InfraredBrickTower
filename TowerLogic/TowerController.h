@@ -1,12 +1,7 @@
 #pragma once
 
-#ifdef TOWERLOGIC_EXPORTS
-#define TOWERLOGIC_API __declspec(dllexport)
-#else
-#define TOWERLOGIC_API __declspec(dllimport)
-#endif
-
 #include <stdio.h>
+#include <Windows.h>
 #include "HostTowerCommInterface.h"
 
 namespace Tower
@@ -266,7 +261,7 @@ namespace Tower
 		}
 	};
 
-	TOWERLOGIC_API BOOL SendData(
+	BOOL SendData(
 		PUCHAR inputBuffer, 
 		ULONG inputBufferLength,
 		PUCHAR replyBuffer,
@@ -274,57 +269,57 @@ namespace Tower
 		ULONG& lengthRead,
 		RequestData* data);
 
-	TOWERLOGIC_API BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
-	TOWERLOGIC_API BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
-	TOWERLOGIC_API BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
-	TOWERLOGIC_API BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
+	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
+	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
+	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
+	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
 
-	TOWERLOGIC_API VOID Flush(CommBuffer buffer, RequestData* data);
-	TOWERLOGIC_API VOID Reset(RequestData* data);
+	VOID Flush(CommBuffer buffer, RequestData* data);
+	VOID Reset(RequestData* data);
 
-	TOWERLOGIC_API Power GetPower(RequestData* data);
+	Power GetPower(RequestData* data);
 
-	TOWERLOGIC_API LEDColor GetLEDColor(LED led, RequestData* data);
-	TOWERLOGIC_API VOID SetLEDColor(LED led, LEDColor color, RequestData* data);
+	LEDColor GetLEDColor(LED led, RequestData* data);
+	VOID SetLEDColor(LED led, LEDColor color, RequestData* data);
 
-	TOWERLOGIC_API StatisticsData GetStatistics(RequestData* data);
-	TOWERLOGIC_API VOID ResetStatistics(RequestData* data);
+	StatisticsData GetStatistics(RequestData* data);
+	VOID ResetStatistics(RequestData* data);
 
 	/*TowerIRCParam GetIRCParameter();
 	VOID SetIRCParameter(TowerIRCParam param);*/
 
-	TOWERLOGIC_API CommSpeed GetTransmissionSpeed(RequestData* data);
-	TOWERLOGIC_API VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data);
+	CommSpeed GetTransmissionSpeed(RequestData* data);
+	VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data);
 
-	TOWERLOGIC_API CommSpeed GetReceivingSpeed(RequestData* data);
-	TOWERLOGIC_API VOID SetReceivingSpeed(CommSpeed speed, RequestData* data);
+	CommSpeed GetReceivingSpeed(RequestData* data);
+	VOID SetReceivingSpeed(CommSpeed speed, RequestData* data);
 
-	TOWERLOGIC_API TransmitterState GetTransmitterState(RequestData* data);
+	TransmitterState GetTransmitterState(RequestData* data);
 
 	/*BYTE GetTransmissionCarrierFrequency();
 	VOID SetTransmissionCarrierFrequency();
 	BYTE GetTransmissionCarrierDutyCycle();
 	VOID SetTransmissionCarrierDutyCycle();*/
 
-	TOWERLOGIC_API CapabilitiesData GetCapabilities(CapabilityLink link, RequestData* data);
-	TOWERLOGIC_API VersionData GetVersion(RequestData* data);
-	TOWERLOGIC_API VOID GetCopyright(RequestData* data);
-	TOWERLOGIC_API VOID GetCredits(RequestData* data);
+	CapabilitiesData GetCapabilities(CapabilityLink link, RequestData* data);
+	VersionData GetVersion(RequestData* data);
+	VOID GetCopyright(RequestData* data);
+	VOID GetCredits(RequestData* data);
 
-	TOWERLOGIC_API VOID ReadStringFromReplyBuffer(RequestData* data);
+	VOID ReadStringFromReplyBuffer(RequestData* data);
 
-	TOWERLOGIC_API VOID SetParameter(
+	VOID SetParameter(
 		ParamType parameter,
 		BYTE value,
 		RequestData* data);
-	TOWERLOGIC_API BYTE GetParameter(ParamType parameter, RequestData* data);
+	BYTE GetParameter(ParamType parameter, RequestData* data);
 
-	TOWERLOGIC_API VOID MakeRequest(RequestType request, RequestData* data);
-	TOWERLOGIC_API VOID MakeRequest(
+	VOID MakeRequest(RequestType request, RequestData* data);
+	VOID MakeRequest(
 		RequestType request,
 		WORD value,
 		RequestData* data);
-	TOWERLOGIC_API VOID MakeRequest(
+	VOID MakeRequest(
 		RequestType request,
 		BYTE loByte,
 		BYTE hiByte,
@@ -345,11 +340,11 @@ namespace Tower
 		anyway, this might be bad, idk and tbqh idc
 	*/
 #define GenerateParameterSetterAndGetter(paramType, outputType) \
-TOWERLOGIC_API inline outputType Get##outputType##(RequestData* data) \
+inline outputType Get##outputType##(RequestData* data) \
 { \
 	return (##outputType) GetParameter(##paramType##, data); \
 } \
-TOWERLOGIC_API inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
+inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
 { \
 	SetParameter(##paramType##, (BYTE)newValue, data); \
 }
