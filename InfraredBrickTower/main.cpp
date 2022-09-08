@@ -1,11 +1,10 @@
 #include "pch.h"
 
-#include "TowerController.h"
 #include "WinUsbTowerInterface.h"
-#include "VLLCommands.h"
+#include "TowerController.h"
+#include "VLL.h"
 #include "LASM.h"
 #include "RCXFileParser.h"
-
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
@@ -26,23 +25,23 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	RCXParser::ParseFile();
 
-	/*WinUsbTowerInterface* usbTowerInterface;
+	WinUsbTowerInterface* usbTowerInterface;
 	BOOL gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
 	if (!gotInterface)
 	{
 		printf("Error getting WinUSB interface!\n");
 		system("pause");
 		return 0;
-	}*/
+	}
 
-	//Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
+	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
-	//DriveMotors(towerData);
-	//BeepRCX(towerData);
-	//MicroScoutCLI(towerData);
-
-	//delete usbTowerInterface;
-	//delete towerData;
+	DriveMotors(towerData);
+	BeepRCX(towerData);
+	MicroScoutCLI(towerData);
+	
+	delete usbTowerInterface;
+	delete towerData;
 
 	system("pause");
 	return 0;
@@ -53,6 +52,8 @@ VOID DriveMotors(Tower::RequestData* towerData)
 	ULONG lengthRead = 0;
 	UCHAR replyBuffer[10];
 	ULONG replyLength = 10;
+
+	LASM::Cmd_PlaySystemSound(LASM::SystemSound::BEEP);
 
 	LASM::CommandData command = LASM::Cmd_StopAllTasks();
 	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
@@ -90,7 +91,7 @@ VOID DriveMotors(Tower::RequestData* towerData)
 	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
 }
 
-VOID MicroScoutCLI(Tower::RequestData* data)
+VOID MicroScoutCLI(Tower::RequestData* towerData)
 {
 	enum MSCLIMode
 	{
@@ -98,12 +99,13 @@ VOID MicroScoutCLI(Tower::RequestData* data)
 		PROGRAM
 	};
 
-	Tower::SetIndicatorLEDMode(Tower::IndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, data);
-	Tower::SetCommMode(Tower::CommMode::VLL, data);
+	Tower::SetIndicatorLEDMode(Tower::IndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, towerData);
+	Tower::SetCommMode(Tower::CommMode::VLL, towerData);
 	
 	char* help = "Commands:\n\nquit, help\n\nbeep1, beep2, beep3, beep4, beep5\n\nfwd, bwd\n\nstop, run, delete\n\nwaitlight, seeklight, code, keepalive\n\nUse \"directmode\" for immediate control and \"programmode\" to program the MicroScout.\n";
 	printf(help);
 
+	BYTE commandBuffer[VLL_PACKET_LENGTH];
 	char input[256];
 
 	MSCLIMode mode = DIRECT;
@@ -123,38 +125,38 @@ VOID MicroScoutCLI(Tower::RequestData* data)
 		else if (StringsAreEqual(input, "beep1"))
 		{
 			mode == PROGRAM
-				? VLL_Beep1(data)
-				: VLL_Beep1Immediate(data);
+				? VLL::Cmd_Beep1(commandBuffer)
+				: VLL::Cmd_Beep1Immediate(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "beep2"))
 		{
 			mode == PROGRAM
-				? VLL_Beep2(data)
-				: VLL_Beep2Immediate(data);
+				? VLL::Cmd_Beep2(commandBuffer)
+				: VLL::Cmd_Beep2Immediate(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "beep3"))
 		{
 			mode == PROGRAM
-				? VLL_Beep3(data)
-				: VLL_Beep3Immediate(data);
+				? VLL::Cmd_Beep3(commandBuffer)
+				: VLL::Cmd_Beep3Immediate(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "beep4"))
 		{
 			mode == PROGRAM
-				? VLL_Beep4(data)
-				: VLL_Beep4Immediate(data);
+				? VLL::Cmd_Beep4(commandBuffer)
+				: VLL::Cmd_Beep4Immediate(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "beep5"))
 		{
 			mode == PROGRAM
-				? VLL_Beep5(data)
-				: VLL_Beep5Immediate(data);
+				? VLL::Cmd_Beep5(commandBuffer)
+				: VLL::Cmd_Beep5Immediate(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "fwd"))
 		{
 			if (mode == DIRECT)
 			{
-				VLL_ForwardImmediate(data);
+				VLL::Cmd_ForwardImmediate(commandBuffer);
 			}
 			else if (mode == PROGRAM)
 			{
@@ -162,19 +164,19 @@ VOID MicroScoutCLI(Tower::RequestData* data)
 				scanf("%s", input);
 				if (StringsAreEqual(input, "half"))
 				{
-					VLL_ForwardHalf(data);
+					VLL::Cmd_ForwardHalf(commandBuffer);
 				}
 				else if (StringsAreEqual(input, "one"))
 				{
-					VLL_ForwardOne(data);
+					VLL::Cmd_ForwardOne(commandBuffer);
 				}
 				else if (StringsAreEqual(input, "two"))
 				{
-					VLL_ForwardTwo(data);
+					VLL::Cmd_ForwardTwo(commandBuffer);
 				}
 				else if (StringsAreEqual(input, "five"))
 				{
-					VLL_ForwardFive(data);
+					VLL::Cmd_ForwardFive(commandBuffer);
 				}
 				else
 				{
@@ -186,7 +188,7 @@ VOID MicroScoutCLI(Tower::RequestData* data)
 		{
 			if (mode == DIRECT)
 			{
-				VLL_BackwardImmediate(data);
+				VLL::Cmd_BackwardImmediate(commandBuffer);
 			}
 			else if (mode == PROGRAM)
 			{
@@ -194,19 +196,19 @@ VOID MicroScoutCLI(Tower::RequestData* data)
 				scanf("%s", input);
 				if (StringsAreEqual(input, "half"))
 				{
-					VLL_BackwardHalf(data);
+					VLL::Cmd_BackwardHalf(commandBuffer);
 				}
 				else if (StringsAreEqual(input, "one"))
 				{
-					VLL_BackwardOne(data);
+					VLL::Cmd_BackwardOne(commandBuffer);
 				}
 				else if (StringsAreEqual(input, "two"))
 				{
-					VLL_BackwardTwo(data);
+					VLL::Cmd_BackwardTwo(commandBuffer);
 				}
 				else if (StringsAreEqual(input, "five"))
 				{
-					VLL_BackwardFive(data);
+					VLL::Cmd_BackwardFive(commandBuffer);
 				}
 				else
 				{
@@ -216,15 +218,15 @@ VOID MicroScoutCLI(Tower::RequestData* data)
 		}
 		else if (StringsAreEqual(input, "stop"))
 		{
-			VLL_Stop(data);
+			VLL::Cmd_Stop(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "run"))
 		{
-			VLL_Run(data);
+			VLL::Cmd_Run(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "delete"))
 		{
-			VLL_Delete(data);
+			VLL::Cmd_Delete(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "programmode"))
 		{
@@ -236,25 +238,27 @@ VOID MicroScoutCLI(Tower::RequestData* data)
 		}
 		else if (StringsAreEqual(input, "waitlight"))
 		{
-			VLL_WaitLight(data);
+			VLL::Cmd_WaitLight(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "seeklight"))
 		{
-			VLL_SeekLight(data);
+			VLL::Cmd_SeekLight(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "code"))
 		{
-			VLL_Code(data);
+			VLL::Cmd_Code(commandBuffer);
 		}
 		else if (StringsAreEqual(input, "keepalive"))
 		{
-			VLL_KeepAlive(data);
+			VLL::Cmd_KeepAlive(commandBuffer);
 		}
 		else
 		{
 			printf("Unrecognized command, try again.\n");
 		}
 	}
+
+	Tower::WriteData(commandBuffer, VLL_PACKET_LENGTH, towerData);
 }
 
 VOID TestTower(Tower::RequestData* data)
@@ -269,7 +273,10 @@ VOID TestTower(Tower::RequestData* data)
 VOID BeepMicroScout(Tower::RequestData* towerData)
 {
 	Tower::SetCommMode(Tower::CommMode::VLL, towerData);
-	VLL_Beep1Immediate(towerData);
+
+	BYTE command[VLL_PACKET_LENGTH];
+	VLL::Cmd_Beep1Immediate(command);
+	Tower::WriteData(command, VLL_PACKET_LENGTH, towerData);
 }
 
 VOID BeepRCX(Tower::RequestData* towerData)

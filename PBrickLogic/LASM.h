@@ -3,15 +3,15 @@
 #include <Windows.h>
 #include <memory>
 
-enum Availability
-{
-	DIRECT,
-	PROGRAM,
-	BOTH
-};
-
 namespace LASM
 {
+	/*enum Availability
+	{
+		DIRECT,
+		PROGRAM,
+		BOTH
+	};*/
+
 	enum class Command : BYTE
 	{
 		PBAliveOrNot =				0x10,
@@ -155,7 +155,6 @@ namespace LASM
 		}
 	};
 
-	CommandData ComposeCommand(Command lasmCommand);
 	CommandData ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength);
 
 	enum class MotorAction : BYTE
@@ -335,7 +334,7 @@ namespace LASM
 #define Cmd(command, availabilityArg) \
 inline CommandData Cmd_##command##() \
 { \
-	return ComposeCommand(Command::##command##); \
+	return ComposeCommand(Command::##command##, nullptr, 0); \
 }
 
 #define COMMA ,

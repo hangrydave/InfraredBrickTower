@@ -3,10 +3,13 @@
 #ifndef VLLCOMMANDS_H
 #define VLLCOMMANDS_H
 
+#include "pch.h"
 #include <Windows.h>
-#include "TowerController.h"
 
-#define PACKET_LENGTH 25
+namespace VLL
+{
+
+#define VLL_PACKET_LENGTH 25
 
 /*
 
@@ -171,40 +174,42 @@ RCX2VLL.h from the Mindstorms SDK has some stuff to say on this. TODO: research 
 #define DELETE_PROGRAM		{ 0x51, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x15, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x0b, 0x00 }
 
 #define GenerateVLLFunction(commandName, commandData) \
-inline BOOL VLL_##commandName##(Tower::RequestData* towerData) \
+inline VOID Cmd_##commandName##(BYTE* buffer) \
 { \
-	BYTE bytes[] = commandData; \
-	ULONG lengthWritten; \
-	Tower::WriteData(bytes, PACKET_LENGTH, lengthWritten, towerData); \
-	return lengthWritten == PACKET_LENGTH; \
+	BYTE commandBytes[VLL_PACKET_LENGTH] commandData; \
+	for (int i = 0; i < VLL_PACKET_LENGTH; i++) \
+	{ \
+		buffer[i] = commandBytes[i]; \
+	} \
 }
 
-GenerateVLLFunction(Beep1Immediate, BEEP_1IMMEDIATE)
-GenerateVLLFunction(Beep2Immediate, BEEP_2IMMEDIATE)
-GenerateVLLFunction(Beep3Immediate, BEEP_3IMMEDIATE)
-GenerateVLLFunction(Beep4Immediate, BEEP_4IMMEDIATE)
-GenerateVLLFunction(Beep5Immediate, BEEP_5IMMEDIATE)
-GenerateVLLFunction(ForwardImmediate, FORWARD_IMMEDIATE)
-GenerateVLLFunction(BackwardImmediate, BACKWARD_IMMEDIATE)
-GenerateVLLFunction(Stop, STOP)
-GenerateVLLFunction(Run, RUN)
-GenerateVLLFunction(Delete, DELETE_PROGRAM)
-GenerateVLLFunction(Beep1, BEEP_1)
-GenerateVLLFunction(Beep2, BEEP_2)
-GenerateVLLFunction(Beep3, BEEP_3)
-GenerateVLLFunction(Beep4, BEEP_4)
-GenerateVLLFunction(Beep5, BEEP_5)
-GenerateVLLFunction(ForwardHalf, FORWARD_HALF)
-GenerateVLLFunction(ForwardOne, FORWARD_ONE)
-GenerateVLLFunction(ForwardTwo, FORWARD_TWO)
-GenerateVLLFunction(ForwardFive, FORWARD_FIVE)
-GenerateVLLFunction(BackwardHalf, BACKWARD_HALF)
-GenerateVLLFunction(BackwardOne, BACKWARD_ONE)
-GenerateVLLFunction(BackwardTwo, BACKWARD_TWO)
-GenerateVLLFunction(BackwardFive, BACKWARD_FIVE)
-GenerateVLLFunction(WaitLight, WAIT_LIGHT)
-GenerateVLLFunction(SeekLight, SEEK_LIGHT)
-GenerateVLLFunction(Code, CODE)
-GenerateVLLFunction(KeepAlive, KEEP_ALIVE)
+	GenerateVLLFunction(Beep1Immediate, BEEP_1IMMEDIATE)
+	GenerateVLLFunction(Beep2Immediate, BEEP_2IMMEDIATE)
+	GenerateVLLFunction(Beep3Immediate, BEEP_3IMMEDIATE)
+	GenerateVLLFunction(Beep4Immediate, BEEP_4IMMEDIATE)
+	GenerateVLLFunction(Beep5Immediate, BEEP_5IMMEDIATE)
+	GenerateVLLFunction(ForwardImmediate, FORWARD_IMMEDIATE)
+	GenerateVLLFunction(BackwardImmediate, BACKWARD_IMMEDIATE)
+	GenerateVLLFunction(Stop, STOP)
+	GenerateVLLFunction(Run, RUN)
+	GenerateVLLFunction(Delete, DELETE_PROGRAM)
+	GenerateVLLFunction(Beep1, BEEP_1)
+	GenerateVLLFunction(Beep2, BEEP_2)
+	GenerateVLLFunction(Beep3, BEEP_3)
+	GenerateVLLFunction(Beep4, BEEP_4)
+	GenerateVLLFunction(Beep5, BEEP_5)
+	GenerateVLLFunction(ForwardHalf, FORWARD_HALF)
+	GenerateVLLFunction(ForwardOne, FORWARD_ONE)
+	GenerateVLLFunction(ForwardTwo, FORWARD_TWO)
+	GenerateVLLFunction(ForwardFive, FORWARD_FIVE)
+	GenerateVLLFunction(BackwardHalf, BACKWARD_HALF)
+	GenerateVLLFunction(BackwardOne, BACKWARD_ONE)
+	GenerateVLLFunction(BackwardTwo, BACKWARD_TWO)
+	GenerateVLLFunction(BackwardFive, BACKWARD_FIVE)
+	GenerateVLLFunction(WaitLight, WAIT_LIGHT)
+	GenerateVLLFunction(SeekLight, SEEK_LIGHT)
+	GenerateVLLFunction(Code, CODE)
+	GenerateVLLFunction(KeepAlive, KEEP_ALIVE)
+}
 
 #endif VLLCOMMANDS_H

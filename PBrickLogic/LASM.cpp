@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "LASM.h"
 #include "stdio.h"
 
