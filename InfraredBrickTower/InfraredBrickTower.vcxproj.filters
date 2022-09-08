@@ -31,9 +31,6 @@
     <ClInclude Include="WinUsbTowerInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InfraredBrickTower.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device.cpp">
@@ -43,9 +40,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WinUsbTowerInterface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InfraredBrickTower.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

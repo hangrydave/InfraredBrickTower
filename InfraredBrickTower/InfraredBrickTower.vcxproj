@@ -39,13 +39,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device.cpp" />
-    <ClCompile Include="InfraredBrickTower.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WinUsbTowerInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="device.h" />
-    <ClInclude Include="InfraredBrickTower.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="WinUsbTowerInterface.h" />
   </ItemGroup>
