@@ -256,9 +256,9 @@ VOID MicroScoutCLI(Tower::RequestData* towerData)
 		{
 			printf("Unrecognized command, try again.\n");
 		}
+		Tower::WriteData(commandBuffer, VLL_PACKET_LENGTH, towerData);
 	}
 
-	Tower::WriteData(commandBuffer, VLL_PACKET_LENGTH, towerData);
 }
 
 VOID TestTower(Tower::RequestData* data)
