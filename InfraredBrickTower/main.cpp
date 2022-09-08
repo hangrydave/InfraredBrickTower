@@ -17,13 +17,14 @@ VOID DriveMotors(Tower::RequestData* towerData);
 VOID BeepRCX(Tower::RequestData* towerData);
 VOID BeepMicroScout(Tower::RequestData* towerData);
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData);
+VOID DownloadBeepDotRCX(Tower::RequestData* towerData);
+
+BOOL SendData(LASM::CommandData* command, Tower::RequestData* towerData);
 
 LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 {
 	UNREFERENCED_PARAMETER(Argc);
 	UNREFERENCED_PARAMETER(Argv);
-
-	RCXParser::ParseFile();
 
 	WinUsbTowerInterface* usbTowerInterface;
 	BOOL gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
@@ -36,9 +37,10 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
+	//DownloadBeepDotRCX(towerData);
 	DriveMotors(towerData);
-	BeepRCX(towerData);
-	MicroScoutCLI(towerData);
+	//BeepRCX(towerData);
+	//MicroScoutCLI(towerData);
 	
 	delete usbTowerInterface;
 	delete towerData;
@@ -47,13 +49,82 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	return 0;
 }
 
+BOOL SendData(LASM::CommandData* command, Tower::RequestData* towerData)
+{
+	ULONG lengthRead = 0;
+	BYTE replyBuffer[10];
+	ULONG replyLength = 10;
+	return Tower::SendData(command->data.get(), command->dataLength, replyBuffer, replyLength, lengthRead, towerData);
+}
+
+VOID DownloadBeepDotRCX(Tower::RequestData* towerData)
+{
+	Tower::SetCommMode(Tower::CommMode::IR, towerData);
+
+	RCX::RCXFile* rcxFile = new RCX::RCXFile();
+	RCX::ParseFile("beep.rcx", *rcxFile);
+
+	LASM::CommandData command = LASM::Cmd_PBAliveOrNot();
+	assert(SendData(&command, towerData));
+
+	command = LASM::Cmd_StopAllTasks();
+	assert(SendData(&command, towerData));
+
+	command = LASM::Cmd_SelectProgram(0);
+	assert(SendData(&command, towerData));
+
+	command = LASM::Cmd_DeleteAllTasks();
+	assert(SendData(&command, towerData));
+
+	command = LASM::Cmd_DeleteAllSubs();
+	assert(SendData(&command, towerData));
+
+	command = LASM::Cmd_PBAliveOrNot();
+	assert(SendData(&command, towerData));
+
+	int fileSize = 0;
+	for (int i = 0; i < rcxFile->chunkCount; i++)
+	{
+		fileSize += rcxFile->chunks[i].length;
+	}
+
+#define CHUNK_DOWNLOAD_SIZE 20
+	BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE];
+	ULONG lengthRead = 0;
+
+	for (int i = 0; i < rcxFile->chunkCount; i++)
+	{
+		RCX::Chunk chunk = rcxFile->chunks[i];
+
+		command = LASM::Cmd_PBAliveOrNot();
+		assert(SendData(&command, towerData));
+
+#define TASK_CHUNK 0
+#define SUB_CHUNK 1
+#define SOUND_CHUNK 2
+#define ANIMATION_CHUNK 3
+
+		BYTE operation = (BYTE)(chunk.type == TASK_CHUNK ? LASM::Command::BeginOfTask : LASM::Command::BeginOfSub);
+		if (chunk.type == TASK_CHUNK)
+			command = LASM::Cmd_BeginOfTask(chunk.number, chunk.length);
+		else if (chunk.type == SUB_CHUNK)
+			command = LASM::Cmd_BeginOfSub(chunk.number, chunk.length);
+		SendData(&command, towerData); // might not have reply? idk
+
+		// bunch of extra stuff to do here: look at Download referenced in RCX_Link.cpp on line 377.
+
+		Tower::SendData(chunk.data, chunk.length, replyBuffer, CHUNK_DOWNLOAD_SIZE, lengthRead, towerData);
+	}
+
+	command = LASM::Cmd_PlaySystemSound(LASM::SystemSound::SWEEP_UP);
+	assert(SendData(&command, towerData));
+}
+
 VOID DriveMotors(Tower::RequestData* towerData)
 {
 	ULONG lengthRead = 0;
 	UCHAR replyBuffer[10];
 	ULONG replyLength = 10;
-
-	LASM::Cmd_PlaySystemSound(LASM::SystemSound::BEEP);
 
 	LASM::CommandData command = LASM::Cmd_StopAllTasks();
 	Tower::SendData(command.data.get(), command.dataLength, replyBuffer, replyLength, lengthRead, towerData);

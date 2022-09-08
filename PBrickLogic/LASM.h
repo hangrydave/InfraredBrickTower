@@ -315,8 +315,10 @@ namespace LASM
 	CommandData Cmd_SEnterEventCheck();
 	CommandData Cmd_SetSourceValue();
 	CommandData Cmd_UnlockPBrick();
-	CommandData Cmd_BeginOfTask();
-	CommandData Cmd_BeginOfSub();
+
+	CommandData Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize);
+	CommandData Cmd_BeginOfSub(BYTE subNumber, BYTE subSize);
+	
 	CommandData Cmd_ContinueFirmwareDownload();
 	CommandData Cmd_GoIntoBootMode();
 	CommandData Cmd_BeginFirmwareDownload();
@@ -325,11 +327,6 @@ namespace LASM
 	CommandData Cmd_UnlockFirmware();
 	CommandData Cmd_LEnterEventCheck();
 	CommandData Cmd_ViewSourceValue();
-
-
-
-
-
 
 #define Cmd(command, availabilityArg) \
 inline CommandData Cmd_##command##() \
@@ -358,74 +355,4 @@ inline CommandData Cmd_##command##() \
 	Cmd(UnmuteSound, BOTH)
 	Cmd(ClearAllEvents, BOTH)
 	Cmd(EndOfSub, BOTH)
-	//Cmd(OnOffFloat, BOTH);
-	//Cmd(PbTXPower, BOTH);
-	//Cmd(PlaySystemSound, BOTH);
-	//Cmd(DeleteTask, BOTH);
-	//Cmd(StartTask, BOTH);
-	//Cmd(StopTask, BOTH);
-	//Cmd(SelectProgram, BOTH);
-	//Cmd(ClearTimer, BOTH);
-	//Cmd(PBPowerDownTime, BOTH);
-	//Cmd(DeleteSub, BOTH);
-	//Cmd(ClearSensorValue, BOTH);
-	//Cmd(SetFwdSetRwdRewDir, BOTH);
-	//Cmd(Gosub, BOTH);
-	//Cmd(SJump, BOTH);
-	//Cmd(SCheckLoopCounter, BOTH);
-	//Cmd(ConnectDisconnect, BOTH);
-	//Cmd(SetNormSetInvAltDir, BOTH);
-	//Cmd(IncCounter, BOTH);
-	//Cmd(DecCounter, BOTH);
-	//Cmd(ClearCounter, BOTH);
-	//Cmd(SetPriority, BOTH);
-	//Cmd(InternMessage, BOTH);
-	//Cmd(PlayToneVar, BOTH);
-	//Cmd(Poll, BOTH);
-	//Cmd(SetWatch, BOTH);
-	//Cmd(SetSensorType, BOTH);
-	//Cmd(SetSensorMode, BOTH);
-	//Cmd(SetDataLog, BOTH);
-	//Cmd(DataLogNext, BOTH);
-	//Cmd(LJump, BOTH);
-	//Cmd(SetLoopCounter, BOTH);
-	//Cmd(LCheckLoopCounter, BOTH);
-	//Cmd(SendPBMessage, BOTH);
-	//Cmd(SendUARTData, BOTH);
-	//Cmd(RemoteCommand, BOTH);
-	//Cmd(SDecVarJumpLTZero, BOTH);
-	//Cmd(DirectEvent, BOTH);
-	//Cmd(SetPower, BOTH);
-	//Cmd(PlayTone, BOTH);
-	//Cmd(SelectDisplay, BOTH);
-	//Cmd(Wait, BOTH);
-	//Cmd(UploadRam, BOTH);
-	//Cmd(EnterAccessControl, BOTH);
-	//Cmd(SetEvent, BOTH);
-	//Cmd(SetMaxPower, BOTH);
-	//Cmd(LDecVarJumpLTZero, BOTH);
-	//Cmd(CalibrateEvent, BOTH);
-	//Cmd(SetVar, BOTH);
-	//Cmd(SumVar, BOTH);
-	//Cmd(SubVar, BOTH);
-	//Cmd(DivVar, BOTH);
-	//Cmd(MulVar, BOTH);
-	//Cmd(SgnVar, BOTH);
-	//Cmd(AbsVar, BOTH);
-	//Cmd(AndVar, BOTH);
-	//Cmd(OrVar, BOTH);
-	//Cmd(Upload, BOTH);
-	//Cmd(SEnterEventCheck, BOTH);
-	//Cmd(SetSourceValue, BOTH);
-	//Cmd(UnlockPBrick, BOTH);
-	//Cmd(BeginOfTask, BOTH);
-	//Cmd(BeginOfSub, BOTH);
-	//Cmd(ContinueFirmwareDownLoad, BOTH);
-	//Cmd(GoIntoBootMode, BOTH);
-	//Cmd(BeginFirmwareDownLoad, BOTH);
-	//Cmd(SCheckDo, BOTH);
-	//Cmd(LCheckDo, BOTH);
-	//Cmd(UnlockFirmware, BOTH);
-	//Cmd(LEnterEventCheck, BOTH);
-	//Cmd(ViewSourceValue, BOTH);*/
 }

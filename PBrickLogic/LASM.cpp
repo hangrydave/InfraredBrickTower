@@ -88,6 +88,22 @@ namespace LASM
 		return ComposeCommand(Command::PlayTone, params, 3);
 	}
 
+	CommandData Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize)
+	{
+		BYTE taskSizeHi = (taskSize & 0xff00) >> 8;
+		BYTE taskSizeLo = taskSize & 0x00ff;
+		BYTE params[5]{ 0, taskNumber, 0, taskSizeLo, taskSizeHi };
+		return ComposeCommand(Command::BeginOfTask, params, 5);
+	}
+	
+	CommandData Cmd_BeginOfSub(BYTE subNumber, BYTE subSize)
+	{
+		BYTE subSizeHi = (subSize & 0xff00) >> 8;
+		BYTE subSizeLo = subSize & 0x00ff;
+		BYTE params[5]{ 0, subNumber, 0, subSizeLo, subSizeHi };
+		return ComposeCommand(Command::BeginOfSub, params, 5);
+	}
+
 	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction)
 	{
 		BYTE directionBits = (BYTE)direction << 6;
