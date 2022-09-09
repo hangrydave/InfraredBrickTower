@@ -24,7 +24,7 @@
     <ClInclude Include="LASM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RCXFileParser.h">
+    <ClInclude Include="PBrick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VLL.h">
@@ -38,7 +38,7 @@
     <ClCompile Include="LASM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RCXFileParser.cpp">
+    <ClCompile Include="PBrick.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VLL.cpp">

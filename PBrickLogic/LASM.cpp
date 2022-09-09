@@ -1,9 +1,40 @@
 #include "pch.h"
 #include "LASM.h"
 #include "stdio.h"
+#include "TowerController.h"
 
 namespace LASM
 {
+	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData, BOOL expectingReply)
+	{
+		ULONG lengthRead = 0;
+		BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
+
+		BOOL writeSuccess = Tower::WriteData(
+			command->data,
+			command->dataLength,
+			towerData);
+
+		if (!writeSuccess)
+			return FALSE;
+
+		if (expectingReply)
+		{
+			BOOL readSuccess = Tower::ReadData(
+				replyBuffer,
+				COMMAND_REPLY_BUFFER_LENGTH,
+				lengthRead,
+				towerData);
+
+			if (!readSuccess)
+				return FALSE;
+
+			return ValidateReply(command->command, replyBuffer, COMMAND_REPLY_BUFFER_LENGTH);
+		}
+
+		return TRUE;
+	}
+
 	BOOL ValidateReply(Command command, BYTE* replyBuffer, UINT replyLength)
 	{
 		/*
@@ -55,56 +86,56 @@ namespace LASM
 			replyBuffer[complementIndex + 3] == commandByte;
 	}
 
-	CommandData Cmd_OnOffFloat(BYTE motors, MotorAction action)
+	VOID Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)
 	{
 		BYTE actionBits = (BYTE)action << 6;
 		BYTE params[1]{ actionBits | motors };
-		return ComposeCommand(Command::OnOffFloat, params, 1);
+		ComposeCommand(Command::OnOffFloat, params, 1, commandData);
 	}
 
-	CommandData Cmd_PlaySystemSound(SystemSound sound)
+	VOID Cmd_PlaySystemSound(SystemSound sound, CommandData& commandData)
 	{
 		BYTE params[1]{ (BYTE)sound };
-		return ComposeCommand(Command::PlaySystemSound, params, 1);
+		ComposeCommand(Command::PlaySystemSound, params, 1, commandData);
 	}
 
-	CommandData Cmd_SelectProgram(BYTE program)
+	VOID Cmd_SelectProgram(BYTE program, CommandData& commandData)
 	{
 		BYTE params[1]{ (BYTE)program };
-		return ComposeCommand(Command::SelectProgram, params, 1);
+		ComposeCommand(Command::SelectProgram, params, 1, commandData);
 	}
 
-	CommandData Cmd_SetPower(BYTE motors, ParamSource powerSource, BYTE powerValue)
+	VOID Cmd_SetPower(BYTE motors, ParamSource powerSource, BYTE powerValue, CommandData& commandData)
 	{
 		BYTE params[3]{ motors, (BYTE)powerSource, powerValue};
-		return ComposeCommand(Command::SetPower, params, 3);
+		ComposeCommand(Command::SetPower, params, 3, commandData);
 	}
 
-	CommandData Cmd_PlayTone(WORD frequency, BYTE duration)
+	VOID Cmd_PlayTone(WORD frequency, BYTE duration, CommandData& commandData)
 	{
 		BYTE frequencyHi = (frequency & 0xff00) >> 8;
 		BYTE frequencyLo = frequency & 0x00ff;
 		BYTE params[3]{ frequencyLo, frequencyHi, duration };
-		return ComposeCommand(Command::PlayTone, params, 3);
+		ComposeCommand(Command::PlayTone, params, 3, commandData);
 	}
 
-	CommandData Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize)
+	VOID Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData)
 	{
 		BYTE taskSizeHi = (taskSize & 0xff00) >> 8;
 		BYTE taskSizeLo = taskSize & 0x00ff;
 		BYTE params[5]{ 0, taskNumber, 0, taskSizeLo, taskSizeHi };
-		return ComposeCommand(Command::BeginOfTask, params, 5);
+		ComposeCommand(Command::BeginOfTask, params, 5, commandData);
 	}
 	
-	CommandData Cmd_BeginOfSub(BYTE subNumber, BYTE subSize)
+	VOID Cmd_BeginOfSub(BYTE subNumber, BYTE subSize, CommandData& commandData)
 	{
 		BYTE subSizeHi = (subSize & 0xff00) >> 8;
 		BYTE subSizeLo = subSize & 0x00ff;
 		BYTE params[5]{ 0, subNumber, 0, subSizeLo, subSizeHi };
-		return ComposeCommand(Command::BeginOfSub, params, 5);
+		ComposeCommand(Command::BeginOfSub, params, 5, commandData);
 	}
 
-	CommandData Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount)
+	VOID Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData)
 	{
 		// look at RCX_Cmd::MakeDownload in the NQC code for reference
 
@@ -133,27 +164,25 @@ namespace LASM
 		}
 
 		*paramsPtr = blockChecksum;
-		return ComposeCommand(Command::Download, params, paramCount);
+		ComposeCommand(Command::Download, params, paramCount, commandData);
 	}
 
-	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction)
+	VOID Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction, CommandData& commandData)
 	{
 		BYTE directionBits = (BYTE)direction << 6;
 		BYTE params[1]{ directionBits | motors };
-		return ComposeCommand(Command::SetFwdSetRwdRewDir, params, 1);
+		ComposeCommand(Command::SetFwdSetRwdRewDir, params, 1, commandData);
 	}
 
-	CommandData ComposeCommand(Command lasmCommand)
+	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData)
 	{
-		return ComposeCommand(lasmCommand, nullptr, 0);
-	}
-
-	CommandData ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength)
-	{
-		CommandData commandData = CommandData(lasmCommand);
+		//CommandData commandData = *data;
+		//CommandData commandData = CommandData(lasmCommand);
 
 		//std::shared_ptr<BYTE[]> sharedData = commandData.data;
 		//BYTE data[MAX_COMMAND_LENGTH];
+
+		commandData.command = lasmCommand;
 
 		UINT index = 0;
 
@@ -190,7 +219,5 @@ namespace LASM
 		{
 			sharedData[i] = data[i];
 		}*/
-
-		return commandData;
 	}
 }

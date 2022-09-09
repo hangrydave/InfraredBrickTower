@@ -42,6 +42,8 @@ public:
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthRead) const;
+
+	BOOL Flush() const;
 };
 
 BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface);

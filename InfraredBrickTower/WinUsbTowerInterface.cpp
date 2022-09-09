@@ -211,6 +211,13 @@ BOOL WinUsbTowerInterface::Read(
 	return success;	
 }
 
+BOOL WinUsbTowerInterface::Flush() const
+{
+	WinUsb_FlushPipe(this->winUsbHandle, TOWER_WRITE_PIPE_ID);
+	WinUsb_FlushPipe(this->winUsbHandle, TOWER_READ_PIPE_ID);
+	return TRUE;
+}
+
 VOID WinUsbTowerInterface::PrintErrorIfAny(const char* caller) const
 {
 	DWORD error = GetLastError();

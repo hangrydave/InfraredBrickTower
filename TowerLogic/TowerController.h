@@ -239,17 +239,17 @@ namespace Tower
 	};
 #pragma pack(pop)
 
-#define REPLY_BUFFER_LENGTH 1000
-
+#define REQUEST_REPLY_BUFFER_LENGTH 1000
+		
 	struct RequestData
 	{
 		HostTowerCommInterface* commInterface;
 
 		RequestError lastRequestError = RequestError::SUCCESS;
 		ULONG lastReplyLength = 0;
-		BYTE replyBuffer[REPLY_BUFFER_LENGTH];
+		BYTE replyBuffer[REQUEST_REPLY_BUFFER_LENGTH];
 		ULONG stringLength = 0;
-		WCHAR stringBuffer[REPLY_BUFFER_LENGTH];
+		WCHAR stringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
 
 		RequestData(HostTowerCommInterface* commInterface)
 		{

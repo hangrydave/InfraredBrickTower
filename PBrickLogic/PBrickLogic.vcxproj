@@ -113,6 +113,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\TowerLogic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,7 +144,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="LASM.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RCXFileParser.h" />
+    <ClInclude Include="PBrick.h" />
     <ClInclude Include="VLL.h" />
   </ItemGroup>
   <ItemGroup>
@@ -154,7 +155,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RCXFileParser.cpp" />
+    <ClCompile Include="PBrick.cpp" />
     <ClCompile Include="VLL.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

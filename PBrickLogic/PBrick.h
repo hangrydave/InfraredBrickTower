@@ -3,6 +3,8 @@
 #include <fstream>
 #include <Windows.h>
 
+#include "TowerController.h"
+
 /*
 
 A .rcx file looks something like this:
@@ -34,6 +36,11 @@ name (length is specified by the length field)
 
 namespace RCX
 {
+#define TASK_CHUNK_ID 0
+#define SUB_CHUNK_ID 1
+#define SOUND_CHUNK_ID 2
+#define ANIMATION_CHUNK_ID 3
+
 #pragma pack(push, 1)
 	struct Chunk
 	{
@@ -75,5 +82,6 @@ namespace RCX
 #pragma pack(pop)
 #define FILE_HEADER_LENGTH 12
 
-	VOID ParseFile(const char* fileName, RCXFile& file);
+	BOOL ParseFile(const CHAR* fileName, RCXFile& file);
+	BOOL DownloadProgram(const CHAR* fileName, BYTE programSlot, Tower::RequestData* towerData);
 }

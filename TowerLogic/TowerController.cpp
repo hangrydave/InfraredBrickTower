@@ -283,7 +283,7 @@ namespace Tower
 			(BYTE)request,
 			value,
 			index,
-			REPLY_BUFFER_LENGTH,
+			REQUEST_REPLY_BUFFER_LENGTH,
 			data->replyBuffer,
 			data->lastReplyLength);
 

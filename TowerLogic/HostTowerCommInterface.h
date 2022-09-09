@@ -25,4 +25,6 @@ public:
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthRead) const = 0;
+
+	virtual BOOL Flush() const = 0;
 };
