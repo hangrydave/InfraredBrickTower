@@ -91,7 +91,7 @@ namespace LASM
 		UnlockPBrick =				0x15,
 		BeginOfTask =				0x25,
 		BeginOfSub =				0x35,
-		ContinueFirmwareDownLoad =	0x45,
+		Download =					0x45, // original name is ContinueFirmwareDownLoad
 		GoIntoBootMode =			0x65,
 		BeginFirmwareDownLoad =		0x75,
 		SCheckDo =					0x85,
@@ -134,24 +134,26 @@ namespace LASM
 
 	BOOL ValidateReply(Command commandByte, BYTE* replyBuffer, UINT replyLength);
 
-#define MAX_COMMAND_LENGTH 30 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
+#define MAX_COMMAND_LENGTH 45 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
 	struct CommandData
 	{
 		Command command;
-		std::shared_ptr<BYTE[]> data;
+		//std::shared_ptr<BYTE[]> data;
+		BYTE data[MAX_COMMAND_LENGTH];
 		UINT dataLength;
 
 		CommandData(Command command)
 		{
 			this->command = command;
 			dataLength = MAX_COMMAND_LENGTH;
-			data = std::make_unique<BYTE[]>(MAX_COMMAND_LENGTH);
+			//data = std::make_unique<BYTE[]>(MAX_COMMAND_LENGTH);
 		}
 
 		~CommandData()
 		{
-			data.reset();
+			//data.reset();
+			//delete[] data;
 		}
 	};
 
@@ -319,7 +321,8 @@ namespace LASM
 	CommandData Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize);
 	CommandData Cmd_BeginOfSub(BYTE subNumber, BYTE subSize);
 	
-	CommandData Cmd_ContinueFirmwareDownload();
+	CommandData Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount);
+
 	CommandData Cmd_GoIntoBootMode();
 	CommandData Cmd_BeginFirmwareDownload();
 	CommandData Cmd_SCheckDo();

@@ -104,6 +104,38 @@ namespace LASM
 		return ComposeCommand(Command::BeginOfSub, params, 5);
 	}
 
+	CommandData Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount)
+	{
+		// look at RCX_Cmd::MakeDownload in the NQC code for reference
+
+		BYTE blockCountHi = (blockCount & 0xff00) >> 8;
+		BYTE blockCountLo = blockCount & 0x00ff;
+		BYTE byteCountHi = (byteCount & 0xff00) >> 8;
+		BYTE byteCountLo = byteCount & 0x00ff;
+		
+		BYTE paramCount = 5 + byteCount;
+		BYTE* params = new BYTE[paramCount];
+		BYTE* paramsPtr = params;
+		*paramsPtr++ = blockCountLo;
+		*paramsPtr++ = blockCountHi;
+		*paramsPtr++ = byteCountLo;
+		*paramsPtr++ = byteCountHi;
+
+		BYTE* dataPtr = data;
+		BYTE blockChecksum = 0;
+		BYTE bytesLeft = byteCount;
+		while (bytesLeft > 0)
+		{
+			BYTE b = *dataPtr++;
+			blockChecksum += b;
+			*paramsPtr++ = b;
+			bytesLeft--;
+		}
+
+		*paramsPtr = blockChecksum;
+		return ComposeCommand(Command::Download, params, paramCount);
+	}
+
 	CommandData Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction)
 	{
 		BYTE directionBits = (BYTE)direction << 6;
@@ -120,44 +152,44 @@ namespace LASM
 	{
 		CommandData commandData = CommandData(lasmCommand);
 
-		std::shared_ptr<BYTE[]> sharedData = commandData.data;
-		BYTE data[MAX_COMMAND_LENGTH];
+		//std::shared_ptr<BYTE[]> sharedData = commandData.data;
+		//BYTE data[MAX_COMMAND_LENGTH];
 
 		UINT index = 0;
 
 		// preamble
-		data[index++] = 0x55;
-		data[index++] = 0xFF;
-		data[index++] = 0x00;
+		commandData.data[index++] = 0x55;
+		commandData.data[index++] = 0xFF;
+		commandData.data[index++] = 0x00;
 
 		UINT dataSum = 0;
 
 		// command, reply, and repeat both
 		BYTE commandByte = (BYTE)lasmCommand;
-		data[index++] = commandByte;
-		data[index++] = ~commandByte;
+		commandData.data[index++] = commandByte;
+		commandData.data[index++] = ~commandByte;
 
 		dataSum += commandByte;
 
 		for (UINT i = 0; i < paramsLength; i++)
 		{
 			BYTE paramByte = params[i];
-			data[index++] = paramByte;
-			data[index++] = ~paramByte;
+			commandData.data[index++] = paramByte;
+			commandData.data[index++] = ~paramByte;
 
 			dataSum += paramByte;
 		}
 
 		// checksum for the RCX is just the data sum, so...
-		data[index++] = dataSum;
-		data[index++] = ~dataSum;
+		commandData.data[index++] = dataSum;
+		commandData.data[index++] = ~dataSum;
 
 		commandData.dataLength = index;
 
-		for (UINT i = 0; i < commandData.dataLength; i++)
+		/*for (UINT i = 0; i < commandData.dataLength; i++)
 		{
 			sharedData[i] = data[i];
-		}
+		}*/
 
 		return commandData;
 	}
