@@ -45,7 +45,9 @@ namespace Tower
 
 		INT readAttemptCount = 0;
 		BOOL success = FALSE;
-		while (!success && readAttemptCount < MAX_READ_ATTEMPTS)
+		while (!success &&
+			readAttemptCount < MAX_READ_ATTEMPTS &&
+			lengthRead == 0)
 		{
 			success = data->commInterface->Read(buffer, bufferLength, lengthRead);
 

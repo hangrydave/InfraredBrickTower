@@ -55,6 +55,10 @@ assert(condition);
 //if (!condition) \
 //	return FALSE;
 
+#define CHUNK_DOWNLOAD_SIZE 20
+		BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE];
+		ULONG lengthRead = 0;
+
 		RCX::RCXFile rcxFile;
 		_returnIfFalse(RCX::ParseFile(fileName, rcxFile));
 
@@ -79,9 +83,6 @@ assert(condition);
 		printf("Cmd_DeleteAllSubs\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-#define CHUNK_DOWNLOAD_SIZE 20
-		BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE];
-		ULONG lengthRead = 0;
 		for (UINT i = 0; i < rcxFile.chunkCount; i++)
 		{
 			RCX::Chunk chunk = rcxFile.chunks[i];
@@ -96,10 +97,8 @@ assert(condition);
 			else if (chunk.type == SUB_CHUNK_ID)
 				LASM::Cmd_BeginOfSub(chunk.number, chunk.length, command);
 
-			// shouldn't have reply, but apparently does? i don't get it
 			printf("Cmd_BeginOf\n");
-			Tower::WriteData(command.data, command.dataLength, towerData);
-			Tower::ReadData(replyBuffer, 20, lengthRead, towerData, FALSE);
+			LASM::SendCommand(&command, towerData);
 
 			UINT remainingDataSize = chunk.length;
 			UINT sizeToSend = 0;
@@ -120,10 +119,8 @@ assert(condition);
 
 				LASM::Cmd_Download(chunkData, chunkSequenceNumber++, sizeToSend, command);
 
-				// shouldn't have reply
 				printf("Cmd_Download\n");
-				Tower::WriteData(command.data, command.dataLength, towerData);
-				Tower::ReadData(replyBuffer, 20, lengthRead, towerData, FALSE);
+				LASM::SendCommand(&command, towerData);
 
 				chunkData += sizeToSend;
 			}
