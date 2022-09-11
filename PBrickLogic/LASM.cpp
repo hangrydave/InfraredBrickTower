@@ -75,10 +75,11 @@ namespace LASM
 
 		// now it's expected that there is a pattern like <complement> <command> <complement> <command>.
 		// the presence of that will determine if the reply is good or not.
+		// UPDATE: maybe better to check for just <complement> <command> instead
 		return replyBuffer[complementIndex] == complement &&
-			replyBuffer[complementIndex + 1] == commandByte &&
-			replyBuffer[complementIndex + 2] == complement &&
-			replyBuffer[complementIndex + 3] == commandByte;
+			replyBuffer[complementIndex + 1] == commandByte;//&&
+			//replyBuffer[complementIndex + 2] == complement &&
+			//replyBuffer[complementIndex + 3] == commandByte;
 	}
 
 	VOID Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)

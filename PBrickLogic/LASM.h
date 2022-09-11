@@ -136,7 +136,7 @@ namespace LASM
 		INDIRECT_VARIABLE = 36
 	};
 
-#define MAX_COMMAND_LENGTH 45 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
+#define MAX_COMMAND_LENGTH 60 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
 	struct CommandData
 	{

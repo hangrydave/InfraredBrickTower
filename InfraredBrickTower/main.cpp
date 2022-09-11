@@ -36,7 +36,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
 	Tower::SetCommMode(Tower::CommMode::IR, towerData);
-	RCX::DownloadProgram("beep.rcx", 0, towerData);
+	RCX::DownloadProgram("drive_until_button.rcx", 0, towerData);
 	//DriveMotors(towerData);
 	//BeepRCX(towerData);
 	//MicroScoutCLI(towerData);

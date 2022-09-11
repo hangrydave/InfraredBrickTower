@@ -69,7 +69,7 @@ namespace Tower
 			readAttemptCount++;
 		}
 
-		return success;
+		return success || lengthRead > 0;
 	}
 
 	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data)

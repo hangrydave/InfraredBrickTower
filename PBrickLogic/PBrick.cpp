@@ -51,9 +51,8 @@ namespace RCX
 	BOOL DownloadProgram(const CHAR* fileName, BYTE programSlot, Tower::RequestData* towerData)
 	{
 #define _returnIfFalse(condition) \
-assert(condition);
-//if (!condition) \
-//	return FALSE;
+if (!condition) \
+	return FALSE;
 
 #define CHUNK_DOWNLOAD_SIZE 20
 		BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE];
@@ -91,14 +90,13 @@ assert(condition);
 			printf("Cmd_PBAliveOrNot\n");
 			_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-			BYTE operation = (BYTE)(chunk.type == TASK_CHUNK_ID ? LASM::Command::BeginOfTask : LASM::Command::BeginOfSub);
 			if (chunk.type == TASK_CHUNK_ID)
 				LASM::Cmd_BeginOfTask(chunk.number, chunk.length, command);
 			else if (chunk.type == SUB_CHUNK_ID)
 				LASM::Cmd_BeginOfSub(chunk.number, chunk.length, command);
 
 			printf("Cmd_BeginOf\n");
-			LASM::SendCommand(&command, towerData);
+			_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 			UINT remainingDataSize = chunk.length;
 			UINT sizeToSend = 0;
@@ -120,7 +118,7 @@ assert(condition);
 				LASM::Cmd_Download(chunkData, chunkSequenceNumber++, sizeToSend, command);
 
 				printf("Cmd_Download\n");
-				LASM::SendCommand(&command, towerData);
+				_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 				chunkData += sizeToSend;
 			}
