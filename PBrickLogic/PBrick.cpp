@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PBrick.h"
 #include "LASM.h"
+#include <assert.h>
 
 namespace RCX
 {
@@ -50,26 +51,32 @@ namespace RCX
 	BOOL DownloadProgram(const CHAR* fileName, BYTE programSlot, Tower::RequestData* towerData)
 	{
 #define _returnIfFalse(condition) \
-if (!condition) \
-	return FALSE;
+assert(condition);
+//if (!condition) \
+//	return FALSE;
 
 		RCX::RCXFile rcxFile;
 		_returnIfFalse(RCX::ParseFile(fileName, rcxFile));
 
 		LASM::CommandData command;
 		LASM::Cmd_PBAliveOrNot(command);
+		printf("Cmd_PBAliveOrNot\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		LASM::Cmd_StopAllTasks(command);
+		printf("Cmd_StopAllTasks\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		LASM::Cmd_SelectProgram(programSlot, command);
+		printf("Cmd_SelectProgram\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		LASM::Cmd_DeleteAllTasks(command);
+		printf("Cmd_DeleteAllTasks\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		LASM::Cmd_DeleteAllSubs(command);
+		printf("Cmd_DeleteAllSubs\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 #define CHUNK_DOWNLOAD_SIZE 20
@@ -80,6 +87,7 @@ if (!condition) \
 			RCX::Chunk chunk = rcxFile.chunks[i];
 
 			LASM::Cmd_PBAliveOrNot(command);
+			printf("Cmd_PBAliveOrNot\n");
 			_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 			BYTE operation = (BYTE)(chunk.type == TASK_CHUNK_ID ? LASM::Command::BeginOfTask : LASM::Command::BeginOfSub);
@@ -89,7 +97,9 @@ if (!condition) \
 				LASM::Cmd_BeginOfSub(chunk.number, chunk.length, command);
 
 			// shouldn't have reply, but apparently does? i don't get it
-			LASM::SendCommand(&command, towerData, true);
+			printf("Cmd_BeginOf\n");
+			Tower::WriteData(command.data, command.dataLength, towerData);
+			Tower::ReadData(replyBuffer, 20, lengthRead, towerData, FALSE);
 
 			UINT remainingDataSize = chunk.length;
 			UINT sizeToSend = 0;
@@ -111,13 +121,16 @@ if (!condition) \
 				LASM::Cmd_Download(chunkData, chunkSequenceNumber++, sizeToSend, command);
 
 				// shouldn't have reply
-				LASM::SendCommand(&command, towerData, false);
+				printf("Cmd_Download\n");
+				Tower::WriteData(command.data, command.dataLength, towerData);
+				Tower::ReadData(replyBuffer, 20, lengthRead, towerData, FALSE);
 
 				chunkData += sizeToSend;
 			}
 		}
 
 		LASM::Cmd_PlaySystemSound(LASM::SystemSound::FAST_SWEEP_UP, command);
+		printf("Cmd_PlaySystemSound\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		return TRUE;

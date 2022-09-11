@@ -162,7 +162,7 @@ namespace LASM
 	};
 
 	BOOL ValidateReply(Command commandByte, BYTE* replyBuffer, UINT replyLength);
-	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData, BOOL expectingReply = TRUE);
+	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData);
 
 	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData);
 
