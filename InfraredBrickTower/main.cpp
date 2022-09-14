@@ -308,7 +308,7 @@ VOID BeepRCX(Tower::RequestData* towerData)
 		replyLength,
 		lengthRead,
 		towerData);
-	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	validateSuccess = LASM::ValidateReply(&command, replyBuffer, replyLength);
 	assert(sendSuccess && validateSuccess);
 
 	LASM::Cmd_StopAllTasks(command);
@@ -319,7 +319,7 @@ VOID BeepRCX(Tower::RequestData* towerData)
 		replyLength,
 		lengthRead,
 		towerData);
-	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	validateSuccess = LASM::ValidateReply(&command, replyBuffer, replyLength);
 	assert(sendSuccess && validateSuccess);
 
 	LASM::Cmd_PlaySystemSound(LASM::SystemSound::BEEP, command);
@@ -330,7 +330,7 @@ VOID BeepRCX(Tower::RequestData* towerData)
 		replyLength,
 		lengthRead,
 		towerData);
-	validateSuccess = LASM::ValidateReply(command.command, replyBuffer, replyLength);
+	validateSuccess = LASM::ValidateReply(&command, replyBuffer, replyLength);
 	assert(sendSuccess && validateSuccess);
 }
 

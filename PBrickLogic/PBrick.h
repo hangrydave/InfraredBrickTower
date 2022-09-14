@@ -49,6 +49,11 @@ namespace RCX
 		WORD length;
 
 		BYTE* data;
+
+		~Chunk()
+		{
+			delete[] data;
+		}
 	};
 #pragma pack(pop)
 #define CHUNK_HEADER_LENGTH 4
@@ -62,6 +67,11 @@ namespace RCX
 		BYTE reserved;
 
 		CHAR* name;
+
+		~Symbol()
+		{
+			delete[] name;
+		}
 	};
 #pragma pack(pop)
 #define SYMBOL_HEADER_LENGTH 4
@@ -78,6 +88,12 @@ namespace RCX
 
 		Chunk* chunks;
 		Symbol* symbols;
+
+		~RCXFile()
+		{
+			delete[] chunks;
+			delete[] symbols;
+		}
 	};
 #pragma pack(pop)
 #define FILE_HEADER_LENGTH 12

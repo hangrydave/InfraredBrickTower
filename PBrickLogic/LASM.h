@@ -18,6 +18,7 @@ namespace LASM
 
 	enum class Command : BYTE
 	{
+		EMPTY = -1,
 		PBAliveOrNot =				0x10,
 		MemMap =					0x20,
 		PBBattery =					0x30,
@@ -103,6 +104,7 @@ namespace LASM
 		UnlockFirmware =			0xA5,
 		LEnterEventCheck =			0xB5,
 		ViewSourceValue =			0xE5,
+		Bababooey = 0x4d
 	};
 
 	enum class ParamSource : BYTE
@@ -136,11 +138,12 @@ namespace LASM
 		INDIRECT_VARIABLE = 36
 	};
 
-#define MAX_COMMAND_LENGTH 60 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
+#define MAX_COMMAND_LENGTH 100 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
 	struct CommandData
 	{
-		Command command;
+		BYTE previousCommandByte = 0x00;
+		BYTE commandByte;
 		//std::shared_ptr<BYTE[]> data;
 		BYTE data[MAX_COMMAND_LENGTH];
 		UINT dataLength;
@@ -149,7 +152,7 @@ namespace LASM
 
 		CommandData(Command command)
 		{
-			this->command = command;
+			this->commandByte = (BYTE)command;
 			dataLength = MAX_COMMAND_LENGTH;
 			//data = std::make_unique<BYTE[]>(MAX_COMMAND_LENGTH);
 		}
@@ -161,7 +164,7 @@ namespace LASM
 		}
 	};
 
-	BOOL ValidateReply(Command commandByte, BYTE* replyBuffer, UINT replyLength);
+	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength);
 	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData);
 
 	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData);

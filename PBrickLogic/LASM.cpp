@@ -10,10 +10,14 @@ namespace LASM
 		ULONG lengthRead = 0;
 		BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
 
+		ULONG lengthWritten = 0;
 		BOOL writeSuccess = Tower::WriteData(
 			command->data,
 			command->dataLength,
+			lengthWritten,
 			towerData);
+
+		//printf("Length written: %d\n", lengthWritten);
 
 		if (!writeSuccess)
 			return FALSE;
@@ -24,13 +28,15 @@ namespace LASM
 			lengthRead,
 			towerData);
 
+		//printf("Length read: %d\n", lengthRead);
+
 		if (!readSuccess)
 			return FALSE;
 
-		return ValidateReply(command->command, replyBuffer, lengthRead);
+		return ValidateReply(command, replyBuffer, lengthRead);
 	}
 
-	BOOL ValidateReply(Command command, BYTE* replyBuffer, UINT replyLength)
+	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength)
 	{
 		/*
 		
@@ -51,7 +57,7 @@ namespace LASM
 
 		*/
 
-		BYTE commandByte = (BYTE)command;
+		BYTE commandByte = command->commandByte;
 		BYTE complement = ~commandByte & 0xff;
 
 		// first off, it can't be guaranteed that the typical preamble of 0x55 0xFF 0x00 will be there;
@@ -172,14 +178,6 @@ namespace LASM
 
 	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData)
 	{
-		//CommandData commandData = *data;
-		//CommandData commandData = CommandData(lasmCommand);
-
-		//std::shared_ptr<BYTE[]> sharedData = commandData.data;
-		//BYTE data[MAX_COMMAND_LENGTH];
-
-		commandData.command = lasmCommand;
-
 		UINT index = 0;
 
 		// preamble
@@ -190,11 +188,16 @@ namespace LASM
 		UINT dataSum = 0;
 
 		// command, reply, and repeat both
-		BYTE commandByte = (BYTE)lasmCommand;
-		commandData.data[index++] = commandByte;
-		commandData.data[index++] = ~commandByte;
+		commandData.previousCommandByte = commandData.commandByte;
+		commandData.commandByte = (BYTE)lasmCommand;
+		
+		if (commandData.previousCommandByte == commandData.commandByte)
+			commandData.commandByte ^= 8; // refer to line 252 in RCX_PipeTransport.cpp from NQC
 
-		dataSum += commandByte;
+		commandData.data[index++] = commandData.commandByte;
+		commandData.data[index++] = ~commandData.commandByte;
+
+		dataSum += commandData.commandByte;
 
 		for (UINT i = 0; i < paramsLength; i++)
 		{
@@ -210,10 +213,5 @@ namespace LASM
 		commandData.data[index++] = ~dataSum;
 
 		commandData.dataLength = index;
-
-		/*for (UINT i = 0; i < commandData.dataLength; i++)
-		{
-			sharedData[i] = data[i];
-		}*/
 	}
 }

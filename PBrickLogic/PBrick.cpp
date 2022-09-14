@@ -5,6 +5,18 @@
 
 namespace RCX
 {
+	/*
+	
+	Big questions!
+
+	Is this type of file something that the NQC dev created?
+
+	Is it something created by the official software?
+
+	Not sure!
+	
+	*/
+
 	BOOL ParseFile(const CHAR* fileName, RCXFile& file)
 	{
 		std::ifstream input(fileName, std::ios::binary);
@@ -52,7 +64,9 @@ namespace RCX
 	{
 #define _returnIfFalse(condition) \
 if (!condition) \
-	return FALSE;
+{ \
+	return FALSE; \
+}
 
 #define CHUNK_DOWNLOAD_SIZE 20
 		BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE];
@@ -63,45 +77,38 @@ if (!condition) \
 
 		LASM::CommandData command;
 		LASM::Cmd_PBAliveOrNot(command);
-		printf("Cmd_PBAliveOrNot\n");
-		_returnIfFalse(LASM::SendCommand(&command, towerData));
-
-		LASM::Cmd_StopAllTasks(command);
-		printf("Cmd_StopAllTasks\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		LASM::Cmd_SelectProgram(programSlot, command);
-		printf("Cmd_SelectProgram\n");
+		_returnIfFalse(LASM::SendCommand(&command, towerData));
+
+		LASM::Cmd_StopAllTasks(command);
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		LASM::Cmd_DeleteAllTasks(command);
-		printf("Cmd_DeleteAllTasks\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		LASM::Cmd_DeleteAllSubs(command);
-		printf("Cmd_DeleteAllSubs\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		for (UINT i = 0; i < rcxFile.chunkCount; i++)
 		{
-			RCX::Chunk chunk = rcxFile.chunks[i];
+			RCX::Chunk* chunk = &rcxFile.chunks[i];
 
 			LASM::Cmd_PBAliveOrNot(command);
-			printf("Cmd_PBAliveOrNot\n");
 			_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-			if (chunk.type == TASK_CHUNK_ID)
-				LASM::Cmd_BeginOfTask(chunk.number, chunk.length, command);
-			else if (chunk.type == SUB_CHUNK_ID)
-				LASM::Cmd_BeginOfSub(chunk.number, chunk.length, command);
+			if (chunk->type == TASK_CHUNK_ID)
+				LASM::Cmd_BeginOfTask(chunk->number, chunk->length, command);
+			else if (chunk->type == SUB_CHUNK_ID)
+				LASM::Cmd_BeginOfSub(chunk->number, chunk->length, command);
 
-			printf("Cmd_BeginOf\n");
 			_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-			UINT remainingDataSize = chunk.length;
+			UINT remainingDataSize = chunk->length;
 			UINT sizeToSend = 0;
 			UINT chunkSequenceNumber = 1;
-			BYTE* chunkData = chunk.data;
+			BYTE* chunkData = chunk->data;
 			while (remainingDataSize > 0)
 			{
 				if (remainingDataSize <= CHUNK_DOWNLOAD_SIZE)
@@ -116,8 +123,6 @@ if (!condition) \
 				remainingDataSize -= sizeToSend;
 
 				LASM::Cmd_Download(chunkData, chunkSequenceNumber++, sizeToSend, command);
-
-				printf("Cmd_Download\n");
 				_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 				chunkData += sizeToSend;
@@ -125,7 +130,6 @@ if (!condition) \
 		}
 
 		LASM::Cmd_PlaySystemSound(LASM::SystemSound::FAST_SWEEP_UP, command);
-		printf("Cmd_PlaySystemSound\n");
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		return TRUE;
