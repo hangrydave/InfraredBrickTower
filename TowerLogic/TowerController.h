@@ -315,20 +315,6 @@ namespace Tower
 		BYTE hiByte,
 		RequestData* data);
 
-	/*
-		well...
-		I'm using a macro to generate the getters and setters for the GET_PARAMETER and SET_PARAMETER requests.
-
-		Q: why?
-		A: I didn't want to write a bunch of cookie cutter getters and setters for those.
-		Q: was it a good decision?
-		A: beats me if the broader C++ Community:TM: would approve! My reasoning is this:
-		   - realistically, are many people who aren't me going to use this? probably not, so does it matter? probably not
-		   - i would rather have a little bit of weird macro stuff than a bunch of space filled by near-identical methods
-		   - i wanted to learn macros
-
-		anyway, this might be bad, idk and tbqh idc
-	*/
 #define GenerateParameterSetterAndGetter(paramType, outputType) \
 inline outputType Get##outputType##(RequestData* data) \
 { \
