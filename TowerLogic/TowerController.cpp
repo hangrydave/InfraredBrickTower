@@ -10,34 +10,11 @@
 
 namespace Tower
 {
-	BOOL SendData(
-		PUCHAR inputBuffer,
-		ULONG inputBufferLength,
-		PUCHAR replyBuffer,
-		ULONG replyBufferLength,
-		ULONG& lengthRead,
-		RequestData* data)
-	{
-		BOOL writeSuccess = WriteData(inputBuffer, inputBufferLength, data);
-		if (!writeSuccess)
-			return FALSE;
-
-		BOOL readSuccess = ReadData(replyBuffer, replyBufferLength, lengthRead, data);
-		return readSuccess;
-	}
-
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data, BOOL skipSingleByteBefore)
-	{
-		ULONG lengthRead;
-		return ReadData(buffer, bufferLength, lengthRead, data, skipSingleByteBefore);
-	}
-
 	BOOL ReadData(
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthRead,
-		RequestData* data,
-		BOOL skipSingleByteBefore)
+		RequestData* data)
 	{
 		while (GetTransmitterState(data) == TransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
 
@@ -50,11 +27,6 @@ namespace Tower
 			lengthRead == 0)
 		{
 			success = data->commInterface->Read(buffer, bufferLength, lengthRead);
-
-			if (!skipSingleByteBefore)
-			{
-				break;
-			}
 
 			if (lengthRead == 1)
 			{
@@ -69,7 +41,7 @@ namespace Tower
 			readAttemptCount++;
 		}
 
-		return success || lengthRead > 0;
+		return success || (lengthRead > 0);
 	}
 
 	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data)

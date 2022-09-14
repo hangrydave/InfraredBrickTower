@@ -17,8 +17,6 @@ VOID BeepRCX(Tower::RequestData* towerData);
 VOID BeepMicroScout(Tower::RequestData* towerData);
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData);
 
-BOOL SendData(LASM::CommandData* command, Tower::RequestData* towerData);
-
 LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 {
 	UNREFERENCED_PARAMETER(Argc);
@@ -36,8 +34,10 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
 	Tower::SetCommMode(Tower::CommMode::IR, towerData);
-	RCX::DownloadProgram("drive_until_button.rcx", 0, towerData);
-	//DriveMotors(towerData);
+	assert(RCX::DownloadProgram("drive_until_button.rcx", 0, towerData));
+	assert(RCX::DownloadProgram("example_program.rcx", 1, towerData));
+	assert(RCX::DownloadProgram("beep.rcx", 2, towerData));
+	//DriveMotors(towerData));
 	//BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
 	
@@ -48,55 +48,43 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	return 0;
 }
 
-BOOL SendData(LASM::CommandData* command, Tower::RequestData* towerData)
-{
-	ULONG lengthRead = 0;
-	BYTE replyBuffer[10];
-	ULONG replyLength = 10;
-	return Tower::SendData(command->data, command->dataLength, replyBuffer, replyLength, lengthRead, towerData);
-}
-
 VOID DriveMotors(Tower::RequestData* towerData)
 {
-	ULONG lengthRead = 0;
-	UCHAR replyBuffer[10];
-	ULONG replyLength = 10;
-
 	LASM::CommandData command;
 	LASM::Cmd_StopAllTasks(command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 	LASM::Cmd_PlayTone(255, 40, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 
 	LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 6, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 	LASM::Cmd_SetFwdSetRwdRewDir(LASM::Motor::A | LASM::Motor::C, LASM::MotorDirection::FORWARDS, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 	LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::ON, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 
 	Sleep(1000);
 
 	LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 0, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 	LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::FLOAT, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 
 	Sleep(1000);
 
 	LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 6, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 	LASM::Cmd_SetFwdSetRwdRewDir(LASM::Motor::A | LASM::Motor::C, LASM::MotorDirection::REVERSE, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 	LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::ON, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 
 	Sleep(1000);
 
 	LASM::Cmd_SetPower(LASM::Motor::A | LASM::Motor::C, LASM::ParamSource::CONSTANT, 0, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 	LASM::Cmd_OnOffFloat(LASM::Motor::A | LASM::Motor::C, LASM::MotorAction::FLOAT, command);
-	Tower::SendData(command.data, command.dataLength, replyBuffer, replyLength, lengthRead, towerData);
+	assert(LASM::SendCommand(&command, towerData));
 }
 
 VOID MicroScoutCLI(Tower::RequestData* towerData)
@@ -115,6 +103,8 @@ VOID MicroScoutCLI(Tower::RequestData* towerData)
 
 	BYTE commandBuffer[VLL_PACKET_LENGTH];
 	char input[256];
+
+	ULONG lengthWritten = 0;
 
 	MSCLIMode mode = DIRECT;
 	while (!StringsAreEqual(input, "quit"))
@@ -264,7 +254,7 @@ VOID MicroScoutCLI(Tower::RequestData* towerData)
 		{
 			printf("Unrecognized command, try again.\n");
 		}
-		Tower::WriteData(commandBuffer, VLL_PACKET_LENGTH, towerData);
+		assert(Tower::WriteData(commandBuffer, VLL_PACKET_LENGTH, lengthWritten, towerData));
 	}
 
 }
@@ -284,54 +274,24 @@ VOID BeepMicroScout(Tower::RequestData* towerData)
 
 	BYTE command[VLL_PACKET_LENGTH];
 	VLL::Cmd_Beep1Immediate(command);
-	Tower::WriteData(command, VLL_PACKET_LENGTH, towerData);
+
+	ULONG lengthWritten = 0;
+	assert(Tower::WriteData(command, VLL_PACKET_LENGTH, lengthWritten, towerData));
 }
 
 VOID BeepRCX(Tower::RequestData* towerData)
 {
 	Tower::SetCommMode(Tower::CommMode::IR, towerData);
 
-	ULONG lengthWritten;
-	ULONG lengthRead = 0;
-	UCHAR replyBuffer[10];
-	ULONG replyLength = 10;
-
-	BOOL sendSuccess;
-	BOOL validateSuccess;
-
 	LASM::CommandData command;
 	LASM::Cmd_PBAliveOrNot(command);
-	sendSuccess = Tower::SendData(
-		command.data,
-		command.dataLength,
-		replyBuffer,
-		replyLength,
-		lengthRead,
-		towerData);
-	validateSuccess = LASM::ValidateReply(&command, replyBuffer, replyLength);
-	assert(sendSuccess && validateSuccess);
+	assert(LASM::SendCommand(&command, towerData));
 
 	LASM::Cmd_StopAllTasks(command);
-	sendSuccess = Tower::SendData(
-		command.data,
-		command.dataLength,
-		replyBuffer,
-		replyLength,
-		lengthRead,
-		towerData);
-	validateSuccess = LASM::ValidateReply(&command, replyBuffer, replyLength);
-	assert(sendSuccess && validateSuccess);
+	assert(LASM::SendCommand(&command, towerData));
 
 	LASM::Cmd_PlaySystemSound(LASM::SystemSound::BEEP, command);
-	sendSuccess = Tower::SendData(
-		command.data,
-		command.dataLength,
-		replyBuffer,
-		replyLength,
-		lengthRead,
-		towerData);
-	validateSuccess = LASM::ValidateReply(&command, replyBuffer, replyLength);
-	assert(sendSuccess && validateSuccess);
+	assert(LASM::SendCommand(&command, towerData));
 }
 
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData)

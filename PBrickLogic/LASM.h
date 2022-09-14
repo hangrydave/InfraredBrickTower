@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Windows.h>
-#include <memory>
 
 #include "TowerController.h"
 
@@ -18,7 +17,7 @@ namespace LASM
 
 	enum class Command : BYTE
 	{
-		EMPTY = -1,
+		NO_COMMAND = 0,
 		PBAliveOrNot =				0x10,
 		MemMap =					0x20,
 		PBBattery =					0x30,
@@ -138,30 +137,28 @@ namespace LASM
 		INDIRECT_VARIABLE = 36
 	};
 
-#define MAX_COMMAND_LENGTH 100 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
+#define MAX_COMMAND_LENGTH 60 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
 	struct CommandData
 	{
-		BYTE previousCommandByte = 0x00;
-		BYTE commandByte;
-		//std::shared_ptr<BYTE[]> data;
+		BYTE previousCommandByte = 0;
+		BYTE commandByte = 0;
 		BYTE data[MAX_COMMAND_LENGTH];
-		UINT dataLength;
+		UINT dataLength = 0;
 
-		CommandData() {}
+		CommandData()
+		{
+			*data = {};
+		}
 
 		CommandData(Command command)
 		{
 			this->commandByte = (BYTE)command;
 			dataLength = MAX_COMMAND_LENGTH;
-			//data = std::make_unique<BYTE[]>(MAX_COMMAND_LENGTH);
+			*data = {};
 		}
 
-		~CommandData()
-		{
-			//data.reset();
-			//delete[] data;
-		}
+		~CommandData() { }
 	};
 
 	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength);

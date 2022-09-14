@@ -5,11 +5,11 @@
 
 namespace LASM
 {
+#define LO_BYTE(b) b & 0x00ff
+#define HI_BYTE(b) (b & 0xff00) >> 8
+
 	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData)
 	{
-		ULONG lengthRead = 0;
-		BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
-
 		ULONG lengthWritten = 0;
 		BOOL writeSuccess = Tower::WriteData(
 			command->data,
@@ -17,18 +17,16 @@ namespace LASM
 			lengthWritten,
 			towerData);
 
-		//printf("Length written: %d\n", lengthWritten);
-
 		if (!writeSuccess)
 			return FALSE;
 
+		ULONG lengthRead = 0;
+		BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
 		BOOL readSuccess = Tower::ReadData(
 			replyBuffer,
 			COMMAND_REPLY_BUFFER_LENGTH,
 			lengthRead,
 			towerData);
-
-		//printf("Length read: %d\n", lengthRead);
 
 		if (!readSuccess)
 			return FALSE;
@@ -49,7 +47,8 @@ namespace LASM
 		1			0xff   | Preamble
 		2			0x00  /
 		3			Command
-		...			Parameters
+		4			Complement of command
+		...			Parameters (each byte followed by its complement)
 		n - 2		Checksum
 		n - 1		Complement of checksum
 
@@ -79,13 +78,10 @@ namespace LASM
 			return FALSE;
 		}
 
-		// now it's expected that there is a pattern like <complement> <command> <complement> <command>.
-		// the presence of that will determine if the reply is good or not.
-		// UPDATE: maybe better to check for just <complement> <command> instead
+		// now it's expected that there is a pattern like <complement> <command>.
+		// the presence of that will determine if the reply is good or not
 		return replyBuffer[complementIndex] == complement &&
-			replyBuffer[complementIndex + 1] == commandByte;//&&
-			//replyBuffer[complementIndex + 2] == complement &&
-			//replyBuffer[complementIndex + 3] == commandByte;
+			replyBuffer[complementIndex + 1] == commandByte;
 	}
 
 	VOID Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)
@@ -115,44 +111,33 @@ namespace LASM
 
 	VOID Cmd_PlayTone(WORD frequency, BYTE duration, CommandData& commandData)
 	{
-		BYTE frequencyHi = (frequency & 0xff00) >> 8;
-		BYTE frequencyLo = frequency & 0x00ff;
-		BYTE params[3]{ frequencyLo, frequencyHi, duration };
+		BYTE params[3]{ LO_BYTE(frequency), HI_BYTE(frequency), duration };
 		ComposeCommand(Command::PlayTone, params, 3, commandData);
 	}
 
 	VOID Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData)
 	{
-		BYTE taskSizeHi = (taskSize & 0xff00) >> 8;
-		BYTE taskSizeLo = taskSize & 0x00ff;
-		BYTE params[5]{ 0, taskNumber, 0, taskSizeLo, taskSizeHi };
+		BYTE params[5]{ 0, taskNumber, 0, LO_BYTE(taskSize), HI_BYTE(taskSize)};
 		ComposeCommand(Command::BeginOfTask, params, 5, commandData);
 	}
 	
 	VOID Cmd_BeginOfSub(BYTE subNumber, BYTE subSize, CommandData& commandData)
 	{
-		BYTE subSizeHi = (subSize & 0xff00) >> 8;
-		BYTE subSizeLo = subSize & 0x00ff;
-		BYTE params[5]{ 0, subNumber, 0, subSizeLo, subSizeHi };
+		BYTE params[5]{ 0, subNumber, 0, LO_BYTE(subSize), HI_BYTE(subSize)};
 		ComposeCommand(Command::BeginOfSub, params, 5, commandData);
 	}
 
 	VOID Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData)
 	{
 		// look at RCX_Cmd::MakeDownload in the NQC code for reference
-
-		BYTE blockCountHi = (blockCount & 0xff00) >> 8;
-		BYTE blockCountLo = blockCount & 0x00ff;
-		BYTE byteCountHi = (byteCount & 0xff00) >> 8;
-		BYTE byteCountLo = byteCount & 0x00ff;
 		
 		BYTE paramCount = 5 + byteCount;
 		BYTE* params = new BYTE[paramCount];
 		BYTE* paramsPtr = params;
-		*paramsPtr++ = blockCountLo;
-		*paramsPtr++ = blockCountHi;
-		*paramsPtr++ = byteCountLo;
-		*paramsPtr++ = byteCountHi;
+		*paramsPtr++ = LO_BYTE(blockCount);
+		*paramsPtr++ = HI_BYTE(blockCount);
+		*paramsPtr++ = LO_BYTE(byteCount);
+		*paramsPtr++ = HI_BYTE(byteCount);
 
 		BYTE* dataPtr = data;
 		BYTE blockChecksum = 0;

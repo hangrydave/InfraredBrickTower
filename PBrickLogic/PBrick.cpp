@@ -69,7 +69,7 @@ if (!condition) \
 }
 
 #define CHUNK_DOWNLOAD_SIZE 20
-		BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE];
+		BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE]{};
 		ULONG lengthRead = 0;
 
 		RCX::RCXFile rcxFile;

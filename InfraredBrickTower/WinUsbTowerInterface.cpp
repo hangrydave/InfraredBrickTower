@@ -6,7 +6,7 @@
 // useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint
 
 #define READ_TIMEOUT 300
-#define WRITE_TIMEOUT 1000
+#define WRITE_TIMEOUT 300
 
 BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
 {

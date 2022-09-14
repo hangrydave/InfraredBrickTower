@@ -254,25 +254,15 @@ namespace Tower
 		RequestData(HostTowerCommInterface* commInterface)
 		{
 			this->commInterface = commInterface;
+			*replyBuffer = {};
+			*stringBuffer = {};
 		}
 
-		~RequestData()
-		{
-		}
+		~RequestData(){ }
 	};
 
-	BOOL SendData(
-		PUCHAR inputBuffer, 
-		ULONG inputBufferLength,
-		PUCHAR replyBuffer,
-		ULONG replyBufferLength,
-		ULONG& lengthRead,
-		RequestData* data);
-
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data);
 	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, RequestData* data, BOOL skipSingleByteBefore = TRUE);
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data, BOOL skipSingleByteBefore = TRUE);
+	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
 
 	VOID Flush(CommBuffer buffer, RequestData* data);
 	VOID Reset(RequestData* data);
