@@ -14,10 +14,22 @@ for i in range(11, 97):
 
     page = reader.pages[i]
     text = page.extract_text()
-    text = text.replace(" ", "") # don't need spaces, they only hurt me
+    #text = text.replace(" ", "") # don't need spaces, they only hurt me
+
+    text = text.replace("Availabi lity", "Availability")
+    text = text.replace("Ava ilability", "Availability")
+    text = text.replace("LAS M syntax", "LASM syntax")
+    text = text.replace("LASM syntax :", "LASM syntax:")
+    text = text.replace("LASM s yntax", "LASM syntax")
+    text = text.replace("LASM  syntax", "LASM syntax")
+    text = text.replace("Expla nation", "Explanation")
+    text = text.replace("  ", " ")
+    text = text.replace("sourc e", "source")
+    text = text.replace("la bel", "label")
+    text = text.replace("dire ct", "direct")
 
     # get command name
-    text = text.split("DonotcopyPage", 1)[1]
+    text = text.split("Do not copy Page", 1)[1]
     paren_index = text.find("(")
     cmd_name = text[0 : paren_index].strip()
     cmd_name_2 = None
@@ -31,7 +43,7 @@ for i in range(11, 97):
 
     # get command byte
     paren_index = text.find(")")
-    cmd_byte = text[0 : paren_index].strip()
+    cmd_byte = text[0 : paren_index].strip().replace(" ", "")
     text = text[paren_index + 1 : ]
 
     cmd_byte_enum = cmd_byte_enum + "\t" + cmd_name + " = " + cmd_byte + ",\n"
@@ -88,15 +100,26 @@ for i in range(11, 97):
 
     # get reply
     reply = "NO_REPLY"
-    if text.find("Reply") != -1 and text.find("Thereisnoreplytothiscommand") == -1:
-        text = text.replace("Replystructure:", "Reply:").split("Reply:")[1]
+    if text.find("Reply") != -1 and text.find("There is no reply to this command") == -1:
+        text = text.replace("Reply structure:", "Reply:").split("Reply:")[1]
         zero_index = text.find("0")
         text = text[zero_index - 1 : ].strip()
         parts = text.split("\n", 1)
         reply = parts[0][0 : 4]
     
-    parts = text.split("LASMsyntax:")
-    availability_text = parts[0].split("Availability:")[1]
+    parts = text.split("LASM syntax:")
+
+    lasm_syntax = parts[1].split("Explanation")[0].strip()
+    print("else if (strcmp(code, \"" + lasm_syntax.split(" ")[0].strip() + "\") == 0)")
+    print("{")
+    print("")
+    print("}")
+
+
+    availability_parts = parts[0].split("Availability:")
+
+    #print(cmd_name, ": ", str(len(availability_parts)))
+    availability_text = availability_parts[1]
     text = parts[1]
     availability = "BOTH"
     if availability_text == "Direct":
@@ -122,4 +145,5 @@ cmd_byte_enum = cmd_byte_enum + "}\n"
 
 # print(cmd_byte_enum)
 # print()
-print(cmd_macro_calls)
+
+#print(cmd_macro_calls)

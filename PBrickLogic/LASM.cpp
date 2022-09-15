@@ -84,6 +84,357 @@ namespace LASM
 			replyBuffer[complementIndex + 1] == commandByte;
 	}
 
+	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command)
+	{
+		// TODO: this is bad
+		BYTE paramA = params[0];
+		BYTE paramB = params[1];
+		BYTE paramC = params[2];
+		BYTE paramD = params[3];
+		BYTE paramE = params[4];
+
+		if (strcmp(code, "ping") == 0)
+		{
+			Cmd_PBAliveOrNot(*command);
+		}
+		else if (strcmp(code, "memmap") == 0)
+		{
+			Cmd_MemMap(*command);
+		}
+		else if (strcmp(code, "pollb") == 0)
+		{
+			Cmd_PBBattery(*command);
+		}
+		else if (strcmp(code, "delt") == 0)
+		{
+			Cmd_DeleteAllTasks(*command);
+		}
+		else if (strcmp(code, "stop") == 0)
+		{
+			Cmd_StopAllTasks(*command);
+		}
+		else if (strcmp(code, "offp") == 0)
+		{
+			Cmd_PBTurnOff(*command);
+		}
+		else if (strcmp(code, "dels") == 0)
+		{
+			Cmd_DeleteAllSubs(*command);
+		}
+		else if (strcmp(code, "playz") == 0)
+		{
+			Cmd_ClearSound(*command);
+		}
+		else if (strcmp(code, "msgz") == 0)
+		{
+			Cmd_ClearPBMessage(*command);
+		}
+		else if (strcmp(code, "monax") == 0)
+		{
+			Cmd_ExitAccessControl(*command);
+		}
+		else if (strcmp(code, "monex") == 0)
+		{
+			Cmd_ExitEventCheck(*command);
+		}
+		else if (strcmp(code, "mute") == 0)
+		{
+			Cmd_MuteSound(*command);
+		}
+		else if (strcmp(code, "speak") == 0)
+		{
+			Cmd_UnmuteSound(*command);
+		}
+		else if (strcmp(code, "dele") == 0)
+		{
+			Cmd_ClearAllEvents(*command);
+		}
+		else if (strcmp(code, "rets") == 0)
+		{
+			Cmd_EndOfSub(*command);
+		}
+		else if (strcmp(code, "out") == 0)
+		{
+			Cmd_OnOffFloat(paramA, (MotorAction)paramB, *command);
+		}
+		else if (strcmp(code, "txs") == 0)
+		{
+			//Cmd_PbTXPower((IRTransmissionRange)paramA, *command);
+		}
+		else if (strcmp(code, "plays") == 0)
+		{
+			Cmd_PlaySystemSound((SystemSound)paramA, *command);
+		}
+		else if (strcmp(code, "delt") == 0)
+		{
+			//Cmd_DeleteTask(paramA, *command);
+		}
+		else if (strcmp(code, "start") == 0)
+		{
+			//Cmd_StartTask(paramA, *command);
+		}
+		else if (strcmp(code, "stop") == 0)
+		{
+			//Cmd_StopTask(paramA, *command);
+		}
+		else if (strcmp(code, "prgm") == 0)
+		{
+			Cmd_SelectProgram(paramA, *command);
+		}
+		else if (strcmp(code, "tmrz") == 0)
+		{
+			//Cmd_ClearTimer(paramA, *command);
+		}
+		else if (strcmp(code, "tout") == 0)
+		{
+			//Cmd_PBPowerDownTime(paramA, *command);
+		}
+		else if (strcmp(code, "dels") == 0)
+		{
+			//Cmd_DeleteSub(paramA, *command);
+		}
+		else if (strcmp(code, "senz") == 0)
+		{
+			//Cmd_ClearSensorValue(paramA, *command);
+		}
+		else if (strcmp(code, "dir") == 0)
+		{
+			Cmd_SetFwdSetRwdRewDir(paramA, (MotorDirection)paramB, *command);
+		}
+		else if (strcmp(code, "calls") == 0)
+		{
+			//Cmd_GoSub(paramA, *command);
+		}
+		else if (strcmp(code, "jmp") == 0)
+		{
+			//Cmd_SJump(paramA, (JumpDirection)paramB, *command);
+		}
+		else if (strcmp(code, "loopc") == 0)
+		{
+			//Cmd_SCheckLoopCounter(paramA, *command);
+		}
+		else if (strcmp(code, "gout") == 0)
+		{
+			//Cmd_ConnectDisconnect(paramA, (MotorAction)paramB, *command);
+		}
+		else if (strcmp(code, "gdir") == 0)
+		{
+			//Cmd_SetNormSetInvAltDir()
+		}
+		else if (strcmp(code, "cnti") == 0)
+		{
+			//Cmd_IncCounter(paramA, *command);
+		}
+		else if (strcmp(code, "cntd") == 0)
+		{
+			//Cmd_DecCounter(paramA, *command);
+		}
+		else if (strcmp(code, "cntz") == 0)
+		{
+			//Cmd_ClearCounter(paramA, *command);
+		}
+		else if (strcmp(code, "setp") == 0)
+		{
+			//Cmd_SetPriority(paramA, *command);
+		}
+		else if (strcmp(code, "msgs") == 0)
+		{
+			//Cmd_InternMessage(paramA, *command);
+		}
+		else if (strcmp(code, "playv") == 0)
+		{
+			//Cmd_PlayToneVar(paramA, paramB, *command);
+		}
+		else if (strcmp(code, "poll") == 0)
+		{
+			//Cmd_Poll(paramA, paramB, *command);
+		}
+		else if (strcmp(code, "setw") == 0)
+		{
+			//Cmd_SetWatch(paramA, paramB, *command);
+		}
+		else if (strcmp(code, "sent") == 0)
+		{
+			//Cmd_SetSensorType(paramA, (SensorType)paramB, *command);
+		}
+		else if (strcmp(code, "senm") == 0)
+		{
+			//Cmd_SetSensorMode(paramA, paramB, (SensorMode)paramC, *command);
+		}
+		else if (strcmp(code, "logz") == 0)
+		{
+
+		}
+		else if (strcmp(code, "log") == 0)
+		{
+
+		}
+		else if (strcmp(code, "jmpl") == 0)
+		{
+
+		}
+		else if (strcmp(code, "loops") == 0)
+		{
+
+		}
+		else if (strcmp(code, "loopcl") == 0)
+		{
+
+		}
+		else if (strcmp(code, "msg") == 0)
+		{
+
+		}
+		else if (strcmp(code, "uart") == 0)
+		{
+
+		}
+		else if (strcmp(code, "remote") == 0)
+		{
+
+		}
+		else if (strcmp(code, "decvjn") == 0)
+		{
+
+		}
+		else if (strcmp(code, "event") == 0)
+		{
+
+		}
+		else if (strcmp(code, "pwr") == 0)
+		{
+			Cmd_SetPower(paramA, (ParamSource)paramB, paramC, *command);
+		}
+		else if (strcmp(code, "playt") == 0)
+		{
+			Cmd_PlayTone(*reinterpret_cast<WORD*>(params), paramC, *command);
+		}
+		else if (strcmp(code, "view") == 0)
+		{
+
+		}
+		else if (strcmp(code, "wait") == 0)
+		{
+
+		}
+		else if (strcmp(code, "pollm") == 0)
+		{
+
+		}
+		else if (strcmp(code, "monal") == 0)
+		{
+
+		}
+		else if (strcmp(code, "sete") == 0)
+		{
+
+		}
+		else if (strcmp(code, "gpwr") == 0)
+		{
+
+		}
+		else if (strcmp(code, "decvjnl") == 0)
+		{
+
+		}
+		else if (strcmp(code, "cale") == 0)
+		{
+
+		}
+		else if (strcmp(code, "setv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "sumv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "subv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "divv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "mulv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "sgnv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "absv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "andv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "orv") == 0)
+		{
+
+		}
+		else if (strcmp(code, "polld") == 0)
+		{
+
+		}
+		else if (strcmp(code, "mone") == 0)
+		{
+
+		}
+		else if (strcmp(code, "set") == 0)
+		{
+
+		}
+		else if (strcmp(code, "pollp") == 0)
+		{
+
+		}
+		else if (strcmp(code, ";") == 0)
+		{
+
+		}
+		else if (strcmp(code, ";") == 0)
+		{
+
+		}
+		else if (strcmp(code, ";") == 0)
+		{
+
+		}
+		else if (strcmp(code, "reset") == 0)
+		{
+
+		}
+		else if (strcmp(code, ";") == 0)
+		{
+
+		}
+		else if (strcmp(code, "chk") == 0)
+		{
+
+		}
+		else if (strcmp(code, "chkl") == 0)
+		{
+
+		}
+		else if (strcmp(code, "boot") == 0)
+		{
+
+		}
+		else if (strcmp(code, "monel") == 0)
+		{
+
+		}
+		else if (strcmp(code, "disp") == 0)
+		{
+
+		}
+	}
+
 	VOID Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)
 	{
 		BYTE actionBits = (BYTE)action << 6;

@@ -163,6 +163,7 @@ namespace LASM
 
 	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength);
 	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData);
+	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command);
 
 	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData);
 
