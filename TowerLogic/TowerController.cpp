@@ -205,7 +205,7 @@ namespace Tower
 	VOID ReadStringFromReplyBuffer(RequestData* data)
 	{
 		// the vendor requests that reply with a string put the length at the front of the buffer
-		data->stringLength = *((WORD*)(data->replyBuffer)) / 2;
+		data->stringLength = *((WORD*)(data->replyBuffer));
 
 		// start at 4; skip the non-string stuff
 		for (UINT i = 4; i < data->stringLength; i += 2)

@@ -6,6 +6,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <tchar.h>
+#include <thread>
 
 #include "imfilebrowser.h"
 
@@ -57,6 +58,375 @@ void CleanupRenderTarget();
 void WaitForLastSubmittedFrame();
 FrameContext* WaitForNextFrameResources();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static unsigned long towerLengthWritten = 0;
+
+struct VLLData
+{
+    bool beep1Immediate = false;
+    bool beep2Immediate = false;
+    bool beep3Immediate = false;
+    bool beep4Immediate = false;
+    bool beep5Immediate = false;
+    BYTE beep1ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_1_IMMEDIATE };
+    BYTE beep2ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_2_IMMEDIATE };
+    BYTE beep3ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_3_IMMEDIATE };
+    BYTE beep4ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_4_IMMEDIATE };
+    BYTE beep5ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_5_IMMEDIATE };
+
+    bool forwardImmediate = false;
+    bool backwardImmediate = false;
+    BYTE fwdImmediateBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_IMMEDIATE };
+    BYTE bwdImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_IMMEDIATE };
+
+    bool beep1Program = false;
+    bool beep2Program = false;
+    bool beep3Program = false;
+    bool beep4Program = false;
+    bool beep5Program = false;
+    BYTE beep1ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_1_PROGRAM };
+    BYTE beep2ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_2_PROGRAM };
+    BYTE beep3ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_3_PROGRAM };
+    BYTE beep4ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_4_PROGRAM };
+    BYTE beep5ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_5_PROGRAM };
+
+    bool forwardHalf = false;
+    bool forwardOne = false;
+    bool forwardTwo = false;
+    bool forwardFive = false;
+    BYTE forwardHalfBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_HALF };
+    BYTE forwardOneByte[VLL_PACKET_LENGTH]{ VLL_FORWARD_ONE };
+    BYTE forwardTwoBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_TWO };
+    BYTE forwardFiveBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_FIVE };
+
+    bool backwardHalf = false;
+    bool backwardOne = false;
+    bool backwardTwo = false;
+    bool backwardFive = false;
+    BYTE backwardHalfBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_HALF };
+    BYTE backwardOneByte[VLL_PACKET_LENGTH]{ VLL_BACKWARD_ONE };
+    BYTE backwardTwoBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_TWO };
+    BYTE backwardFiveBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_FIVE };
+
+    bool waitLight = false;
+    bool seekLight = false;
+    bool code = false;
+    bool keepAlive = false;
+    BYTE waitLightBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
+    BYTE seekLightBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
+    BYTE codeBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
+    BYTE keepAliveBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
+
+    bool run = false;
+    BYTE runBytes[VLL_PACKET_LENGTH]{ VLL_RUN };
+
+    bool stop = false;
+    BYTE stopBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
+
+    bool deleteProgram = false;
+    BYTE deleteBytes[VLL_PACKET_LENGTH]{ VLL_DELETE_PROGRAM };
+} vllData;
+
+void SendVLL(BYTE* data, Tower::RequestData* towerData)
+{
+    // todo: store current comm mode
+    Tower::SetCommMode(Tower::CommMode::VLL, towerData);
+    Tower::WriteData(data, VLL_PACKET_LENGTH, towerLengthWritten, towerData);
+}
+
+void StartTowerThread()
+{
+    WinUsbTowerInterface* usbTowerInterface;
+    bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+    if (!gotInterface)
+    {
+        printf("Error getting WinUSB interface!\n");
+        system("pause");
+        return;
+    }
+
+    Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
+    while (true)
+    {
+        // VLL
+        {
+            Tower::SetCommMode(Tower::CommMode::VLL, towerData);
+
+            // immediate
+            // motor
+            if (vllData.forwardImmediate)
+                SendVLL(vllData.fwdImmediateBytes, towerData);
+
+            if (vllData.backwardImmediate)
+                SendVLL(vllData.bwdImmediateBytes, towerData);
+
+            // sound
+            if (vllData.beep1Immediate)
+            {
+                vllData.beep1Immediate = false;
+                SendVLL(vllData.beep1ImmediateBytes, towerData);
+            }
+            if (vllData.beep2Immediate)
+            {
+                vllData.beep2Immediate = false;
+                SendVLL(vllData.beep2ImmediateBytes, towerData);
+            }
+            if (vllData.beep3Immediate)
+            {
+                vllData.beep3Immediate = false;
+                SendVLL(vllData.beep3ImmediateBytes, towerData);
+            }
+            if (vllData.beep4Immediate)
+            {
+                vllData.beep4Immediate = false;
+                SendVLL(vllData.beep4ImmediateBytes, towerData);
+            }
+            if (vllData.beep5Immediate)
+            {
+                vllData.beep5Immediate = false;
+                SendVLL(vllData.beep5ImmediateBytes, towerData);
+            }
+
+            // program
+            // sound
+            if (vllData.beep1Program)
+            {
+                vllData.beep1Program = false;
+                SendVLL(vllData.beep1ProgramBytes, towerData);
+            }
+            if (vllData.beep2Program)
+            {
+                vllData.beep2Program = false;
+                SendVLL(vllData.beep2ProgramBytes, towerData);
+            }
+            if (vllData.beep3Program)
+            {
+                vllData.beep3Program = false;
+                SendVLL(vllData.beep3ProgramBytes, towerData);
+            }
+            if (vllData.beep4Program)
+            {
+                vllData.beep4Program = false;
+                SendVLL(vllData.beep4ProgramBytes, towerData);
+            }
+            if (vllData.beep5Program)
+            {
+                vllData.beep5Program = false;
+                SendVLL(vllData.beep5ProgramBytes, towerData);
+            }
+
+            // motor
+            if (vllData.forwardHalf)
+            {
+                vllData.forwardHalf = false;
+                SendVLL(vllData.forwardHalfBytes, towerData);
+            }
+            if (vllData.forwardOne)
+            {
+                vllData.forwardOne = false;
+                SendVLL(vllData.forwardOneByte, towerData);
+            }
+            if (vllData.forwardTwo)
+            {
+                vllData.forwardTwo = false;
+                SendVLL(vllData.forwardTwoBytes, towerData);
+            }
+            if (vllData.forwardFive)
+            {
+                vllData.forwardFive = false;
+                SendVLL(vllData.forwardFiveBytes, towerData);
+            }
+            if (vllData.backwardHalf)
+            {
+                vllData.backwardHalf = false;
+                SendVLL(vllData.backwardHalfBytes, towerData);
+            }
+            if (vllData.backwardOne)
+            {
+                vllData.backwardOne = false;
+                SendVLL(vllData.backwardOneByte, towerData);
+            }
+            if (vllData.backwardTwo)
+            {
+                vllData.backwardTwo = false;
+                SendVLL(vllData.backwardTwoBytes, towerData);
+            }
+            if (vllData.backwardFive)
+            {
+                vllData.backwardFive = false;
+                SendVLL(vllData.backwardFiveBytes, towerData);
+            }
+
+            // preset programs
+            if (vllData.waitLight)
+            {
+                vllData.waitLight = false;
+                SendVLL(vllData.waitLightBytes, towerData);
+            }
+            if (vllData.seekLight)
+            {
+                vllData.seekLight = false;
+                SendVLL(vllData.seekLightBytes, towerData);
+            }
+            if (vllData.code)
+            {
+                vllData.code = false;
+                SendVLL(vllData.codeBytes, towerData);
+            }
+            if (vllData.keepAlive)
+            {
+                vllData.keepAlive = false;
+                SendVLL(vllData.keepAliveBytes, towerData);
+            }
+
+            // etc functionality
+            if (vllData.run)
+            {
+                vllData.run = false;
+                SendVLL(vllData.runBytes, towerData);
+            }
+            if (vllData.stop)
+            {
+                vllData.stop = false;
+                SendVLL(vllData.stopBytes, towerData);
+            }
+            if (vllData.deleteProgram)
+            {
+                vllData.deleteProgram = false;
+                SendVLL(vllData.deleteBytes, towerData);
+            }
+        }
+    }
+
+    delete towerData;
+    delete usbTowerInterface;
+}
+
+void BuildVLLController()
+{
+    // VLL window
+    ImGui::Begin("MicroScout Controller");
+
+#define VLL_IMMEDIATE_MODE 0
+#define VLL_PROGRAM_MODE 1
+    static int commandMode = 0;
+    ImGui::Text("Command mode");
+    ImGui::RadioButton("immediate", &commandMode, VLL_IMMEDIATE_MODE); ImGui::SameLine();
+    ImGui::RadioButton("program", &commandMode, VLL_PROGRAM_MODE);
+
+    if (commandMode == VLL_IMMEDIATE_MODE)
+    {
+        // sounds
+        ImGui::Separator();
+        if (ImGui::Button("1"))
+            vllData.beep1Immediate = true;
+        ImGui::SameLine();
+        if (ImGui::Button("2"))
+            vllData.beep2Immediate = true;
+        ImGui::SameLine();
+        if (ImGui::Button("3"))
+            vllData.beep3Immediate = true;
+        ImGui::SameLine();
+        if (ImGui::Button("4"))
+            vllData.beep4Immediate = true;
+        ImGui::SameLine();
+        if (ImGui::Button("5"))
+            vllData.beep5Immediate = true;
+
+        ImGui::SameLine();
+        ImGui::Text("sound");
+
+        // motors
+        ImGui::Separator();
+        ImGui::Checkbox("motor forwards", &vllData.forwardImmediate);
+        if (vllData.forwardImmediate)
+            vllData.backwardImmediate = false;
+
+        ImGui::SameLine();
+        ImGui::Checkbox("motor backwards", &vllData.backwardImmediate);
+        if (vllData.backwardImmediate)
+            vllData.forwardImmediate = false;
+    }
+    else
+    {
+        // sounds
+        ImGui::Separator();
+        ImGui::Text("sound");
+        if (ImGui::Button("1"))
+            vllData.beep1Program = true;
+        ImGui::SameLine();
+        if (ImGui::Button("2"))
+            vllData.beep2Program = true;
+        ImGui::SameLine();
+        if (ImGui::Button("3"))
+            vllData.beep3Program = true;
+        ImGui::SameLine();
+        if (ImGui::Button("4"))
+            vllData.beep4Program = true;
+        ImGui::SameLine();
+        if (ImGui::Button("5"))
+            vllData.beep5Program = true;
+
+        // motors
+        // forward
+        ImGui::Separator();
+        ImGui::Text("motor");
+        if (ImGui::Button("fwd 0.5 sec"))
+            vllData.forwardHalf = true;
+        ImGui::SameLine();
+        if (ImGui::Button("fwd 1 sec"))
+            vllData.forwardOne = true;
+        ImGui::SameLine();
+        if (ImGui::Button("fwd 2 sec"))
+            vllData.forwardTwo = true;
+        ImGui::SameLine();
+        if (ImGui::Button("fwd 5 sec"))
+            vllData.forwardFive = true;
+
+        // backward
+        if (ImGui::Button("bwd 0.5 sec"))
+            vllData.backwardHalf = true;
+        ImGui::SameLine();
+        if (ImGui::Button("bwd 1 sec"))
+            vllData.backwardOne = true;
+        ImGui::SameLine();
+        if (ImGui::Button("bwd 2 sec"))
+            vllData.backwardTwo = true;
+        ImGui::SameLine();
+        if (ImGui::Button("bwd 5 sec"))
+            vllData.backwardFive = true;
+
+        // program presets
+        // wait seek code keep
+        ImGui::Separator();
+        ImGui::Text("program presets");
+        if (ImGui::Button("wait light"))
+            vllData.waitLight = true;
+        ImGui::SameLine();
+        if (ImGui::Button("seek light"))
+            vllData.seekLight = true;
+        ImGui::SameLine();
+        if (ImGui::Button("code"))
+            vllData.code = true;
+        ImGui::SameLine();
+        if (ImGui::Button("keep alive"))
+            vllData.keepAlive = true;
+
+        // run/delete/stop
+        ImGui::Separator();
+        ImGui::Text("management");
+        if (ImGui::Button("run"))
+            vllData.run = true;
+        ImGui::SameLine();
+        if (ImGui::Button("stop"))
+            vllData.stop = true;
+        ImGui::SameLine();
+        if (ImGui::Button("delete program"))
+            vllData.deleteProgram = true;
+    }
+
+    ImGui::End();
+}
 
 // Main code
 int main(int, char**)
@@ -117,26 +487,9 @@ int main(int, char**)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    std::thread towerThread(StartTowerThread);
 
-
-    WinUsbTowerInterface* usbTowerInterface;
-    bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
-    if (!gotInterface)
-    {
-        printf("Error getting WinUSB interface!\n");
-        system("pause");
-        return 0;
-    }
-
-    Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
-    Tower::SetCommMode(Tower::CommMode::VLL, towerData);
-
-    BYTE vllCmdBuffer[VLL_PACKET_LENGTH];
-    VLL::Cmd_Beep1Immediate(vllCmdBuffer);
-    unsigned long lengthWritten = 0;
-
-    Tower::GetCopyright(towerData);
-    size_t stringLength = towerData->stringLength;
+    /*size_t stringLength = towerData->stringLength;
     char* credits = new char[stringLength];
     wchar_t* wideCredits = towerData->stringBuffer;
     char convertedChars[2];
@@ -144,7 +497,7 @@ int main(int, char**)
     {
         wcstombs_s(NULL, convertedChars, 2, wideCredits++, 1);
         credits[i] = convertedChars[0];
-    }
+    }*/
 
 
     ImGui::FileBrowser fileDialog;
@@ -174,55 +527,56 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
+        BuildVLLController();
+
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
+        //if (show_demo_window)
+        //    ImGui::ShowDemoWindow(&show_demo_window);
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-        {
-            static float f = 0.0f;
-            static int counter = 0;
+        //{
+        //    static float f = 0.0f;
+        //    static int counter = 0;
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        //    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-            ImGui::Text(credits);               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
+        //    ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+        //    ImGui::Checkbox("Another Window", &show_another_window);
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+        //    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        //    ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            {
-                counter++;
-                fileDialog.Open();
-                //Tower::WriteData(vllCmdBuffer, VLL_PACKET_LENGTH, lengthWritten, towerData);
-            }
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
+        //    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+        //    {
+        //        counter++;
+        //        fileDialog.Open();
+        //        //Tower::WriteData(vllCmdBuffer, VLL_PACKET_LENGTH, towerLengthWritten, towerData);
+        //    }
+        //    ImGui::SameLine();
+        //    ImGui::Text("counter = %d", counter);
 
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
+        //    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        //    ImGui::End();
 
-            fileDialog.Display();
+        //    fileDialog.Display();
 
-            if (fileDialog.HasSelected())
-            {
-                Tower::SetCommMode(Tower::CommMode::IR, towerData);
-                RCX::DownloadProgram(fileDialog.GetSelected().generic_string().c_str(), 0, towerData);
-                fileDialog.ClearSelected();
-            }
-        }
+        //    if (fileDialog.HasSelected())
+        //    {
+        //        //Tower::SetCommMode(Tower::CommMode::IR, towerData);
+        //        //RCX::DownloadProgram(fileDialog.GetSelected().generic_string().c_str(), 0, towerData);
+        //        fileDialog.ClearSelected();
+        //    }
+        //}
 
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
-            ImGui::End();
-        }
+        //// 3. Show another simple window.
+        //if (show_another_window)
+        //{
+        //    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        //    ImGui::Text("Hello from another window!");
+        //    if (ImGui::Button("Close Me"))
+        //        show_another_window = false;
+        //    ImGui::End();
+        //}
 
         // Rendering
         ImGui::Render();
