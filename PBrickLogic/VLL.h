@@ -4,7 +4,6 @@
 #define VLLCOMMANDS_H
 
 #include "pch.h"
-#include <Windows.h>
 
 namespace VLL
 {
@@ -174,9 +173,9 @@ RCX2VLL.h from the Mindstorms SDK has some stuff to say on this. TODO: research 
 #define DELETE_PROGRAM		{ 0x51, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x15, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x0b, 0x00 }
 
 #define GenerateVLLFunction(commandName, commandData) \
-inline VOID Cmd_##commandName##(BYTE* buffer) \
+inline void Cmd_##commandName##(unsigned char* buffer) \
 { \
-	BYTE commandBytes[VLL_PACKET_LENGTH] commandData; \
+	unsigned char commandBytes[VLL_PACKET_LENGTH] commandData; \
 	for (int i = 0; i < VLL_PACKET_LENGTH; i++) \
 	{ \
 		buffer[i] = commandBytes[i]; \

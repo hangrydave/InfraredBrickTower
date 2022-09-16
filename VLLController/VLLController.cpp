@@ -117,7 +117,7 @@ int main(int, char**)
 
 
     WinUsbTowerInterface* usbTowerInterface;
-    BOOL gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+    bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
     if (!gotInterface)
     {
         printf("Error getting WinUSB interface!\n");
@@ -131,6 +131,19 @@ int main(int, char**)
     BYTE vllCmdBuffer[VLL_PACKET_LENGTH];
     VLL::Cmd_Beep1Immediate(vllCmdBuffer);
     unsigned long lengthWritten = 0;
+
+    Tower::GetCopyright(towerData);
+    size_t stringLength = towerData->stringLength;
+    char* credits = new char[stringLength];
+    wchar_t* wideCredits = towerData->stringBuffer;
+    char convertedChars[2];
+    for (int i = 0; i < stringLength; i++)
+    {
+        wcstombs_s(NULL, convertedChars, 2, wideCredits++, 1);
+        credits[i] = convertedChars[0];
+    }
+
+
 
     // Main loop
     bool done = false;
@@ -165,7 +178,7 @@ int main(int, char**)
 
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Text(credits);               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
