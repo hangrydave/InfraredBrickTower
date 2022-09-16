@@ -13,6 +13,7 @@
 #include "TowerController.h"
 #include "WinUsbTowerInterface.h"
 #include "VLL.h"
+#include "PBrick.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -204,6 +205,13 @@ int main(int, char**)
             ImGui::End();
 
             fileDialog.Display();
+
+            if (fileDialog.HasSelected())
+            {
+                Tower::SetCommMode(Tower::CommMode::IR, towerData);
+                RCX::DownloadProgram(fileDialog.GetSelected().generic_string().c_str(), 0, towerData);
+                fileDialog.ClearSelected();
+            }
         }
 
         // 3. Show another simple window.

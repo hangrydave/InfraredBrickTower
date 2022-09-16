@@ -107,6 +107,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\lib\imgui-filebrowser;C:\Users\david\source\repos\LegoInfraredUSBTower\TowerLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
