@@ -105,7 +105,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\TowerLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\lib\imgui-filebrowser;C:\Users\david\source\repos\LegoInfraredUSBTower\TowerLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

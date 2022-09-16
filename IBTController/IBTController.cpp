@@ -7,6 +7,8 @@
 #include <dxgi1_4.h>
 #include <tchar.h>
 
+#include "imfilebrowser.h"
+
 #include "LASM.h"
 #include "TowerController.h"
 #include "WinUsbTowerInterface.h"
@@ -144,6 +146,10 @@ int main(int, char**)
     }
 
 
+    ImGui::FileBrowser fileDialog;
+    fileDialog.SetTitle("Select an RCX program");
+    fileDialog.SetTypeFilters({ ".rcx" });
+
 
     // Main loop
     bool done = false;
@@ -188,13 +194,16 @@ int main(int, char**)
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
             {
                 counter++;
-                Tower::WriteData(vllCmdBuffer, VLL_PACKET_LENGTH, lengthWritten, towerData);
+                fileDialog.Open();
+                //Tower::WriteData(vllCmdBuffer, VLL_PACKET_LENGTH, lengthWritten, towerData);
             }
             ImGui::SameLine();
             ImGui::Text("counter = %d", counter);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
+
+            fileDialog.Display();
         }
 
         // 3. Show another simple window.
