@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VLLController.cpp">
+    <ClCompile Include="IBTController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

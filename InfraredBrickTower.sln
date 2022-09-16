@@ -17,7 +17,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TowerLogic", "TowerLogic\To
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PBrickLogic", "PBrickLogic\PBrickLogic.vcxproj", "{322A372E-0BD7-4478-8A93-538D28566C4F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VLLController", "VLLController\VLLController.vcxproj", "{1522A058-2DF3-4F60-A493-21E3620C5B34}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IBTController", "IBTController\IBTController.vcxproj", "{1522A058-2DF3-4F60-A493-21E3620C5B34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
