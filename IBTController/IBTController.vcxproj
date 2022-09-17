@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\lib\imgui-filebrowser;C:\Users\david\source\repos\LegoInfraredUSBTower\TowerLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\lib\imgui-filebrowser;$(SolutionDir)\TowerLogic;$(SolutionDir)\PBrickLogic;$(SolutionDir)\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -113,7 +113,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>onecoreuap.lib;winusb.lib;d3d12.lib;d3dcompiler.lib;dxgi.lib;PBrickLogic.lib;TowerLogic.lib;InfraredBrickTower.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\lib\imgui-filebrowser;C:\Users\david\source\repos\LegoInfraredUSBTower\TowerLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\PBrickLogic;C:\Users\david\source\repos\LegoInfraredUSBTower\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\lib\imgui-filebrowser;$(SolutionDir)\TowerLogic;$(SolutionDir)\PBrickLogic;$(SolutionDir)\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -133,7 +133,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>onecoreuap.lib;winusb.lib;d3d12.lib;d3dcompiler.lib;dxgi.lib;PBrickLogic.lib;TowerLogic.lib;InfraredBrickTower.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\david\source\repos\LegoInfraredUSBTower\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
