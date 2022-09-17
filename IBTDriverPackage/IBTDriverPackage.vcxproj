@@ -19,14 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{DB8435A0-3751-4961-A9E5-7633B4767C08}</ProjectGuid>
+    <ProjectGuid>{0ACF8A76-22DB-403C-AE5C-8329B1A5B305}</ProjectGuid>
     <TemplateGuid>{a1357fe7-03e0-4d61-85f4-09c7ed38c0c1}</TemplateGuid>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <Configuration>$driverCurrentWindowsConfigurationName$ Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
-    <RootNamespace>InfraredBrickTowerDriverPackage</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <RootNamespace>IBTDriverPackage</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -118,15 +117,10 @@
     <VerifyFlags>133563</VerifyFlags>
   </PropertyGroup>
   <ItemGroup>
-    <Inf Include="InfraredBrickTowerDriver.inf" />
+    <Inf Include="IBTDriver.inf" />
     <!-- Explicitly set all FilesToPackage since there is no dependency on a driver -->
     <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
     <FilesToPackage Condition="$(KMDF_VERSION_MAJOR) == 1 and $(KMDF_VERSION_MINOR) &lt; 13" Include="$(WDKContentRoot)redist\wdf\$(DDKPlatform)\WdfCoinstaller$(KMDF_VERSION_MAJOR_STRING)$(KMDF_VERSION_MINOR_STRING).dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\InfraredBrickTower\InfraredBrickTower.vcxproj">
-      <Project>{549c3fac-b8e5-493c-9429-6ac4b636c8b4}</Project>
-    </ProjectReference>
   </ItemGroup>
   <!-- INF handling depends on order. Some of the above ImportGroup nodes set up INF handling. -->
   <!-- Modify INF handling here. -->

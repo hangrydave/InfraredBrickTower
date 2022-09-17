@@ -316,7 +316,8 @@ void RunTowerThread()
 
 void BuildMicroScoutRemote()
 {
-    ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 150), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 300));
 
     // VLL window
     ImGui::Begin("MicroScout Remote");
@@ -444,7 +445,8 @@ void BuildMicroScoutRemote()
 
 void BuildRCXRemote()
 {
-    ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 450), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 350), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 300));
 
     // RCX remote
     ImGui::Begin("RCX Remote");
