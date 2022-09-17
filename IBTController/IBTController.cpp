@@ -59,7 +59,9 @@ void WaitForLastSubmittedFrame();
 FrameContext* WaitForNextFrameResources();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+static bool programIsDone = false;
 
+static ImGuiViewport* mainViewport;
 static ImGui::FileBrowser fileDialog;
 
 static unsigned long towerLengthWritten = 0;
@@ -90,7 +92,7 @@ struct RCXRemoteData
     std::string* downloadFilePath;
 
     WORD request = 0;
-} rcxRemoteData;
+} static rcxRemoteData;
 
 struct VLLData
 {
@@ -156,7 +158,7 @@ struct VLLData
 
     int deleteProgram = 0;
     BYTE deleteBytes[VLL_PACKET_LENGTH]{ VLL_DELETE_PROGRAM };
-} vllData;
+} static vllData;
 
 void SendVLL(BYTE* data, Tower::RequestData* towerData)
 {
@@ -165,18 +167,19 @@ void SendVLL(BYTE* data, Tower::RequestData* towerData)
     Tower::WriteData(data, VLL_PACKET_LENGTH, towerLengthWritten, towerData);
 }
 
-void StartTowerThread()
+void RunTowerThread()
 {
     WinUsbTowerInterface* usbTowerInterface;
     bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
     if (!gotInterface)
     {
         printf("Error getting WinUSB interface!\n");
+        programIsDone = true;
         return;
     }
 
     Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
-    while (true)
+    while (!programIsDone)
     {
         // RCX
         {
@@ -313,6 +316,8 @@ void StartTowerThread()
 
 void BuildMicroScoutRemote()
 {
+    ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 150), ImGuiCond_FirstUseEver);
+
     // VLL window
     ImGui::Begin("MicroScout Remote");
 
@@ -439,7 +444,9 @@ void BuildMicroScoutRemote()
 
 void BuildRCXRemote()
 {
-    // VLL window
+    ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 450), ImGuiCond_FirstUseEver);
+
+    // RCX remote
     ImGui::Begin("RCX Remote");
 
     // messages
@@ -533,7 +540,16 @@ int main(int, char**)
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
     ::RegisterClassEx(&wc);
-    HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("IBT"), WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
+    HWND hwnd = ::CreateWindow(
+        wc.lpszClassName, 
+        _T("IBT"), 
+        WS_OVERLAPPEDWINDOW, 
+        100, 100, 
+        640, 800, 
+        NULL, 
+        NULL, 
+        wc.hInstance, 
+        NULL);
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -585,14 +601,15 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Run the tower transmission things on a separate thread
-    std::thread towerThread(StartTowerThread);
+    std::thread towerThread(RunTowerThread);
+
+    mainViewport = ImGui::GetMainViewport();
 
     fileDialog.SetTitle("Select an RCX program");
     fileDialog.SetTypeFilters({ ".rcx" });
 
     // Main loop
-    bool done = false;
-    while (!done)
+    while (!programIsDone)
     {
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
@@ -602,9 +619,9 @@ int main(int, char**)
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
             if (msg.message == WM_QUIT)
-                done = true;
+                programIsDone = true;
         }
-        if (done)
+        if (programIsDone)
             break;
 
         // Start the Dear ImGui frame
@@ -669,6 +686,7 @@ int main(int, char**)
     ::DestroyWindow(hwnd);
     ::UnregisterClass(wc.lpszClassName, wc.hInstance);
 
+    towerThread.join();
     return 0;
 }
 
