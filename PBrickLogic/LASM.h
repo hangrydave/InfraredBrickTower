@@ -162,7 +162,7 @@ namespace LASM
 	};
 
 	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength);
-	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData);
+	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData, ULONG expectedReplyLength = COMMAND_REPLY_BUFFER_LENGTH);
 	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command);
 
 	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData);
@@ -297,7 +297,28 @@ namespace LASM
 	VOID Cmd_LCheckLoopCounter();
 	VOID Cmd_SendPBMessage();
 	VOID Cmd_SendUARTData();
-	VOID Cmd_RemoteCommand();
+
+	enum class RemoteCommandRequest : WORD
+	{
+		MOTOR_C_BACKWARDS = 0x01,
+		PROGRAM_1 = 0x02,
+		PROGRAM_2 = 0x04,
+		PROGRAM_3 = 0x08,
+		PROGRAM_4 = 0x10,
+		PROGRAM_5 = 0x20,
+		STOP_PROGRAM_AND_MOTORS = 0x40,
+		REMOTE_SOUND = 0x80,
+		PB_MESSAGE_1 = 0x0100,
+		PB_MESSAGE_2 = 0x0200,
+		PB_MESSAGE_3 = 0x0400,
+		MOTOR_A_FORWARDS = 0x0800,
+		MOTOR_B_FORWARDS = 0x1000,
+		MOTOR_C_FORWARDS = 0x2000,
+		MOTOR_A_BACKWARDS = 0x4000,
+		MOTOR_B_BACKWARDS = 0x8000
+	};
+	VOID Cmd_RemoteCommand(WORD request, CommandData& commandData);
+
 	VOID Cmd_SDecVarJumpLTZero();
 	VOID Cmd_DirectEvent();
 

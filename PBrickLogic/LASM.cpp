@@ -8,7 +8,7 @@ namespace LASM
 #define LO_BYTE(b) b & 0x00ff
 #define HI_BYTE(b) (b & 0xff00) >> 8
 
-	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData)
+	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData, ULONG expectedReplyLength)
 	{
 		ULONG lengthWritten = 0;
 		BOOL writeSuccess = Tower::WriteData(
@@ -20,18 +20,23 @@ namespace LASM
 		if (!writeSuccess)
 			return FALSE;
 
-		ULONG lengthRead = 0;
-		BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
-		BOOL readSuccess = Tower::ReadData(
-			replyBuffer,
-			COMMAND_REPLY_BUFFER_LENGTH,
-			lengthRead,
-			towerData);
+		if (expectedReplyLength > 0)
+		{
+			ULONG lengthRead = 0;
+			BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
+			BOOL readSuccess = Tower::ReadData(
+				replyBuffer,
+				COMMAND_REPLY_BUFFER_LENGTH,
+				lengthRead,
+				towerData);
 
-		if (!readSuccess)
-			return FALSE;
+			if (!readSuccess)
+				return FALSE;
 
-		return ValidateReply(command, replyBuffer, lengthRead);
+			return ValidateReply(command, replyBuffer, lengthRead);
+		}
+
+		return TRUE;
 	}
 
 	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength)
@@ -452,6 +457,12 @@ namespace LASM
 	{
 		BYTE params[1]{ (BYTE)program };
 		ComposeCommand(Command::SelectProgram, params, 1, commandData);
+	}
+
+	VOID Cmd_RemoteCommand(WORD request, CommandData& commandData)
+	{
+		BYTE params[2]{ LO_BYTE((WORD)request), HI_BYTE((WORD)request) };
+		ComposeCommand(Command::RemoteCommand, params, 2, commandData);
 	}
 
 	VOID Cmd_SetPower(BYTE motors, ParamSource powerSource, BYTE powerValue, CommandData& commandData)
