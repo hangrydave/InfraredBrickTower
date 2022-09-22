@@ -1,3 +1,5 @@
+#if defined(WIN64)
+
 #pragma once
 
 #include "HostTowerCommInterface.h"
@@ -47,3 +49,5 @@ public:
 };
 
 BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface);
+
+#endif

@@ -1,3 +1,5 @@
+#if defined(WIN64)
+
 #include "pch.h"
 
 #include "WinUsbTowerInterface.h"
@@ -240,3 +242,5 @@ VOID WinUsbTowerInterface::PrintErrorIfAny(const char* caller) const
 		break;
 	}
 }
+
+#endif

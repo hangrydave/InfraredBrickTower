@@ -2,44 +2,47 @@
 #include "LASM.h"
 #include "stdio.h"
 #include "TowerController.h"
+#include <string.h>
+
+#define BYTE unsigned char
 
 namespace LASM
 {
-#define LO_BYTE(b) b & 0x00ff
-#define HI_BYTE(b) (b & 0xff00) >> 8
+#define LO_BYTE(b) (BYTE) (b & 0x00ff)
+#define HI_BYTE(b) (BYTE) ((b & 0xff00) >> 8)
 
-	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData, ULONG expectedReplyLength)
+	bool SendCommand(CommandData* command, Tower::RequestData* towerData, ULONG expectedReplyLength)
 	{
 		ULONG lengthWritten = 0;
-		BOOL writeSuccess = Tower::WriteData(
+		bool writeSuccess = Tower::WriteData(
 			command->data,
 			command->dataLength,
 			lengthWritten,
 			towerData);
 
 		if (!writeSuccess)
-			return FALSE;
+			return false;
 
 		if (expectedReplyLength > 0)
 		{
 			ULONG lengthRead = 0;
 			BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
-			BOOL readSuccess = Tower::ReadData(
+			bool readSuccess = Tower::ReadData(
 				replyBuffer,
 				COMMAND_REPLY_BUFFER_LENGTH,
 				lengthRead,
 				towerData);
 
 			if (!readSuccess)
-				return FALSE;
+				return false;
 
 			return ValidateReply(command, replyBuffer, lengthRead);
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength)
+	bool ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength)
 	{
 		/*
 		
@@ -80,7 +83,7 @@ namespace LASM
 
 		if (complementIndex == -1)
 		{
-			return FALSE;
+			return false;
 		}
 
 		// now it's expected that there is a pattern like <complement> <command>.
@@ -443,7 +446,8 @@ namespace LASM
 	VOID Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)
 	{
 		BYTE actionBits = (BYTE)action << 6;
-		BYTE params[1]{ actionBits | motors };
+        BYTE param = actionBits | motors;
+		BYTE params[1]{ param };
 		ComposeCommand(Command::OnOffFloat, params, 1, commandData);
 	}
 
@@ -519,7 +523,8 @@ namespace LASM
 	VOID Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction, CommandData& commandData)
 	{
 		BYTE directionBits = (BYTE)direction << 6;
-		BYTE params[1]{ directionBits | motors };
+        BYTE param = directionBits | motors;
+		BYTE params[1]{ param };
 		ComposeCommand(Command::SetFwdSetRwdRewDir, params, 1, commandData);
 	}
 

@@ -17,25 +17,25 @@ namespace RCX
 	
 	*/
 
-	BOOL ParseFile(const CHAR* fileName, RCXFile& file)
+	bool ParseFile(const char* fileName, RCXFile& file)
 	{
 		std::ifstream input(fileName, std::ios::binary);
 		if (!input)
 		{
 			printf("RCX::ParseFile: file not found");
-			return FALSE;
+			return false;
 		}
 
-		input.read(reinterpret_cast<CHAR*>(&file), FILE_HEADER_LENGTH);
+		input.read(reinterpret_cast<char*>(&file), FILE_HEADER_LENGTH);
 
 		file.chunks = new Chunk[file.chunkCount];
 		for (UINT i = 0; i < file.chunkCount; i++)
 		{
-			input.read(reinterpret_cast<CHAR*>(&file.chunks[i]), CHUNK_HEADER_LENGTH);
+			input.read(reinterpret_cast<char*>(&file.chunks[i]), CHUNK_HEADER_LENGTH);
 			Chunk* chunk = &file.chunks[i];
 
 			chunk->data = new BYTE[chunk->length];
-			input.read(reinterpret_cast<CHAR*>(chunk->data), chunk->length);
+			input.read(reinterpret_cast<char*>(chunk->data), chunk->length);
 
 			// from line 100 in rcxifile.h in the nqc project
 			// also line 240 in RCX_Image.cpp
@@ -49,7 +49,7 @@ namespace RCX
 			input.read(reinterpret_cast<char*>(&file.symbols[i]), SYMBOL_HEADER_LENGTH);
 			Symbol* symbol = &file.symbols[i];
 
-			symbol->name = new CHAR[symbol->length];
+			symbol->name = new char[symbol->length];
 			input.read(symbol->name, symbol->length);
 
 			// TODO: look at logic at line 261 onwards in RCX_Image.cpp
@@ -57,15 +57,15 @@ namespace RCX
 		}
 
 		input.close();
-		return TRUE;
+		return true;
 	}
 
-	BOOL DownloadProgram(const CHAR* fileName, BYTE programSlot, Tower::RequestData* towerData)
+	bool DownloadProgram(const char* fileName, BYTE programSlot, Tower::RequestData* towerData)
 	{
 #define _returnIfFalse(condition) \
 if (!condition) \
 { \
-	return FALSE; \
+	return false; \
 }
 
 #define CHUNK_DOWNLOAD_SIZE 20
@@ -132,6 +132,6 @@ if (!condition) \
 		LASM::Cmd_PlaySystemSound(LASM::SystemSound::FAST_SWEEP_UP, command);
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-		return TRUE;
+		return true;
 	}
 }

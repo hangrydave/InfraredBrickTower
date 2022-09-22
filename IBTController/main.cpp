@@ -1,34 +1,37 @@
-// example imgui code from here: https://github.com/ocornut/imgui/tree/master/examples/example_win32_directx12
+// Dear ImGui: standalone example application for Glfw + Vulkan
+// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
+// Read online: https://github.com/ocornut/imgui/tree/master/docs
 
-// reference page: https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
-#if defined(WIN64)
+// Important note to the reader who wish to integrate imgui_impl_vulkan.cpp/.h in their own engine/app.
+// - Common ImGui_ImplVulkan_XXX functions and structures are used to interface with imgui_impl_vulkan.cpp/.h.
+//   You will use those if you want to use this rendering backend in your engine/app.
+// - Helper ImGui_ImplVulkanH_XXX functions and structures are only used by this example (main.cpp) and by
+//   the backend itself (imgui_impl_vulkan.cpp), but should PROBABLY NOT be used by your own engine/app code.
+// Read comments in imgui_impl_vulkan.h.
 
-#include "backends/imgui_impl_win32.h"
-#include "backends/imgui_impl_dx12.h"
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <tchar.h>
-#include "WinUsbTowerInterface.h"
-
-#elif defined(__linux)
-
-#include <LASM.h>
-#include <imgui.h>
-#include <backends/imgui_impl_vulkan.h>
-#include <backends/imgui_impl_sdl.h>
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_vulkan.h"
+#include <stdio.h>          // printf, fprintf
+#include <stdlib.h>         // abort
+#define GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_vulkan.h"
-
-#endif
 
 #include <imgui-filebrowser/imfilebrowser.h>
 #include <thread>
-//#include "LASM.h"
+#include "LASM.h"
 #include "TowerController.h"
 #include "VLL.h"
 #include "PBrick.h"
 
+// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
+// To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
+// Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
+#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
+#pragma comment(lib, "legacy_stdio_definitions")
+#endif
 
 //#define IMGUI_UNLIMITED_FRAME_RATE
 #ifdef _DEBUG
@@ -46,7 +49,7 @@ static VkPipelineCache          g_PipelineCache = VK_NULL_HANDLE;
 static VkDescriptorPool         g_DescriptorPool = VK_NULL_HANDLE;
 
 static ImGui_ImplVulkanH_Window g_MainWindowData;
-static uint32_t                 g_MinImageCount = 2;
+static int                      g_MinImageCount = 2;
 static bool                     g_SwapChainRebuild = false;
 
 static void check_vk_result(VkResult err)
@@ -351,6 +354,11 @@ static void FramePresent(ImGui_ImplVulkanH_Window* wd)
     wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->ImageCount; // Now we can use the next set of semaphores
 }
 
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
 #define BYTE unsigned char
 #define WORD unsigned short
 
@@ -365,21 +373,21 @@ static LASM::CommandData lasmCommand;
 struct RCXRemoteData
 {
     bool motorAFwd,
-        motorBFwd,
-        motorCFwd,
-        motorABwd,
-        motorBBwd,
-        motorCBwd = false;
+            motorBFwd,
+            motorCFwd,
+            motorABwd,
+            motorBBwd,
+            motorCBwd = false;
 
     int message1,
-        message2,
-        message3 = 0;
+            message2,
+            message3 = 0;
 
     int program1,
-        program2,
-        program3,
-        program4,
-        program5 = 0;
+            program2,
+            program3,
+            program4,
+            program5 = 0;
 
     int stop = 0;
     int sound = 0;
@@ -391,11 +399,11 @@ struct RCXRemoteData
 
 struct VLLData
 {
-    int beep1Immediate, 
-        beep2Immediate, 
-        beep3Immediate, 
-        beep4Immediate, 
-        beep5Immediate = 0;
+    int beep1Immediate,
+            beep2Immediate,
+            beep3Immediate,
+            beep4Immediate,
+            beep5Immediate = 0;
     BYTE beep1ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_1_IMMEDIATE };
     BYTE beep2ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_2_IMMEDIATE };
     BYTE beep3ImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_3_IMMEDIATE };
@@ -408,10 +416,10 @@ struct VLLData
     BYTE bwdImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_IMMEDIATE };
 
     int beep1Program,
-        beep2Program,
-        beep3Program,
-        beep4Program,
-        beep5Program = 0;
+            beep2Program,
+            beep3Program,
+            beep4Program,
+            beep5Program = 0;
     BYTE beep1ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_1_PROGRAM };
     BYTE beep2ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_2_PROGRAM };
     BYTE beep3ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_3_PROGRAM };
@@ -419,27 +427,27 @@ struct VLLData
     BYTE beep5ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_5_PROGRAM };
 
     int forwardHalf,
-        forwardOne,
-        forwardTwo,
-        forwardFive = 0;
+            forwardOne,
+            forwardTwo,
+            forwardFive = 0;
     BYTE forwardHalfBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_HALF };
     BYTE forwardOneByte[VLL_PACKET_LENGTH]{ VLL_FORWARD_ONE };
     BYTE forwardTwoBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_TWO };
     BYTE forwardFiveBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_FIVE };
 
     int backwardHalf,
-        backwardOne,
-        backwardTwo,
-        backwardFive = 0;
+            backwardOne,
+            backwardTwo,
+            backwardFive = 0;
     BYTE backwardHalfBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_HALF };
     BYTE backwardOneByte[VLL_PACKET_LENGTH]{ VLL_BACKWARD_ONE };
     BYTE backwardTwoBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_TWO };
     BYTE backwardFiveBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_FIVE };
 
     int waitLight,
-        seekLight,
-        code,
-        keepAlive = 0;
+            seekLight,
+            code,
+            keepAlive = 0;
     BYTE waitLightBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
     BYTE seekLightBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
     BYTE codeBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
@@ -837,37 +845,32 @@ void BuildRCXRemote()
 
 int main(int, char**)
 {
-    // Setup SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
-    {
-        printf("Error: %s\n", SDL_GetError());
-        return -1;
-    }
+    // Setup GLFW window
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+        return 1;
 
-    // Setup window
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL2+Vulkan example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+Vulkan example", NULL, NULL);
 
     // Setup Vulkan
+    if (!glfwVulkanSupported())
+    {
+        printf("GLFW: Vulkan Not Supported\n");
+        return 1;
+    }
     uint32_t extensions_count = 0;
-    SDL_Vulkan_GetInstanceExtensions(window, &extensions_count, NULL);
-    const char** extensions = new const char*[extensions_count];
-    SDL_Vulkan_GetInstanceExtensions(window, &extensions_count, extensions);
+    const char** extensions = glfwGetRequiredInstanceExtensions(&extensions_count);
     SetupVulkan(extensions, extensions_count);
-    delete[] extensions;
 
     // Create Window Surface
     VkSurfaceKHR surface;
-    VkResult err;
-    if (SDL_Vulkan_CreateSurface(window, g_Instance, &surface) == 0)
-    {
-        printf("Failed to create Vulkan surface.\n");
-        return 1;
-    }
+    VkResult err = glfwCreateWindowSurface(g_Instance, window, g_Allocator, &surface);
+    check_vk_result(err);
 
     // Create Framebuffers
     int w, h;
-    SDL_GetWindowSize(window, &w, &h);
+    glfwGetFramebufferSize(window, &w, &h);
     ImGui_ImplVulkanH_Window* wd = &g_MainWindowData;
     SetupVulkanWindow(wd, surface, w, h);
 
@@ -883,7 +886,7 @@ int main(int, char**)
     //ImGui::StyleColorsLight();
 
     // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForVulkan(window);
+    ImGui_ImplGlfw_InitForVulkan(window, true);
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance = g_Instance;
     init_info.PhysicalDevice = g_PhysicalDevice;
@@ -947,7 +950,8 @@ int main(int, char**)
     }
 
     // Our state
-    bool show_demo_window = false;
+    bool show_demo_window = true;
+    bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Run the tower transmission things on a separate thread
@@ -959,28 +963,20 @@ int main(int, char**)
     fileDialog.SetTypeFilters({ ".rcx" });
 
     // Main loop
-    while (!programIsDone)
+    while (!glfwWindowShouldClose(window) && !programIsDone)
     {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
-                programIsDone = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
-                programIsDone = true;
-        }
+        glfwPollEvents();
 
         // Resize swap chain?
         if (g_SwapChainRebuild)
         {
             int width, height;
-            SDL_GetWindowSize(window, &width, &height);
+            glfwGetFramebufferSize(window, &width, &height);
             if (width > 0 && height > 0)
             {
                 ImGui_ImplVulkan_SetMinImageCount(g_MinImageCount);
@@ -992,7 +988,7 @@ int main(int, char**)
 
         // Start the Dear ImGui frame
         ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
         BuildMicroScoutRemote();
@@ -1021,14 +1017,14 @@ int main(int, char**)
     err = vkDeviceWaitIdle(g_Device);
     check_vk_result(err);
     ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
     CleanupVulkanWindow();
     CleanupVulkan();
 
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     return 0;
 }

@@ -1,6 +1,19 @@
 #pragma once
 
+#if defined(WIN64)
+
 #include <Windows.h>
+
+#elif defined(__linux)
+
+#define BYTE unsigned char
+#define WORD unsigned short
+#define UINT unsigned int
+#define BOOL bool
+#define VOID void
+#define ULONG unsigned long
+
+#endif
 
 #include "TowerController.h"
 
@@ -359,11 +372,12 @@ namespace LASM
 	VOID Cmd_UnlockFirmware();
 	VOID Cmd_LEnterEventCheck();
 	VOID Cmd_ViewSourceValue();
+    static Command die = Command::PBAliveOrNot;
 
 #define Cmd(command, availabilityArg) \
-inline VOID Cmd_##command##(CommandData& commandData) \
+inline VOID Cmd_##command(CommandData& commandData) \
 { \
-	ComposeCommand(Command::##command##, nullptr, 0, commandData); \
+	ComposeCommand(Command::command, nullptr, 0, commandData); \
 }
 
 #define COMMA ,

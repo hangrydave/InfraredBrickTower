@@ -1,7 +1,18 @@
 #pragma once
 
+#if defined(WIN64)
+
 #include <stdio.h>
 #include <Windows.h>
+
+#elif defined(__linux)
+
+#include <cstdio>
+#define BYTE unsigned char
+#define WORD unsigned short
+
+#endif
+
 #include "HostTowerCommInterface.h"
 
 namespace Tower
@@ -246,10 +257,10 @@ namespace Tower
 		HostTowerCommInterface* commInterface;
 
 		RequestError lastRequestError = RequestError::SUCCESS;
-		ULONG lastReplyLength = 0;
+		unsigned long lastReplyLength = 0;
 		BYTE replyBuffer[REQUEST_REPLY_BUFFER_LENGTH];
-		ULONG stringLength = 0;
-		WCHAR stringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
+		unsigned long stringLength = 0;
+		wchar_t stringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
 
 		RequestData(HostTowerCommInterface* commInterface)
 		{
@@ -261,75 +272,79 @@ namespace Tower
 		~RequestData(){ }
 	};
 
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
-	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
+	BOOL WriteData(BYTE* buffer, unsigned long bufferLength, unsigned long& lengthWritten, RequestData* data);
+	BOOL ReadData(BYTE* buffer, unsigned long bufferLength, unsigned long& lengthRead, RequestData* data);
 
-	VOID Flush(CommBuffer buffer, RequestData* data);
-	VOID Reset(RequestData* data);
+	void Flush(CommBuffer buffer, RequestData* data);
+	void Reset(RequestData* data);
 
 	Power GetPower(RequestData* data);
 
 	LEDColor GetLEDColor(LED led, RequestData* data);
-	VOID SetLEDColor(LED led, LEDColor color, RequestData* data);
+	void SetLEDColor(LED led, LEDColor color, RequestData* data);
 
 	StatisticsData GetStatistics(RequestData* data);
-	VOID ResetStatistics(RequestData* data);
+	void ResetStatistics(RequestData* data);
 
 	/*TowerIRCParam GetIRCParameter();
-	VOID SetIRCParameter(TowerIRCParam param);*/
+	void SetIRCParameter(TowerIRCParam param);*/
 
 	CommSpeed GetTransmissionSpeed(RequestData* data);
-	VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data);
+	void SetTransmissionSpeed(CommSpeed speed, RequestData* data);
 
 	CommSpeed GetReceivingSpeed(RequestData* data);
-	VOID SetReceivingSpeed(CommSpeed speed, RequestData* data);
+	void SetReceivingSpeed(CommSpeed speed, RequestData* data);
 
 	TransmitterState GetTransmitterState(RequestData* data);
 
 	/*BYTE GetTransmissionCarrierFrequency();
-	VOID SetTransmissionCarrierFrequency();
+	void SetTransmissionCarrierFrequency();
 	BYTE GetTransmissionCarrierDutyCycle();
-	VOID SetTransmissionCarrierDutyCycle();*/
+	void SetTransmissionCarrierDutyCycle();*/
 
 	CapabilitiesData GetCapabilities(CapabilityLink link, RequestData* data);
 	VersionData GetVersion(RequestData* data);
-	VOID GetCopyright(RequestData* data);
-	VOID GetCredits(RequestData* data);
+	void GetCopyright(RequestData* data);
+	void GetCredits(RequestData* data);
 
-	VOID ReadStringFromReplyBuffer(RequestData* data);
+	void ReadStringFromReplyBuffer(RequestData* data);
 
-	VOID SetParameter(
+	void SetParameter(
 		ParamType parameter,
 		BYTE value,
 		RequestData* data);
 	BYTE GetParameter(ParamType parameter, RequestData* data);
 
-	VOID MakeRequest(RequestType request, RequestData* data);
-	VOID MakeRequest(
+	void MakeRequest(RequestType request, RequestData* data);
+	void MakeRequest(
 		RequestType request,
 		WORD value,
 		RequestData* data);
-	VOID MakeRequest(
+	void MakeRequest(
 		RequestType request,
 		BYTE loByte,
 		BYTE hiByte,
 		RequestData* data);
 
+//#define GenerateParameterSetterAndGetter(paramType, outputType) \
+//outputType Get##outputType(RequestData* data); \
+//void Set##outputType(outputType newValue, RequestData* data);
+
 #define GenerateParameterSetterAndGetter(paramType, outputType) \
-inline outputType Get##outputType##(RequestData* data) \
+inline outputType Get##outputType(RequestData* data) \
 { \
-	return (##outputType) GetParameter(##paramType##, data); \
+	return (outputType) GetParameter(paramType, data); \
 } \
-inline VOID Set##outputType##(##outputType newValue, RequestData* data) \
+inline void Set##outputType(outputType newValue, RequestData* data) \
 { \
-	SetParameter(##paramType##, (BYTE)newValue, data); \
+	SetParameter(paramType, (BYTE)newValue, data); \
 }
 
-	GenerateParameterSetterAndGetter(ParamType::MODE, CommMode)
-	GenerateParameterSetterAndGetter(ParamType::RANGE, CommRange)
-	GenerateParameterSetterAndGetter(ParamType::ERROR_DETECTION, ErrorDetectionMode)
-	GenerateParameterSetterAndGetter(ParamType::ERROR_STATUS, ErrorStatus)
-	GenerateParameterSetterAndGetter(ParamType::ENDIAN, Endian)
-	GenerateParameterSetterAndGetter(ParamType::INDICATOR_LED_MODE, IndicatorLEDMode)
-	GenerateParameterSetterAndGetter(ParamType::ERROR_SIGNAL, ErrorSignalMode)
+    GenerateParameterSetterAndGetter(ParamType::MODE, CommMode)
+//	GenerateParameterSetterAndGetter(ParamType::RANGE, CommRange)
+//	GenerateParameterSetterAndGetter(ParamType::ERROR_DETECTION, ErrorDetectionMode)
+//	GenerateParameterSetterAndGetter(ParamType::ERROR_STATUS, ErrorStatus)
+//	GenerateParameterSetterAndGetter(ParamType::ENDIAN, Endian)
+//	GenerateParameterSetterAndGetter(ParamType::INDICATOR_LED_MODE, IndicatorLEDMode)
+//	GenerateParameterSetterAndGetter(ParamType::ERROR_SIGNAL, ErrorSignalMode)
 }
