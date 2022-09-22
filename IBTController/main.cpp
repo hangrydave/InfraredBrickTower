@@ -26,6 +26,12 @@
 #include "VLL.h"
 #include "PBrick.h"
 
+#if defined(WIN64)
+#include "WinUsbTowerInterface.h"
+#elif defined(__linux)
+#include "LinuxUSBTowerInterface.h"
+#endif
+
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
 // Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
@@ -483,7 +489,13 @@ void RunTowerThread()
         return;
     }
 #elif defined(__linux)
-    usbTowerInterface = nullptr;
+    bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
+    if (!gotInterface)
+    {
+        printf("Error getting Linux USB interface!\n");
+        programIsDone = true;
+        return;
+    }
 #endif
 
     Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);

@@ -41,4 +41,6 @@ public:
 		ULONG& lengthRead) const = 0;
 
 	virtual BOOL Flush() const = 0;
+
+    virtual BOOL Close() const = 0;
 };

@@ -73,7 +73,7 @@ namespace Tower
 #if defined(WIN64)
             Sleep(WRITE_PAUSE_TIME);
 #elif defined(__linux)
-            sleep(WRITE_PAUSE_TIME);
+            sleep(WRITE_PAUSE_TIME / 1000);
 #endif
 			writeAttemptCount++;
 		}

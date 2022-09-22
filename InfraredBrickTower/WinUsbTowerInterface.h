@@ -48,6 +48,6 @@ public:
 	BOOL Flush() const;
 };
 
-BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface);
+BOOL OpenWinUsbTowerInterface(HostTowerCommInterface*& towerInterface);
 
 #endif

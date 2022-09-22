@@ -10,7 +10,7 @@
 #define READ_TIMEOUT 300
 #define WRITE_TIMEOUT 300
 
-BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
+BOOL OpenWinUsbTowerInterface(HostTowerCommInterface*& towerInterface)
 {
 	DEVICE_DATA           deviceData;
 	HRESULT               hr;
@@ -109,7 +109,7 @@ BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
 #endif
 		return FALSE;
 	}
-
+OpenWinUsbTowerInterface
 	towerInterface = new WinUsbTowerInterface(
 		deviceData.HandlesOpen,
 		deviceData.WinusbHandle,
