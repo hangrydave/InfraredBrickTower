@@ -8,11 +8,6 @@
 
 #define BYTE unsigned char
 #define WORD unsigned short
-#define UINT unsigned int
-#define BOOL bool
-#define VOID void
-#define ULONG unsigned long
-#define USHORT unsigned short
 
 #endif
 
@@ -24,25 +19,25 @@ class HostTowerCommInterface
 public:
     virtual ~HostTowerCommInterface() {}
 
-	virtual BOOL ControlTransfer(
+	virtual bool ControlTransfer(
 		BYTE request,
 		WORD value,
-		WORD index,
-		USHORT bufferLength,
+		unsigned short index,
+		unsigned short bufferLength,
 		BYTE* buffer,
-		ULONG& lengthTransferred) const = 0;
+		unsigned long& lengthTransferred) const = 0;
 	
-	virtual BOOL Write(
+	virtual bool Write(
 		BYTE* buffer,
-		ULONG bufferLength,
-		ULONG& lengthWritten) const = 0;
+		unsigned long bufferLength,
+		unsigned long& lengthWritten) const = 0;
 
-	virtual BOOL Read(
+	virtual bool Read(
 		BYTE* buffer,
-		ULONG bufferLength,
-		ULONG& lengthRead) const = 0;
+		unsigned long bufferLength,
+		unsigned long& lengthRead) const = 0;
 
-	virtual BOOL Flush() const = 0;
+	virtual bool Flush() const = 0;
 
-    virtual BOOL Close() const = 0;
+    virtual bool Close() const = 0;
 };

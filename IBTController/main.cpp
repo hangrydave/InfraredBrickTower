@@ -482,23 +482,20 @@ void SendVLL(BYTE* data, Tower::RequestData* towerData) {
 void RunTowerThread()
 {
     HostTowerCommInterface* usbTowerInterface;
+
+    bool gotInterface = false;
 #if defined(WIN64)
-    bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
-    if (!gotInterface)
-    {
-        printf("Error getting WinUSB interface!\n");
-        programIsDone = true;
-        return;
-    }
+    gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
 #elif defined(__linux)
-    bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
+    gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
+#endif
+
     if (!gotInterface)
     {
-        printf("Error getting Linux USB interface!\n");
+        printf("Error getting USB interface!\n");
         programIsDone = true;
         return;
     }
-#endif
 
     Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
 
@@ -974,8 +971,7 @@ int main(int, char**)
     }
 
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
+    bool show_demo_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Run the tower transmission things on a separate thread

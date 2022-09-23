@@ -219,7 +219,7 @@ namespace Tower
 		data->stringLength = *((WORD*)(data->replyBuffer));
 
 		// start at 4; skip the non-string stuff
-		for (UINT i = 4; i < data->stringLength; i += 2)
+		for (int i = 4; i < data->stringLength; i += 2)
 		{
 			wchar_t wide = (wchar_t) data->replyBuffer[i];
 			data->stringBuffer[(i - 4) / 2] = wide;

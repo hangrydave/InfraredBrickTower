@@ -272,8 +272,8 @@ namespace Tower
 		~RequestData(){ }
 	};
 
-	BOOL WriteData(BYTE* buffer, unsigned long bufferLength, unsigned long& lengthWritten, RequestData* data);
-	BOOL ReadData(BYTE* buffer, unsigned long bufferLength, unsigned long& lengthRead, RequestData* data);
+	bool WriteData(BYTE* buffer, unsigned long bufferLength, unsigned long& lengthWritten, RequestData* data);
+	bool ReadData(BYTE* buffer, unsigned long bufferLength, unsigned long& lengthRead, RequestData* data);
 
 	void Flush(CommBuffer buffer, RequestData* data);
 	void Reset(RequestData* data);

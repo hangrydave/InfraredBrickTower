@@ -19,7 +19,7 @@
 #define DEFAULT_USB_NAME USB_NAME_1
 #endif
 
-BOOL OpenLinuxUSBTowerInterface(HostTowerCommInterface*& towerInterface)
+bool OpenLinuxUSBTowerInterface(HostTowerCommInterface*& towerInterface)
 {
     const char* name = "short";
     struct stat stFileInfo;
