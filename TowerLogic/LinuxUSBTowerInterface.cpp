@@ -8,8 +8,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include <legousbtower.c>
-
 #define READ_TIMEOUT 300
 #define WRITE_TIMEOUT 300
 
@@ -53,7 +51,7 @@ BOOL OpenLinuxUSBTowerInterface(HostTowerCommInterface*& towerInterface)
 
 LinuxUSBTowerInterface::LinuxUSBTowerInterface(int fileDescriptor)
 {
-    this->fileDescriptor = fileDescriptor
+    this->fileDescriptor = fileDescriptor;
 }
 LinuxUSBTowerInterface::~LinuxUSBTowerInterface() {}
 
