@@ -211,4 +211,4 @@ inline void Cmd_##commandName(unsigned char* buffer) \
 	GenerateVLLFunction(KeepAlive, VLL_KEEP_ALIVE)
 }
 
-#endif VLLCOMMANDS_H
+#endif

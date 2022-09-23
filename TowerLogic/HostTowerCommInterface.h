@@ -22,6 +22,8 @@
 class HostTowerCommInterface
 {
 public:
+    virtual ~HostTowerCommInterface() {}
+
 	virtual BOOL ControlTransfer(
 		BYTE request,
 		WORD value,

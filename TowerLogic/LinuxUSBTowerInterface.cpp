@@ -53,7 +53,10 @@ LinuxUSBTowerInterface::LinuxUSBTowerInterface(int fileDescriptor)
 {
     this->fileDescriptor = fileDescriptor;
 }
-LinuxUSBTowerInterface::~LinuxUSBTowerInterface() {}
+
+LinuxUSBTowerInterface::~LinuxUSBTowerInterface()
+{
+}
 
 bool LinuxUSBTowerInterface::ControlTransfer(
         BYTE request,

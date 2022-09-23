@@ -15,7 +15,7 @@ private:
 public:
     LinuxUSBTowerInterface(int fileDescriptor);
 
-    ~LinuxUSBTowerInterface();
+    ~LinuxUSBTowerInterface() override;
 
     bool ControlTransfer(
             BYTE request,

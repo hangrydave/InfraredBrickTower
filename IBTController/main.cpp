@@ -18,13 +18,13 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
-
-#include <imgui-filebrowser/imfilebrowser.h>
 #include <thread>
-#include "LASM.h"
-#include "TowerController.h"
-#include "VLL.h"
-#include "PBrick.h"
+
+#include <LASM.h>
+#include <imfilebrowser.h>
+#include <TowerController.h>
+#include <VLL.h>
+#include <PBrick.h>
 
 #if defined(WIN64)
 #include "WinUsbTowerInterface.h"
@@ -375,6 +375,8 @@ static ImGui::FileBrowser fileDialog;
 
 static unsigned long towerLengthWritten = 0;
 
+static Tower::CommMode currentTowerCommMode;
+
 static LASM::CommandData lasmCommand;
 struct RCXRemoteData
 {
@@ -469,11 +471,11 @@ struct VLLData
     BYTE deleteBytes[VLL_PACKET_LENGTH]{ VLL_DELETE_PROGRAM };
 } static vllData;
 
-void SendVLL(BYTE* data, Tower::RequestData* towerData)
-{
-    // todo: store current comm mode
-    Tower::SetParameter(Tower::ParamType::MODE, (BYTE) Tower::CommMode::VLL, towerData);
-    Tower::SetCommMode(Tower::CommMode::VLL, towerData);
+void SendVLL(BYTE* data, Tower::RequestData* towerData) {
+    if (currentTowerCommMode != Tower::CommMode::VLL) {
+        Tower::SetCommMode(Tower::CommMode::VLL, towerData);
+    }
+
     Tower::WriteData(data, VLL_PACKET_LENGTH, towerLengthWritten, towerData);
 }
 
@@ -499,6 +501,11 @@ void RunTowerThread()
 #endif
 
     Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
+
+    // get into IR mode right off of the bat
+    currentTowerCommMode = Tower::CommMode::IR;
+    Tower::SetCommMode(currentTowerCommMode, towerData);
+
     while (!programIsDone)
     {
         // RCX
@@ -544,15 +551,20 @@ void RunTowerThread()
             if (rcxRemoteData.sound-- > 0)
                 rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::REMOTE_SOUND;
 
-            Tower::SetCommMode(Tower::CommMode::IR, towerData);
             if (rcxRemoteData.request != 0)
             {
+                if (currentTowerCommMode != Tower::CommMode::IR)
+                    Tower::SetCommMode(Tower::CommMode::IR, towerData);
+
                 LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
                 LASM::SendCommand(&lasmCommand, towerData, 0);
             }
 
             if (rcxRemoteData.downloadFilePath != nullptr)
             {
+                if (currentTowerCommMode != Tower::CommMode::IR)
+                    Tower::SetCommMode(Tower::CommMode::IR, towerData);
+
                 RCX::DownloadProgram(rcxRemoteData.downloadFilePath->c_str(), 0, towerData);
                 rcxRemoteData.downloadFilePath = nullptr;
             }
