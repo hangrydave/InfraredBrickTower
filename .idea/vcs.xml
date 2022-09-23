@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/imgui-filebrowser" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/imgui/imgui" vcs="Git" />
   </component>
 </project>
