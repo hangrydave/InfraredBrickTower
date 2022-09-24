@@ -21,14 +21,10 @@
 
 bool OpenLinuxUSBTowerInterface(HostTowerCommInterface*& towerInterface)
 {
-    const char* name = "short";
+    const char* name;
     struct stat stFileInfo;
 
-    if ((0 != name) && (0 != *name))
-    {
-        // a specific name was passed; attempt to use it
-    }
-    else if (0 == stat(DEFAULT_USB_NAME, &stFileInfo))
+    if (0 == stat(DEFAULT_USB_NAME, &stFileInfo))
     {
         name = DEFAULT_USB_NAME;
     }
@@ -45,13 +41,24 @@ bool OpenLinuxUSBTowerInterface(HostTowerCommInterface*& towerInterface)
 
     if (fileDescriptor < 0) { return false; }
 
-    towerInterface = new LinuxUSBTowerInterface(fileDescriptor);
+    int r = libusb_init(NULL);
+
+    libusb_device_handle* deviceHandle;
+    r = libusb_wrap_sys_device(NULL, fileDescriptor, &deviceHandle);
+
+#define VID 0x0694
+#define PID 0x0001
+    deviceHandle = libusb_open_device_with_vid_pid(NULL, 0x0694, 0x0001);
+
+    towerInterface = new LinuxUSBTowerInterface(fileDescriptor, deviceHandle);
     return true;
 }
 
-LinuxUSBTowerInterface::LinuxUSBTowerInterface(int fileDescriptor)
+LinuxUSBTowerInterface::LinuxUSBTowerInterface(int fileDescriptor, libusb_device_handle* deviceHandle)
 {
     this->fileDescriptor = fileDescriptor;
+    this->deviceHandle = deviceHandle;
+//    this->device = libusb_get_device(deviceHandle);
 }
 
 LinuxUSBTowerInterface::~LinuxUSBTowerInterface()
@@ -66,8 +73,17 @@ bool LinuxUSBTowerInterface::ControlTransfer(
         BYTE* buffer,
         unsigned long &lengthTransferred) const
 {
-    ioctl(fileDescriptor, request, value);
-    return true;
+    lengthTransferred = libusb_control_transfer(
+            this->deviceHandle,
+            0xc0,
+            request,
+            value,
+            index,
+            buffer,
+            bufferLength,
+            WRITE_TIMEOUT);
+
+    return lengthTransferred > 0;
 }
 
 bool LinuxUSBTowerInterface::Write(

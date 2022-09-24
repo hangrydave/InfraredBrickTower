@@ -7,14 +7,16 @@
 #define WORD unsigned short
 
 #include "HostTowerCommInterface.h"
+#include <libusb-1.0/libusb.h>
 
 class LinuxUSBTowerInterface : public HostTowerCommInterface
 {
 private:
     int fileDescriptor;
+    libusb_device_handle* deviceHandle;
+    libusb_device* device;
 public:
-    LinuxUSBTowerInterface(int fileDescriptor);
-
+    LinuxUSBTowerInterface(int fileDescriptor, libusb_device_handle* deviceHandle);
     ~LinuxUSBTowerInterface() override;
 
     bool ControlTransfer(

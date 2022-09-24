@@ -27,9 +27,9 @@
 #include <PBrick.h>
 
 #if defined(WIN64)
-#include "WinUsbTowerInterface.h"
+#include <WinUsbTowerInterface.h>
 #elif defined(__linux)
-#include "LinuxUSBTowerInterface.h"
+#include <LinuxUSBTowerInterface.h>
 #endif
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
@@ -423,10 +423,10 @@ struct VLLData
     BYTE fwdImmediateBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_IMMEDIATE };
     BYTE bwdImmediateBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_IMMEDIATE };
 
-    int beep1Program,
-            beep2Program,
-            beep3Program,
-            beep4Program,
+    int beep1Program = 0,
+            beep2Program = 0,
+            beep3Program = 0,
+            beep4Program = 0,
             beep5Program = 0;
     BYTE beep1ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_1_PROGRAM };
     BYTE beep2ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_2_PROGRAM };
@@ -434,27 +434,27 @@ struct VLLData
     BYTE beep4ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_4_PROGRAM };
     BYTE beep5ProgramBytes[VLL_PACKET_LENGTH]{ VLL_BEEP_5_PROGRAM };
 
-    int forwardHalf,
-            forwardOne,
-            forwardTwo,
+    int forwardHalf = 0,
+            forwardOne = 0,
+            forwardTwo = 0,
             forwardFive = 0;
     BYTE forwardHalfBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_HALF };
     BYTE forwardOneByte[VLL_PACKET_LENGTH]{ VLL_FORWARD_ONE };
     BYTE forwardTwoBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_TWO };
     BYTE forwardFiveBytes[VLL_PACKET_LENGTH]{ VLL_FORWARD_FIVE };
 
-    int backwardHalf,
-            backwardOne,
-            backwardTwo,
+    int backwardHalf = 0,
+            backwardOne = 0,
+            backwardTwo = 0,
             backwardFive = 0;
     BYTE backwardHalfBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_HALF };
     BYTE backwardOneByte[VLL_PACKET_LENGTH]{ VLL_BACKWARD_ONE };
     BYTE backwardTwoBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_TWO };
     BYTE backwardFiveBytes[VLL_PACKET_LENGTH]{ VLL_BACKWARD_FIVE };
 
-    int waitLight,
-            seekLight,
-            code,
+    int waitLight = 0,
+            seekLight = 0,
+            code = 0,
             keepAlive = 0;
     BYTE waitLightBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
     BYTE seekLightBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
