@@ -3,6 +3,3 @@
 	path = lib/imgui-filebrowser
 	url = https://github.com/AirGuanZ/imgui-filebrowser.git
 
-[submodule "lib/imgui/imgui"]
-	path = lib/imgui/imgui
-	url = https://github.com/ocornut/imgui.git
