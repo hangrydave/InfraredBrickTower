@@ -59,6 +59,8 @@ void WaitForLastSubmittedFrame();
 FrameContext* WaitForNextFrameResources();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+// this is necessary to indicate to the main thread that the UI shouldn't load if the tower can't be accessed
+static bool couldNotAccessTower = false;
 static bool programIsDone = false;
 
 static ImGuiViewport* mainViewport;
@@ -174,6 +176,7 @@ void RunTowerThread()
     if (!gotInterface)
     {
         printf("Error getting WinUSB interface!\n");
+        couldNotAccessTower = true;
         programIsDone = true;
         return;
     }
@@ -611,7 +614,7 @@ int main(int, char**)
     fileDialog.SetTypeFilters({ ".rcx" });
 
     // Main loop
-    while (!programIsDone)
+    while (!programIsDone && !couldNotAccessTower)
     {
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
@@ -689,6 +692,12 @@ int main(int, char**)
     ::UnregisterClass(wc.lpszClassName, wc.hInstance);
 
     towerThread.join();
+
+    if (couldNotAccessTower)
+    {
+        system("pause");
+    }
+
     return 0;
 }
 
