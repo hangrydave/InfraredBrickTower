@@ -8,7 +8,7 @@
 #include <tchar.h>
 #include <thread>
 
-#include "imfilebrowser.h"
+//#include "imfilebrowser.h"
 
 #include "LASM.h"
 #include "TowerController.h"
@@ -64,7 +64,7 @@ static bool couldNotAccessTower = false;
 static bool programIsDone = false;
 
 static ImGuiViewport* mainViewport;
-static ImGui::FileBrowser fileDialog;
+//static ImGui::FileBrowser fileDialog;
 
 static unsigned long towerLengthWritten = 0;
 
@@ -524,18 +524,18 @@ void BuildRCXRemote()
     if (ImGui::Button("Sound"))
         rcxRemoteData.sound = 1;
 
-    ImGui::Separator();
+    /*ImGui::Separator();
     if (ImGui::Button("Download Program"))
-        fileDialog.Open();
+        fileDialog.Open();*/
 
     ImGui::End();
 
-    fileDialog.Display();
+    /*fileDialog.Display();
     if (fileDialog.HasSelected())
     {
         rcxRemoteData.downloadFilePath = new std::string(fileDialog.GetSelected().string());
         fileDialog.ClearSelected();
-    }
+    }*/
 }
 
 // Main code
@@ -610,8 +610,8 @@ int main(int, char**)
 
     mainViewport = ImGui::GetMainViewport();
 
-    fileDialog.SetTitle("Select an RCX program");
-    fileDialog.SetTypeFilters({ ".rcx" });
+    //fileDialog.SetTitle("Select an RCX program");
+    //fileDialog.SetTypeFilters({ ".rcx" });
 
     // Main loop
     while (!programIsDone && !couldNotAccessTower)
