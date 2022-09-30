@@ -65,7 +65,6 @@ static bool couldNotAccessTower = false;
 static bool programIsDone = false;
 
 static ImGuiViewport* mainViewport;
-static ImGui::FileBrowser fileDialog;
 
 void RunTowerThread()
 {
@@ -150,9 +149,7 @@ int main(int, char**)
     std::thread towerThread(RunTowerThread);
 
     mainViewport = ImGui::GetMainViewport();
-
-    fileDialog.SetTitle("Select an RCX program");
-    fileDialog.SetTypeFilters({ ".rcx" });
+    IBTUI::Init();
 
     // Main loop
     while (!programIsDone && !couldNotAccessTower)
@@ -181,7 +178,7 @@ int main(int, char**)
         *
         */
         IBTUI::BuildMicroScoutRemote(mainViewport);
-        IBTUI::BuildRCXRemote(mainViewport, fileDialog);
+        IBTUI::BuildRCXRemote(mainViewport);
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)

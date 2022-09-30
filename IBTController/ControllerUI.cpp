@@ -164,6 +164,13 @@ namespace IBTUI
         delete usbTowerInterface;
     }
 
+    static ImGui::FileBrowser fileDialog;
+    void Init()
+    {
+        fileDialog.SetTitle("Select an RCX program");
+        fileDialog.SetTypeFilters({ ".rcx" });
+    }
+
     void BuildMicroScoutRemote(const ImGuiViewport* mainViewport)
     {
         ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
@@ -293,7 +300,7 @@ namespace IBTUI
         ImGui::End();
     }
 
-    void BuildRCXRemote(const ImGuiViewport* mainViewport, ImGui::FileBrowser& fileDialog)
+    void BuildRCXRemote(const ImGuiViewport* mainViewport)
     {
         ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 350), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(300, 300));

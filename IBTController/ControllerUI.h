@@ -104,6 +104,8 @@ namespace IBTUI
 
     void SendVLL(BYTE* data, Tower::RequestData* towerData);
     void RunTowerThread(bool& couldNotAccessTower, bool& programIsDone);
+
+    void Init();
     void BuildMicroScoutRemote(const ImGuiViewport* mainViewport);
-    void BuildRCXRemote(const ImGuiViewport* mainViewport, ImGui::FileBrowser& fileDialog);
+    void BuildRCXRemote(const ImGuiViewport* mainViewport);
 }
