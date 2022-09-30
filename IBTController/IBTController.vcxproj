@@ -137,7 +137,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ControllerUI.cpp" />
     <ClCompile Include="IBTController.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ControllerUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
