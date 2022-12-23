@@ -1,6 +1,7 @@
 #include "ControllerUI.h"
 #include "WinUsbTowerInterface.h"
 #include "PBrick.h"
+#include <iostream>
 
 namespace IBTUI
 {
@@ -28,51 +29,70 @@ namespace IBTUI
             return;
         }
 
+        /*unsigned long remoteBufferLen = 64;
+        unsigned long remoteReadLength = 0;
+        unsigned char* remoteReadBuffer = new unsigned char[remoteBufferLen];*/
+
         Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
         while (!programIsDone)
         {
+            /*
+            This was code testing the ability to read input from various lego IR remotes, and the results are promising!
+            I was able to get input from both a Manas remote and (to my surprise) a Power Functions remote.
+            */
+			/*usbTowerInterface->Read(remoteReadBuffer, remoteBufferLen, remoteReadLength);
+			if (remoteReadLength > 0)
+            {
+				printf("remote input: ");
+				for (int i = 0; i < remoteReadLength; i++)
+                {
+					std::cout << remoteReadBuffer[i];
+				}
+				printf("\n");
+			}*/
+
             // RCX
             {
                 // remote
                 rcxRemoteData.request = 0;
 
                 if (rcxRemoteData.message1-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PB_MESSAGE_1;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_1;
                 if (rcxRemoteData.message2-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PB_MESSAGE_2;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_2;
                 if (rcxRemoteData.message3-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PB_MESSAGE_3;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_3;
 
                 if (rcxRemoteData.motorAFwd)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::MOTOR_A_FORWARDS;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_FORWARDS;
                 if (rcxRemoteData.motorABwd)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::MOTOR_A_BACKWARDS;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_BACKWARDS;
 
                 if (rcxRemoteData.motorBFwd)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::MOTOR_B_FORWARDS;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_FORWARDS;
                 if (rcxRemoteData.motorBBwd)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::MOTOR_B_BACKWARDS;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_BACKWARDS;
 
                 if (rcxRemoteData.motorCFwd)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::MOTOR_C_FORWARDS;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_FORWARDS;
                 if (rcxRemoteData.motorCBwd)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::MOTOR_C_BACKWARDS;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_BACKWARDS;
 
                 if (rcxRemoteData.program1-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PROGRAM_1;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_1;
                 if (rcxRemoteData.program2-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PROGRAM_2;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_2;
                 if (rcxRemoteData.program3-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PROGRAM_3;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_3;
                 if (rcxRemoteData.program4-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PROGRAM_4;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_4;
                 if (rcxRemoteData.program5-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::PROGRAM_5;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_5;
 
                 if (rcxRemoteData.stop-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::STOP_PROGRAM_AND_MOTORS;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::STOP_PROGRAM_AND_MOTORS;
                 if (rcxRemoteData.sound-- > 0)
-                    rcxRemoteData.request |= (WORD)LASM::RemoteCommandRequest::REMOTE_SOUND;
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::REMOTE_SOUND;
 
                 Tower::SetCommMode(Tower::CommMode::IR, towerData);
                 if (rcxRemoteData.request != 0)
@@ -83,7 +103,14 @@ namespace IBTUI
 
                 if (rcxRemoteData.downloadFilePath != nullptr)
                 {
-                    RCX::DownloadProgram(rcxRemoteData.downloadFilePath->c_str(), 0, towerData);
+                    if (rcxRemoteData.downloadFirmware)
+                    {
+                        RCX::DownloadFirmware(rcxRemoteData.downloadFilePath->c_str(), towerData);
+                    }
+                    else
+                    {
+                        RCX::DownloadProgram(rcxRemoteData.downloadFilePath->c_str(), 0, towerData);
+                    }
                     rcxRemoteData.downloadFilePath = nullptr;
                 }
             }
@@ -380,7 +407,17 @@ namespace IBTUI
 
         ImGui::Separator();
         if (ImGui::Button("Download Program"))
+        {
+            rcxRemoteData.downloadFirmware = false;
             fileDialog.Open();
+        }
+
+        /*ImGui::Separator();
+        if (ImGui::Button("Download Firmware"))
+        {
+            rcxRemoteData.downloadFirmware = true;
+            fileDialog.Open();
+        }*/
 
         ImGui::End();
 

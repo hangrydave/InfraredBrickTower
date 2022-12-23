@@ -20,23 +20,21 @@ namespace LASM
 		if (!writeSuccess)
 			return FALSE;
 
-		if (expectedReplyLength > 0)
-		{
-			ULONG lengthRead = 0;
-			BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
-			BOOL readSuccess = Tower::ReadData(
-				replyBuffer,
-				COMMAND_REPLY_BUFFER_LENGTH,
-				lengthRead,
-				towerData);
+		if (expectedReplyLength <= 0)
+			return TRUE;
 
-			if (!readSuccess)
-				return FALSE;
+		ULONG lengthRead = 0;
+		BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
+		BOOL readSuccess = Tower::ReadData(
+			replyBuffer,
+			COMMAND_REPLY_BUFFER_LENGTH,
+			lengthRead,
+			towerData);
 
-			return ValidateReply(command, replyBuffer, lengthRead);
-		}
+		if (!readSuccess)
+			return FALSE;
 
-		return TRUE;
+		return ValidateReply(command, replyBuffer, lengthRead);
 	}
 
 	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength)

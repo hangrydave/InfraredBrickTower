@@ -17,9 +17,9 @@ namespace RCX
 	
 	*/
 
-	BOOL ParseFile(const CHAR* fileName, RCXFile& file)
+	BOOL ParseFile(const CHAR* filePath, RCXFile& file)
 	{
-		std::ifstream input(fileName, std::ios::binary);
+		std::ifstream input(filePath, std::ios::binary);
 		if (!input)
 		{
 			printf("RCX::ParseFile: file not found");
@@ -60,7 +60,7 @@ namespace RCX
 		return TRUE;
 	}
 
-	BOOL DownloadProgram(const CHAR* fileName, BYTE programSlot, Tower::RequestData* towerData)
+	BOOL DownloadProgram(const CHAR* filePath, BYTE programSlot, Tower::RequestData* towerData)
 	{
 #define _returnIfFalse(condition) \
 if (!condition) \
@@ -73,7 +73,7 @@ if (!condition) \
 		ULONG lengthRead = 0;
 
 		RCX::RCXFile rcxFile;
-		_returnIfFalse(RCX::ParseFile(fileName, rcxFile));
+		_returnIfFalse(RCX::ParseFile(filePath, rcxFile));
 
 		LASM::CommandData command;
 		LASM::Cmd_PBAliveOrNot(command);
@@ -134,4 +134,23 @@ if (!condition) \
 
 		return TRUE;
 	}
+
+//	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData)
+//	{
+//		std::ifstream input(filePath, std::ios::binary);
+//		if (!input)
+//		{
+//			printf("RCX::DownloadFirmware: file not found");
+//			return FALSE;
+//		}
+//
+//		// line 112, nqc.cpp
+//#define MAX_FIRMWARE_LENGTH 65536
+//
+//		// i need the length
+//		/*ULONG64 size = std::filesystem::file_size(filePath);
+//
+//		CHAR* fileData = new CHAR[size];
+//		input.read(fileData, size);*/
+//	}
 }

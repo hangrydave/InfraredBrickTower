@@ -31,6 +31,7 @@ namespace IBTUI
         int stop = 0;
         int sound = 0;
 
+        bool downloadFirmware = false;
         std::string* downloadFilePath;
 
         WORD request = 0;

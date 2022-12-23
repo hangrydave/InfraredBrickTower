@@ -298,7 +298,7 @@ namespace LASM
 	VOID Cmd_SendPBMessage();
 	VOID Cmd_SendUARTData();
 
-	enum class RemoteCommandRequest : WORD
+	enum RemoteCommandRequest : WORD
 	{
 		MOTOR_C_BACKWARDS = 0x01,
 		PROGRAM_1 = 0x02,
@@ -353,7 +353,9 @@ namespace LASM
 	VOID Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData);
 
 	VOID Cmd_GoIntoBootMode();
-	VOID Cmd_BeginFirmwareDownload();
+
+	VOID Cmd_BeginFirmwareDownload(BYTE* data, BYTE length, CommandData& commandData);
+	
 	VOID Cmd_SCheckDo();
 	VOID Cmd_LCheckDo();
 	VOID Cmd_UnlockFirmware();
