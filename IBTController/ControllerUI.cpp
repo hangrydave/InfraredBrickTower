@@ -56,139 +56,132 @@ namespace IBTUI
             //}
 
             // RCX
-            //{
-            //    // remote
-            //    rcxRemoteData.request = 0;
+            {
+                // remote
+                rcxRemoteData.request = 0;
 
-            //    if (rcxRemoteData.message1-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_1;
-            //    if (rcxRemoteData.message2-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_2;
-            //    if (rcxRemoteData.message3-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_3;
+                if (rcxRemoteData.message1-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_1;
+                if (rcxRemoteData.message2-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_2;
+                if (rcxRemoteData.message3-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_3;
 
-            //    if (rcxRemoteData.motorAFwd)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_FORWARDS;
-            //    if (rcxRemoteData.motorABwd)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_BACKWARDS;
+                if (rcxRemoteData.motorAFwd)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_FORWARDS;
+                if (rcxRemoteData.motorABwd)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_BACKWARDS;
 
-            //    if (rcxRemoteData.motorBFwd)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_FORWARDS;
-            //    if (rcxRemoteData.motorBBwd)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_BACKWARDS;
+                if (rcxRemoteData.motorBFwd)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_FORWARDS;
+                if (rcxRemoteData.motorBBwd)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_BACKWARDS;
 
-            //    if (rcxRemoteData.motorCFwd)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_FORWARDS;
-            //    if (rcxRemoteData.motorCBwd)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_BACKWARDS;
+                if (rcxRemoteData.motorCFwd)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_FORWARDS;
+                if (rcxRemoteData.motorCBwd)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_BACKWARDS;
 
-            //    if (rcxRemoteData.program1-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_1;
-            //    if (rcxRemoteData.program2-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_2;
-            //    if (rcxRemoteData.program3-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_3;
-            //    if (rcxRemoteData.program4-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_4;
-            //    if (rcxRemoteData.program5-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_5;
+                if (rcxRemoteData.program1-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_1;
+                if (rcxRemoteData.program2-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_2;
+                if (rcxRemoteData.program3-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_3;
+                if (rcxRemoteData.program4-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_4;
+                if (rcxRemoteData.program5-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_5;
 
-            //    if (rcxRemoteData.stop-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::STOP_PROGRAM_AND_MOTORS;
-            //    if (rcxRemoteData.sound-- > 0)
-            //        rcxRemoteData.request |= LASM::RemoteCommandRequest::REMOTE_SOUND;
+                if (rcxRemoteData.stop-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::STOP_PROGRAM_AND_MOTORS;
+                if (rcxRemoteData.sound-- > 0)
+                    rcxRemoteData.request |= LASM::RemoteCommandRequest::REMOTE_SOUND;
 
-            //    Tower::SetCommMode(Tower::CommMode::IR, towerData);
-            //    if (rcxRemoteData.request != 0)
-            //    {
-            //        LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
-            //        LASM::SendCommand(&lasmCommand, towerData, 0);
-            //    }
+                Tower::SetCommMode(Tower::CommMode::IR, towerData);
+                if (rcxRemoteData.request != 0)
+                {
+                    LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
+                    LASM::SendCommand(&lasmCommand, towerData, 0);
+                }
 
-            //    if (rcxRemoteData.downloadFilePath != nullptr)
-            //    {
-            //        if (rcxRemoteData.downloadFirmware)
-            //        {
-            //            //RCX::DownloadFirmware(rcxRemoteData.downloadFilePath->c_str(), towerData);
-            //        }
-            //        else
-            //        {
-            //            RCX::DownloadProgram(rcxRemoteData.downloadFilePath->c_str(), 0, towerData);
-            //        }
-            //        rcxRemoteData.downloadFilePath = nullptr;
-            //    }
-            //}
+                if (rcxRemoteData.downloadFilePath != nullptr)
+                {
+                    RCX::DownloadProgram(rcxRemoteData.downloadFilePath->c_str(), 0, towerData);
+                    rcxRemoteData.downloadFilePath = nullptr;
+                }
+            }
 
-            //// VLL
-            //{
-            //    // immediate
-            //    // motor
-            //    if (vllData.forwardImmediate)
-            //        SendVLL(vllData.fwdImmediateBytes, towerData);
-            //    if (vllData.backwardImmediate)
-            //        SendVLL(vllData.bwdImmediateBytes, towerData);
+            // VLL
+            {
+                // immediate
+                // motor
+                if (vllData.forwardImmediate)
+                    SendVLL(vllData.fwdImmediateBytes, towerData);
+                if (vllData.backwardImmediate)
+                    SendVLL(vllData.bwdImmediateBytes, towerData);
 
-            //    // sound
-            //    if (vllData.beep1Immediate-- > 0)
-            //        SendVLL(vllData.beep1ImmediateBytes, towerData);
-            //    if (vllData.beep2Immediate-- > 0)
-            //        SendVLL(vllData.beep2ImmediateBytes, towerData);
-            //    if (vllData.beep3Immediate-- > 0)
-            //        SendVLL(vllData.beep3ImmediateBytes, towerData);
-            //    if (vllData.beep4Immediate-- > 0)
-            //        SendVLL(vllData.beep4ImmediateBytes, towerData);
-            //    if (vllData.beep5Immediate-- > 0)
-            //        SendVLL(vllData.beep5ImmediateBytes, towerData);
+                // sound
+                if (vllData.beep1Immediate-- > 0)
+                    SendVLL(vllData.beep1ImmediateBytes, towerData);
+                if (vllData.beep2Immediate-- > 0)
+                    SendVLL(vllData.beep2ImmediateBytes, towerData);
+                if (vllData.beep3Immediate-- > 0)
+                    SendVLL(vllData.beep3ImmediateBytes, towerData);
+                if (vllData.beep4Immediate-- > 0)
+                    SendVLL(vllData.beep4ImmediateBytes, towerData);
+                if (vllData.beep5Immediate-- > 0)
+                    SendVLL(vllData.beep5ImmediateBytes, towerData);
 
-            //    // program
-            //    // sound
-            //    if (vllData.beep1Program-- > 0)
-            //        SendVLL(vllData.beep1ProgramBytes, towerData);
-            //    if (vllData.beep2Program-- > 0)
-            //        SendVLL(vllData.beep2ProgramBytes, towerData);
-            //    if (vllData.beep3Program-- > 0)
-            //        SendVLL(vllData.beep3ProgramBytes, towerData);
-            //    if (vllData.beep4Program-- > 0)
-            //        SendVLL(vllData.beep4ProgramBytes, towerData);
-            //    if (vllData.beep5Program-- > 0)
-            //        SendVLL(vllData.beep5ProgramBytes, towerData);
+                // program
+                // sound
+                if (vllData.beep1Program-- > 0)
+                    SendVLL(vllData.beep1ProgramBytes, towerData);
+                if (vllData.beep2Program-- > 0)
+                    SendVLL(vllData.beep2ProgramBytes, towerData);
+                if (vllData.beep3Program-- > 0)
+                    SendVLL(vllData.beep3ProgramBytes, towerData);
+                if (vllData.beep4Program-- > 0)
+                    SendVLL(vllData.beep4ProgramBytes, towerData);
+                if (vllData.beep5Program-- > 0)
+                    SendVLL(vllData.beep5ProgramBytes, towerData);
 
-            //    // motor
-            //    if (vllData.forwardHalf-- > 0)
-            //        SendVLL(vllData.forwardHalfBytes, towerData);
-            //    if (vllData.forwardOne-- > 0)
-            //        SendVLL(vllData.forwardOneByte, towerData);
-            //    if (vllData.forwardTwo-- > 0)
-            //        SendVLL(vllData.forwardTwoBytes, towerData);
-            //    if (vllData.forwardFive-- > 0)
-            //        SendVLL(vllData.forwardFiveBytes, towerData);
-            //    if (vllData.backwardHalf-- > 0)
-            //        SendVLL(vllData.backwardHalfBytes, towerData);
-            //    if (vllData.backwardOne-- > 0)
-            //        SendVLL(vllData.backwardOneByte, towerData);
-            //    if (vllData.backwardTwo-- > 0)
-            //        SendVLL(vllData.backwardTwoBytes, towerData);
-            //    if (vllData.backwardFive-- > 0)
-            //        SendVLL(vllData.backwardFiveBytes, towerData);
+                // motor
+                if (vllData.forwardHalf-- > 0)
+                    SendVLL(vllData.forwardHalfBytes, towerData);
+                if (vllData.forwardOne-- > 0)
+                    SendVLL(vllData.forwardOneByte, towerData);
+                if (vllData.forwardTwo-- > 0)
+                    SendVLL(vllData.forwardTwoBytes, towerData);
+                if (vllData.forwardFive-- > 0)
+                    SendVLL(vllData.forwardFiveBytes, towerData);
+                if (vllData.backwardHalf-- > 0)
+                    SendVLL(vllData.backwardHalfBytes, towerData);
+                if (vllData.backwardOne-- > 0)
+                    SendVLL(vllData.backwardOneByte, towerData);
+                if (vllData.backwardTwo-- > 0)
+                    SendVLL(vllData.backwardTwoBytes, towerData);
+                if (vllData.backwardFive-- > 0)
+                    SendVLL(vllData.backwardFiveBytes, towerData);
 
-            //    // preset programs
-            //    if (vllData.waitLight-- > 0)
-            //        SendVLL(vllData.waitLightBytes, towerData);
-            //    if (vllData.seekLight-- > 0)
-            //        SendVLL(vllData.seekLightBytes, towerData);
-            //    if (vllData.code-- > 0)
-            //        SendVLL(vllData.codeBytes, towerData);
-            //    if (vllData.keepAlive-- > 0)
-            //        SendVLL(vllData.keepAliveBytes, towerData);
+                // preset programs
+                if (vllData.waitLight-- > 0)
+                    SendVLL(vllData.waitLightBytes, towerData);
+                if (vllData.seekLight-- > 0)
+                    SendVLL(vllData.seekLightBytes, towerData);
+                if (vllData.code-- > 0)
+                    SendVLL(vllData.codeBytes, towerData);
+                if (vllData.keepAlive-- > 0)
+                    SendVLL(vllData.keepAliveBytes, towerData);
 
-            //    // etc functionality
-            //    if (vllData.run-- > 0)
-            //        SendVLL(vllData.runBytes, towerData);
-            //    if (vllData.stop-- > 0)
-            //        SendVLL(vllData.stopBytes, towerData);
-            //    if (vllData.deleteProgram-- > 0)
-            //        SendVLL(vllData.deleteBytes, towerData);
-            //}
+                // etc functionality
+                if (vllData.run-- > 0)
+                    SendVLL(vllData.runBytes, towerData);
+                if (vllData.stop-- > 0)
+                    SendVLL(vllData.stopBytes, towerData);
+                if (vllData.deleteProgram-- > 0)
+                    SendVLL(vllData.deleteBytes, towerData);
+            }
         }
 
         delete towerData;
@@ -415,13 +408,6 @@ namespace IBTUI
             rcxRemoteData.downloadFirmware = false;
             fileDialog.Open();
         }
-
-        /*ImGui::Separator();
-        if (ImGui::Button("Download Firmware"))
-        {
-            rcxRemoteData.downloadFirmware = true;
-            fileDialog.Open();
-        }*/
 
         ImGui::End();
 
