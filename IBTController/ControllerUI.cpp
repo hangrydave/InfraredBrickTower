@@ -419,13 +419,6 @@ namespace IBTUI
             fileDialog.Open();
         }
 
-        /*ImGui::Separator();
-        if (ImGui::Button("Download Firmware"))
-        {
-            rcxRemoteData.downloadFirmware = true;
-            fileDialog.Open();
-        }*/
-
         ImGui::End();
 
         fileDialog.Display();
