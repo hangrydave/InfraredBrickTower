@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TowerController.h"
 #include <stdlib.h>
+#include <assert.h>
 
 #define MAX_WRITE_ATTEMPTS 3
 #define MAX_READ_ATTEMPTS 3
@@ -34,7 +35,18 @@ namespace Tower
 				// maybe are better ways to handle this, i'm sure, but... ez pz
 
 				// UPDATE: this happens EVERY TIME... no idea why?
-				success = data->commInterface->Read(buffer, bufferLength, lengthRead);
+
+
+				// the first byte of this next reply is usually 0xff
+				// usually 0_0
+
+				success = data->commInterface->Read(buffer + 1, bufferLength, lengthRead);
+
+				if (buffer[1] != 0xff)
+				{
+					printf("eeeeee");
+				}
+				
 				lengthRead++;
 
 			}

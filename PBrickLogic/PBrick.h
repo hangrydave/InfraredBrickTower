@@ -98,7 +98,7 @@ namespace RCX
 #pragma pack(pop)
 #define FILE_HEADER_LENGTH 12
 
-	BOOL ParseFile(const CHAR* filePath, RCXFile& file);
+	BOOL ParseRCXFile(const CHAR* filePath, RCXFile& file);
 	BOOL DownloadProgram(const CHAR* filePath, BYTE programSlot, Tower::RequestData* towerData);
-	//BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData);
+	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData);
 }

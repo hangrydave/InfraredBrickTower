@@ -17,11 +17,8 @@ VOID BeepRCX(Tower::RequestData* towerData);
 VOID BeepMicroScout(Tower::RequestData* towerData);
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData);
 
-LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
+int main()
 {
-	UNREFERENCED_PARAMETER(Argc);
-	UNREFERENCED_PARAMETER(Argv);
-
 	WinUsbTowerInterface* usbTowerInterface;
 	BOOL gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
 	if (!gotInterface)
@@ -37,7 +34,31 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 
 	LASM::CommandData command;
 	LASM::Cmd_UnlockPBrick(command);
-	assert(LASM::SendCommand(&command, towerData));
+
+	BYTE replyBuffer[64];
+	ULONG lengthRead = 0;
+
+	ULONG lengthWritten = 0;
+	/*BOOL writeSuccess = Tower::WriteData(
+		command.data,
+		command.dataLength,
+		lengthWritten,
+		towerData);
+
+	BOOL readSuccess = Tower::ReadData(
+		replyBuffer,
+		21,
+		lengthRead,
+		towerData);*/
+
+	/*int rom_major = replyBuffer[7];
+	int rom_minor = replyBuffer[10];
+
+	int ram_major = replyBuffer[14];
+	int ram_minor = replyBuffer[16] * 10 + replyBuffer[17];*/
+
+	
+	RCX::DownloadFirmware("C:\\Users\\david\\source\\repos\\LegoInfraredUSBTower\\ConsoleTester\\x64\\Debug\\firm0332.lgo", towerData);
 
 
 	//assert(RCX::DownloadProgram("drive_until_button.rcx", 0, towerData));
@@ -46,7 +67,7 @@ LONG __cdecl _tmain(LONG Argc, LPTSTR* Argv)
 	//DriveMotors(towerData));
 	//BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
-	
+
 	delete usbTowerInterface;
 	delete towerData;
 
@@ -103,8 +124,8 @@ VOID MicroScoutCLI(Tower::RequestData* towerData)
 
 	Tower::SetIndicatorLEDMode(Tower::IndicatorLEDMode::HOST_SOFTWARE_CONTROLLED, towerData);
 	Tower::SetCommMode(Tower::CommMode::VLL, towerData);
-	
-	char* help = "Commands:\n\nquit, help\n\nbeep1, beep2, beep3, beep4, beep5\n\nfwd, bwd\n\nstop, run, delete\n\nwaitlight, seeklight, code, keepalive\n\nUse \"directmode\" for immediate control and \"programmode\" to program the MicroScout.\n";
+
+	/*char* help = "Commands:\n\nquit, help\n\nbeep1, beep2, beep3, beep4, beep5\n\nfwd, bwd\n\nstop, run, delete\n\nwaitlight, seeklight, code, keepalive\n\nUse \"directmode\" for immediate control and \"programmode\" to program the MicroScout.\n";
 	printf(help);
 
 	BYTE commandBuffer[VLL_PACKET_LENGTH];
@@ -261,7 +282,7 @@ VOID MicroScoutCLI(Tower::RequestData* towerData)
 			printf("Unrecognized command, try again.\n");
 		}
 		assert(Tower::WriteData(commandBuffer, VLL_PACKET_LENGTH, lengthWritten, towerData));
-	}
+	}*/
 
 }
 

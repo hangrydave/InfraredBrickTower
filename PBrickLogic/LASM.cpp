@@ -84,7 +84,7 @@ namespace LASM
 		// now it's expected that there is a pattern like <complement> <command>.
 		// the presence of that will determine if the reply is good or not
 		return replyBuffer[complementIndex] == complement &&
-			replyBuffer[complementIndex + 1] == commandByte;
+			   replyBuffer[complementIndex + 1] == commandByte;
 	}
 
 	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command)
@@ -394,7 +394,7 @@ namespace LASM
 		}
 		else if (strcmp(code, "pollp") == 0)
 		{
-
+			Cmd_UnlockPBrick(*command);
 		}
 		else if (strcmp(code, ";") == 0)
 		{
@@ -473,6 +473,12 @@ namespace LASM
 	{
 		BYTE params[3]{ LO_BYTE(frequency), HI_BYTE(frequency), duration };
 		ComposeCommand(Command::PlayTone, params, 3, commandData);
+	}
+
+	VOID Cmd_UnlockPBrick(CommandData& commandData)
+	{
+		BYTE params[5]{ 1, 3, 5, 7, 11 };
+		ComposeCommand(Command::UnlockPBrick, params, 5, commandData);
 	}
 
 	VOID Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData)

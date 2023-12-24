@@ -17,12 +17,12 @@ namespace RCX
 	
 	*/
 
-	BOOL ParseFile(const CHAR* filePath, RCXFile& file)
+	BOOL ParseRCXFile(const CHAR* filePath, RCXFile& file)
 	{
 		std::ifstream input(filePath, std::ios::binary);
 		if (!input)
 		{
-			printf("RCX::ParseFile: file not found");
+			printf("RCX::ParseRCXFile: file not found");
 			return FALSE;
 		}
 
@@ -73,7 +73,7 @@ if (!condition) \
 		ULONG lengthRead = 0;
 
 		RCX::RCXFile rcxFile;
-		_returnIfFalse(RCX::ParseFile(filePath, rcxFile));
+		_returnIfFalse(RCX::ParseRCXFile(filePath, rcxFile));
 
 		LASM::CommandData command;
 		LASM::Cmd_PBAliveOrNot(command);
@@ -135,22 +135,125 @@ if (!condition) \
 		return TRUE;
 	}
 
-//	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData)
-//	{
-//		std::ifstream input(filePath, std::ios::binary);
-//		if (!input)
-//		{
-//			printf("RCX::DownloadFirmware: file not found");
-//			return FALSE;
-//		}
-//
-//		// line 112, nqc.cpp
-//#define MAX_FIRMWARE_LENGTH 65536
-//
-//		// i need the length
-//		/*ULONG64 size = std::filesystem::file_size(filePath);
-//
-//		CHAR* fileData = new CHAR[size];
-//		input.read(fileData, size);*/
-//	}
+	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData)
+	{
+		std::ifstream input(filePath, std::ios::binary);
+		if (!input)
+		{
+			printf("RCX::DownloadFirmware: file not found");
+			return FALSE;
+		}
+
+		// line 112, nqc.cpp
+#define MAX_FIRMWARE_LENGTH 65536
+
+		// i need the length
+		/*ULONG64 size = std::filesystem::file_size(filePath);
+
+		CHAR* fileData = new CHAR[size];
+		input.read(fileData, size);*/
+
+#pragma pack(push, 1)
+		struct FirmwareHeader
+		{
+			char filename[32];
+		};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+		struct FirmwareChunk
+		{
+			char header[6];
+			char body[32];
+			char footer[2];
+		};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+		struct FirmwareFooter
+		{
+			char footer[10];
+		};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+		struct Firmware
+		{
+			FirmwareHeader header;
+			int chunkCount = 0;
+			// in both 0332 and 0328, there are 1559 chunks, but we'll see
+			FirmwareChunk chunks[1559];
+			FirmwareFooter footer;
+		};
+#pragma pack(pop)
+
+		char file_data[MAX_FIRMWARE_LENGTH];
+		Firmware firmware;
+
+		char partData[42];
+		char partIndex = 0;
+
+		bool inHeader = true;
+		bool inChunk = false;
+		bool inFooter = false;
+		bool done = false;
+
+#define HEADER 0
+#define CHUNK 1
+#define FOOTER 2
+		int currentPart = HEADER;
+
+		int fileLength = 0;
+		while (!done)
+		{
+			// these files have an even number of characters, so this should be safe
+			char pair[2];
+			input.get(pair[0]);
+			input.get(pair[1]);
+
+			fileLength += 2;
+
+			bool atEndOfPart = (pair[0] == 0x0D && pair[1] == 0x0A) || input.eof();
+
+			if (pair[0] == 'S' && pair[1] == '0')
+			{
+				currentPart = HEADER;
+			}
+			else if (pair[0] == 'S' && pair[1] == '1')
+			{
+				currentPart = CHUNK;
+			}
+			else if (pair[0] == 'S' && pair[1] == '9')
+			{
+				currentPart = FOOTER;
+			}
+			else if (!atEndOfPart)
+			{
+				partData[partIndex++] = pair[0];
+				partData[partIndex++] = pair[1];
+			}
+			else if (atEndOfPart)
+			{
+				switch (currentPart)
+				{
+				case HEADER:
+					firmware.header = *reinterpret_cast<FirmwareHeader*>(partData);
+					break;
+				case CHUNK:
+					firmware.chunks[firmware.chunkCount++] = *reinterpret_cast<FirmwareChunk*>(partData);
+					break;
+				case FOOTER:
+					firmware.footer = *reinterpret_cast<FirmwareFooter*>(partData);
+					done = true;
+					break;
+				default:
+					break;
+				}
+				
+				partIndex = 0;
+			}
+		}
+
+		input.close();
+	}
 }

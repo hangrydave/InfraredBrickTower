@@ -345,7 +345,7 @@ namespace LASM
 	VOID Cmd_Upload();
 	VOID Cmd_SEnterEventCheck();
 	VOID Cmd_SetSourceValue();
-	VOID Cmd_UnlockPBrick();
+	VOID Cmd_UnlockPBrick(CommandData& commandData);
 
 	VOID Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData);
 	VOID Cmd_BeginOfSub(BYTE subNumber, BYTE subSize, CommandData& commandData);
