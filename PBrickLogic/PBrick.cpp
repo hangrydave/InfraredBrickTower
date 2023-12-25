@@ -163,7 +163,7 @@ if (!condition) \
 #pragma pack(push, 1)
 		struct FirmwareChunk
 		{
-			char header[6];
+			char header[8];
 			char body[32];
 			char footer[2];
 		};
@@ -176,13 +176,14 @@ if (!condition) \
 		};
 #pragma pack(pop)
 
+#define CHUNK_COUNT 1600
+
 #pragma pack(push, 1)
 		struct Firmware
 		{
 			FirmwareHeader header;
 			int chunkCount = 0;
-			// in both 0332 and 0328, there are 1559 chunks, but we'll see
-			FirmwareChunk chunks[1559];
+			FirmwareChunk chunks[CHUNK_COUNT];
 			FirmwareFooter footer;
 		};
 #pragma pack(pop)
@@ -204,6 +205,7 @@ if (!condition) \
 		int currentPart = HEADER;
 
 		int fileLength = 0;
+
 		while (!done)
 		{
 			// these files have an even number of characters, so this should be safe
