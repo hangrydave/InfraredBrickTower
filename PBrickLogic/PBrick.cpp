@@ -163,7 +163,7 @@ if (!condition) \
 #pragma pack(push, 1)
 		struct FirmwareChunk
 		{
-			char header[8];
+			char header[6];
 			char body[32];
 			char footer[2];
 		};
@@ -242,8 +242,10 @@ if (!condition) \
 					firmware.header = *reinterpret_cast<FirmwareHeader*>(partData);
 					break;
 				case CHUNK:
+				{
 					firmware.chunks[firmware.chunkCount++] = *reinterpret_cast<FirmwareChunk*>(partData);
 					break;
+				}
 				case FOOTER:
 					firmware.footer = *reinterpret_cast<FirmwareFooter*>(partData);
 					done = true;
@@ -257,5 +259,73 @@ if (!condition) \
 		}
 
 		input.close();
+
+		int blockCount = 1; // starts at 1, goes up and then back to 0 for the footer
+		int byteCount = 1600;
+
+		int dataByteCount = firmware.chunkCount * 32;
+		char* allDataBytes = new char[dataByteCount];
+		for (int chunkIndex = 0; chunkIndex < firmware.chunkCount; chunkIndex++)
+		{
+			int startIndex = chunkIndex * 32;
+
+			FirmwareChunk chunk = firmware.chunks[chunkIndex];
+			for (int byteIndex = 0; byteIndex < 32; byteIndex++)
+			{
+				int actualIndex = startIndex + byteIndex;
+				unsigned char byte = chunk.body[byteIndex];
+				allDataBytes[actualIndex] = byte;
+			}
+		}
+
+		// in the wireshark dumps there are 125 ContinueFirmwareDownload commands sent
+		// there are also 400 data bytes in each one
+		// where do these numbers come from?
+
+		// TODO: find way to calculate this, or a justification for 400
+		int dataByteCountPerCommand = 400;
+
+		int commandCount = dataByteCount / dataByteCountPerCommand;
+		int leftover = dataByteCount % dataByteCountPerCommand;
+		if (leftover > 0)
+		{
+			commandCount++;
+		}
+
+		for (int commandIndex = 0; commandIndex < commandCount; commandIndex++)
+		{
+			int lengthForThisOne = dataByteCountPerCommand;
+			if (commandIndex == commandCount - 1 && leftover > 0)
+			{
+				// we're at the end, and there are leftovers
+				lengthForThisOne = leftover;
+			}
+
+			int dataByteStartIndex = commandIndex * lengthForThisOne;
+			int dataByteSum = 0;
+
+			std::string dataString = "";
+			for (int byteIndex = 0; byteIndex < lengthForThisOne; byteIndex++)
+			{
+				int actualIndex = dataByteStartIndex + byteIndex;
+				unsigned char byte = allDataBytes[actualIndex];
+
+				dataString += byte;
+				dataByteSum += byte;
+			}
+
+			/*
+			
+			TODO
+
+			i need to get the hex values from the ascii that the hex translates to
+			and work with that instead.
+
+			*/
+			int dataByteChecksum = dataByteSum % 256;
+			printf("e");
+		}
+
+		printf("done");
 	}
 }
