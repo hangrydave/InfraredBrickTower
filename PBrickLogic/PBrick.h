@@ -100,5 +100,6 @@ namespace RCX
 
 	BOOL ParseRCXFile(const CHAR* filePath, RCXFile& file);
 	BOOL DownloadProgram(const CHAR* filePath, BYTE programSlot, Tower::RequestData* towerData);
+	BYTE GetValueFromPair(const BYTE a, const BYTE b);
 	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData);
 }

@@ -16,6 +16,7 @@ private:
 	TCHAR*                  devicePath;
 
 	VOID PrintErrorIfAny(const char* caller) const;
+
 public:
 	WinUsbTowerInterface(
 		BOOL handlesOpen,
@@ -32,6 +33,10 @@ public:
 		USHORT bufferLength,
 		BYTE* buffer,
 		ULONG& lengthTransferred) const;
+
+	BOOL EnableForeverTimeout() const;
+
+	BOOL ResetTimeout() const;
 
 	BOOL Write(
 		PUCHAR buffer,

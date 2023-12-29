@@ -32,9 +32,6 @@ int main()
 
 	Tower::SetCommMode(Tower::CommMode::IR, towerData);
 
-	LASM::CommandData command;
-	LASM::Cmd_UnlockPBrick(command);
-
 	BYTE replyBuffer[64];
 	ULONG lengthRead = 0;
 
@@ -57,7 +54,9 @@ int main()
 	int ram_major = replyBuffer[14];
 	int ram_minor = replyBuffer[16] * 10 + replyBuffer[17];*/
 
-	
+	Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
+	usbTowerInterface->Flush();
+
 	RCX::DownloadFirmware("C:\\Users\\david\\source\\repos\\LegoInfraredUSBTower\\ConsoleTester\\x64\\Debug\\firm0332.lgo", towerData);
 
 
@@ -67,6 +66,8 @@ int main()
 	//DriveMotors(towerData));
 	//BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
+
+	usbTowerInterface->Flush();
 
 	delete usbTowerInterface;
 	delete towerData;

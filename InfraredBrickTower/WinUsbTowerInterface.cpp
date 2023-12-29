@@ -5,8 +5,11 @@
 
 // useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint
 
+// NQC makefile says that legousbtower.c (Linux kernel module) has it as 200
 #define READ_TIMEOUT 300
-#define WRITE_TIMEOUT 300
+#define WRITE_TIMEOUT 9999999 // idek at this point 
+
+#define DEBUG 0
 
 BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
 {
@@ -69,50 +72,18 @@ BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
 		&cdLenReceived
 	);
 
-	ULONG timeout = WRITE_TIMEOUT;
-	PULONG timeoutPointer = &timeout;
-
-	BOOL policySetResult = WinUsb_SetPipePolicy(
-		deviceData.WinusbHandle,
-		TOWER_WRITE_PIPE_ID,
-		PIPE_TRANSFER_TIMEOUT,
-		8,
-		timeoutPointer
-	);
-
-	if (!policySetResult)
-	{
-		printf("WinUSB set read pipe policy error");
-#if DEBUG == 1
-		__debugbreak();
-#endif
-		return FALSE;
-	}
-
-	timeout = READ_TIMEOUT;
-	timeoutPointer = &timeout;
-	policySetResult = WinUsb_SetPipePolicy(
-		deviceData.WinusbHandle,
-		TOWER_READ_PIPE_ID,
-		PIPE_TRANSFER_TIMEOUT,
-		8,
-		timeoutPointer
-	);
-
-	if (!policySetResult)
-	{
-		printf("WinUSB set read pipe policy error");
-#if DEBUG == 1
-		__debugbreak();
-#endif
-		return FALSE;
-	}
-
 	towerInterface = new WinUsbTowerInterface(
 		deviceData.HandlesOpen,
 		deviceData.WinusbHandle,
 		deviceData.DeviceHandle,
 		deviceData.DevicePath);
+
+	// Initialize the timeout 
+	if (!towerInterface->ResetTimeout())
+	{
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -165,6 +136,87 @@ BOOL WinUsbTowerInterface::ControlTransfer(
 	return success;
 }
 
+BOOL WinUsbTowerInterface::EnableForeverTimeout() const
+{
+	ULONG timeout = 99999999;
+	PULONG timeoutPointer = &timeout;
+	BOOL policySetResult = WinUsb_SetPipePolicy(
+		this->winUsbHandle,
+		TOWER_WRITE_PIPE_ID,
+		PIPE_TRANSFER_TIMEOUT,
+		8,
+		timeoutPointer
+	);
+
+	if (!policySetResult)
+	{
+		printf("WinUSB set read pipe policy error");
+#if DEBUG == 1
+		__debugbreak();
+#endif
+		return FALSE;
+	}
+
+	/*timeoutPointer = &timeout;
+	policySetResult = WinUsb_SetPipePolicy(
+		this->winUsbHandle,
+		TOWER_READ_PIPE_ID,
+		PIPE_TRANSFER_TIMEOUT,
+		8,
+		timeoutPointer
+	);
+
+	if (!policySetResult)
+	{
+		printf("WinUSB set read pipe policy error");
+#if DEBUG == 1
+		__debugbreak();
+#endif
+		return FALSE;
+	}*/
+}
+
+BOOL WinUsbTowerInterface::ResetTimeout() const
+{
+	ULONG timeout = WRITE_TIMEOUT;
+	PULONG timeoutPointer = &timeout;
+	BOOL policySetResult = WinUsb_SetPipePolicy(
+		this->winUsbHandle,
+		TOWER_WRITE_PIPE_ID,
+		PIPE_TRANSFER_TIMEOUT,
+		8,
+		timeoutPointer
+	);
+
+	if (!policySetResult)
+	{
+		printf("WinUSB set read pipe policy error");
+#if DEBUG == 1
+		__debugbreak();
+#endif
+		return FALSE;
+	}
+
+	timeout = READ_TIMEOUT;
+	timeoutPointer = &timeout;
+	policySetResult = WinUsb_SetPipePolicy(
+		this->winUsbHandle,
+		TOWER_READ_PIPE_ID,
+		PIPE_TRANSFER_TIMEOUT,
+		8,
+		timeoutPointer
+	);
+
+	if (!policySetResult)
+	{
+		printf("WinUSB set read pipe policy error");
+#if DEBUG == 1
+		__debugbreak();
+#endif
+		return FALSE;
+	}
+}
+
 BOOL WinUsbTowerInterface::Write(
 	PUCHAR buffer,
 	ULONG bufferLength,
@@ -181,6 +233,7 @@ BOOL WinUsbTowerInterface::Write(
 
 	PrintErrorIfAny("WinUSB write error");
 #if DEBUG == 1
+
 	if (!success)
 		__debugbreak();
 #endif
@@ -204,8 +257,9 @@ BOOL WinUsbTowerInterface::Read(
 
 	PrintErrorIfAny("WinUSB read error");
 #if DEBUG == 1
-	if (!success)
-		__debugbreak();
+
+	/*if (!success)
+		__debugbreak();*/
 #endif
 
 	return success;	

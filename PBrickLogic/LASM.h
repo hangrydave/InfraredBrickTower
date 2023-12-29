@@ -137,7 +137,7 @@ namespace LASM
 		INDIRECT_VARIABLE = 36
 	};
 
-#define MAX_COMMAND_LENGTH 60 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
+#define MAX_COMMAND_LENGTH 420 // I dunno what this *should* be, but I'm keeping it high so that I don't get memory errors later.
 
 	struct CommandData
 	{
@@ -162,7 +162,15 @@ namespace LASM
 	};
 
 	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength);
-	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData, ULONG expectedReplyLength = COMMAND_REPLY_BUFFER_LENGTH);
+	BOOL SendCommand(
+		CommandData* command,
+		Tower::RequestData* towerData);
+	BOOL SendCommand(
+		CommandData* command,
+		Tower::RequestData* towerData,
+		BYTE* replyBuffer,
+		ULONG expectedReplyLength = COMMAND_REPLY_BUFFER_LENGTH,
+		BOOL skipReplyValidation = false);
 	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command);
 
 	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData);
@@ -354,11 +362,11 @@ namespace LASM
 
 	VOID Cmd_GoIntoBootMode();
 
-	VOID Cmd_BeginFirmwareDownload(BYTE* data, BYTE length, CommandData& commandData);
+	VOID Cmd_BeginFirmwareDownload(INT checksum, CommandData& commandData);
 	
 	VOID Cmd_SCheckDo();
 	VOID Cmd_LCheckDo();
-	VOID Cmd_UnlockFirmware();
+	VOID Cmd_UnlockFirmware(CommandData& commandData);
 	VOID Cmd_LEnterEventCheck();
 	VOID Cmd_ViewSourceValue();
 

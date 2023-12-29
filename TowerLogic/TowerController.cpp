@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define MAX_WRITE_ATTEMPTS 3
-#define MAX_READ_ATTEMPTS 3
+#define MAX_WRITE_ATTEMPTS 4
+#define MAX_READ_ATTEMPTS 4
 
 // This number isn't pulled from documentation or anything, I've just found I need a small pause between things for it to work, and this is reasonably small
 #define WRITE_PAUSE_TIME 150
@@ -17,7 +17,11 @@ namespace Tower
 		ULONG& lengthRead,
 		RequestData* data)
 	{
-		while (GetTransmitterState(data) == TransmitterState::BUSY) { printf("Tower busy, can't read...\n"); }
+		//while (GetTransmitterState(data) == TransmitterState::BUSY)
+		//{
+		//	//Sleep(WRITE_PAUSE_TIME); // give time to finish
+		//	//printf("Tower busy, can't read...\n");
+		//}
 
 		lengthRead = 0;
 
@@ -31,22 +35,7 @@ namespace Tower
 
 			if (lengthRead == 1)
 			{
-				// this happens after the thing is plugged in.
-				// maybe are better ways to handle this, i'm sure, but... ez pz
-
-				// UPDATE: this happens EVERY TIME... no idea why?
-
-
-				// the first byte of this next reply is usually 0xff
-				// usually 0_0
-
-				success = data->commInterface->Read(buffer + 1, bufferLength, lengthRead);
-
-				if (buffer[1] != 0xff)
-				{
-					printf("eeeeee");
-				}
-				
+				success = data->commInterface->Read(buffer + 1, bufferLength, lengthRead);	
 				lengthRead++;
 
 			}
@@ -68,14 +57,31 @@ namespace Tower
 		ULONG& lengthWritten,
 		RequestData* data)
 	{
-		while (GetTransmitterState(data) == TransmitterState::BUSY) { printf("Tower busy, can't write...\n"); }
+		/*while (GetTransmitterState(data) == TransmitterState::BUSY)
+		{
+			printf("Tower busy, can't write...\n");
+		}*/
 
+		// nqc flushes the read before writing, which is a very good idea!
+		ULONG lengthRead = -1;
+		PUCHAR readBuffer = new UCHAR[512];
+
+		while (lengthRead != 0)
+		{
+			data->commInterface->Read(readBuffer, bufferLength, lengthRead);
+		}
+
+		delete[] readBuffer;
+
+		//Sleep(WRITE_PAUSE_TIME); // give time to finish
+
+		// Try to write the data!
 		INT writeAttemptCount = 0;
 		BOOL success = FALSE;
 		while (!success && writeAttemptCount < MAX_WRITE_ATTEMPTS)
 		{
 			success = data->commInterface->Write(buffer, bufferLength, lengthWritten);
-			Sleep(WRITE_PAUSE_TIME); // give time to finish
+			//Sleep(WRITE_PAUSE_TIME); // give time to finish
 			writeAttemptCount++;
 		}
 

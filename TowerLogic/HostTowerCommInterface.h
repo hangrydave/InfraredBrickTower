@@ -15,6 +15,10 @@ public:
 		USHORT bufferLength,
 		BYTE* buffer,
 		ULONG& lengthTransferred) const = 0;
+
+	virtual BOOL EnableForeverTimeout() const = 0;
+
+	virtual BOOL ResetTimeout() const = 0;
 	
 	virtual BOOL Write(
 		PUCHAR buffer,

@@ -135,6 +135,35 @@ if (!condition) \
 		return TRUE;
 	}
 
+	BYTE GetValueFromPair(const BYTE a, const BYTE b)
+	{
+		BYTE result = 1;
+
+		if (a >= '0' && a <= '9')
+		{
+			// 30 is the hex value of '1' on the ascii table
+			result = (a - 48) * 16;
+		}
+		else if (a >= 'A' && a <= 'F')
+		{
+			// it's numeric
+			result = 160 + ((a - 65) * 16);
+		}
+
+		if (b >= '0' && b <= '9')
+		{
+			// 30 is the hex value of '1' on the ascii table
+			result += (b - 48);
+		}
+		else if (b >= 'A' && b <= 'F')
+		{
+			// it's numeric
+			result += (b - 65) + 10;
+		}
+
+		return result;
+	}
+
 	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData)
 	{
 		std::ifstream input(filePath, std::ios::binary);
@@ -146,12 +175,6 @@ if (!condition) \
 
 		// line 112, nqc.cpp
 #define MAX_FIRMWARE_LENGTH 65536
-
-		// i need the length
-		/*ULONG64 size = std::filesystem::file_size(filePath);
-
-		CHAR* fileData = new CHAR[size];
-		input.read(fileData, size);*/
 
 #pragma pack(push, 1)
 		struct FirmwareHeader
@@ -188,15 +211,11 @@ if (!condition) \
 		};
 #pragma pack(pop)
 
-		char file_data[MAX_FIRMWARE_LENGTH];
+		char lgoFileData[MAX_FIRMWARE_LENGTH];
 		Firmware firmware;
 
 		char partData[42];
 		char partIndex = 0;
-
-		bool inHeader = true;
-		bool inChunk = false;
-		bool inFooter = false;
 		bool done = false;
 
 #define HEADER 0
@@ -205,6 +224,9 @@ if (!condition) \
 		int currentPart = HEADER;
 
 		int fileLength = 0;
+
+		BYTE dataBytes[MAX_FIRMWARE_LENGTH];
+		int fileDataIndex = 0;
 
 		while (!done)
 		{
@@ -231,8 +253,17 @@ if (!condition) \
 			}
 			else if (!atEndOfPart)
 			{
+				bool shouldSaveDataByte = 6 <= partIndex && partIndex <= 36;
+
 				partData[partIndex++] = pair[0];
 				partData[partIndex++] = pair[1];
+
+				// partIndex >= 8 to get past the opening header bytes of the part
+				if (currentPart == CHUNK && shouldSaveDataByte)
+				{
+					// convert from the stuff in the string into the actual byte
+					dataBytes[fileDataIndex++] = GetValueFromPair(pair[0], pair[1]);
+				}
 			}
 			else if (atEndOfPart)
 			{
@@ -260,30 +291,15 @@ if (!condition) \
 
 		input.close();
 
-		int blockCount = 1; // starts at 1, goes up and then back to 0 for the footer
-		int byteCount = 1600;
 
-		int dataByteCount = firmware.chunkCount * 32;
-		char* allDataBytes = new char[dataByteCount];
-		for (int chunkIndex = 0; chunkIndex < firmware.chunkCount; chunkIndex++)
-		{
-			int startIndex = chunkIndex * 32;
-
-			FirmwareChunk chunk = firmware.chunks[chunkIndex];
-			for (int byteIndex = 0; byteIndex < 32; byteIndex++)
-			{
-				int actualIndex = startIndex + byteIndex;
-				unsigned char byte = chunk.body[byteIndex];
-				allDataBytes[actualIndex] = byte;
-			}
-		}
+		int dataByteCount = firmware.chunkCount * 16;
 
 		// in the wireshark dumps there are 125 ContinueFirmwareDownload commands sent
-		// there are also 400 data bytes in each one
+		// there are also 200 data bytes in each one
 		// where do these numbers come from?
 
-		// TODO: find way to calculate this, or a justification for 400
-		int dataByteCountPerCommand = 400;
+		// TODO: find way to calculate this, or a justification for 200
+		int dataByteCountPerCommand = 200;
 
 		int commandCount = dataByteCount / dataByteCountPerCommand;
 		int leftover = dataByteCount % dataByteCountPerCommand;
@@ -291,6 +307,11 @@ if (!condition) \
 		{
 			commandCount++;
 		}
+
+		int startAddress = 0x8000; // Refer to page 92 of LASM doc
+		int sumOfFirst19456Bytes = 0;
+
+		LASM::CommandData* continueDownloadCommands = new LASM::CommandData[commandCount];
 
 		for (int commandIndex = 0; commandIndex < commandCount; commandIndex++)
 		{
@@ -301,31 +322,73 @@ if (!condition) \
 				lengthForThisOne = leftover;
 			}
 
-			int dataByteStartIndex = commandIndex * lengthForThisOne;
-			int dataByteSum = 0;
+			int dataByteStartIndex = commandIndex * dataByteCountPerCommand;
+			int cmdDataByteSum = 0;
 
-			std::string dataString = "";
+			BYTE* cmdDataBytes = new BYTE[lengthForThisOne];
 			for (int byteIndex = 0; byteIndex < lengthForThisOne; byteIndex++)
 			{
 				int actualIndex = dataByteStartIndex + byteIndex;
-				unsigned char byte = allDataBytes[actualIndex];
+				BYTE byte = dataBytes[actualIndex];
 
-				dataString += byte;
-				dataByteSum += byte;
+				if (actualIndex <= 19455)
+				{
+					// This is to calculate the firmware checksum
+					// (refer to page 92 of LASM doc)
+					sumOfFirst19456Bytes += byte;
+				}
+
+				cmdDataBytes[byteIndex] = byte;
+				cmdDataByteSum += byte;
 			}
-
-			/*
 			
-			TODO
+			int blockCount = (commandIndex + 1) % commandCount;
 
-			i need to get the hex values from the ascii that the hex translates to
-			and work with that instead.
-
-			*/
-			int dataByteChecksum = dataByteSum % 256;
-			printf("e");
+			// Create the actual command to send later
+			LASM::Cmd_Download(
+				cmdDataBytes,
+				blockCount,
+				lengthForThisOne,
+				continueDownloadCommands[commandIndex]);
 		}
 
+		int firmwareChecksum = sumOfFirst19456Bytes % 65536;
+
+		ULONG lengthRead = 0;
+		BYTE* replyBuffer = new BYTE[COMMAND_REPLY_BUFFER_LENGTH];
+
+		LASM::CommandData command;
+		LASM::Cmd_BeginFirmwareDownload(firmwareChecksum, command);
+		_returnIfFalse(LASM::SendCommand(
+			&command,
+			towerData,
+			replyBuffer,
+			COMMAND_REPLY_BUFFER_LENGTH,
+			true));
+
+		//towerData->commInterface->EnableForeverTimeout();
+
+		ULONG lengthWritten = 0;
+		for (int i = 0; i < commandCount; i++)
+		{
+			_returnIfFalse(LASM::SendCommand(
+				&continueDownloadCommands[i],
+				towerData, 
+				replyBuffer,
+				10, 
+				true));
+		}
+
+		//towerData->commInterface->ResetTimeout();
+
+		LASM::Cmd_UnlockFirmware(command);
+		_returnIfFalse(LASM::SendCommand(
+			&command,
+			towerData,
+			replyBuffer,
+			COMMAND_REPLY_BUFFER_LENGTH,
+			true));
+
 		printf("done");
-	}
+ 	}
 }

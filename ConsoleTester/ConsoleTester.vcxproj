@@ -124,14 +124,15 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalDependencies>$(CoreLibraryDependencies);PBrickLogic.lib;TowerLogic.lib;InfraredBrickTower.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\TowerLogic;$(SolutionDir)\PBrickLogic;$(SolutionDir)\InfraredBrickTower;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);PBrickLogic.lib;TowerLogic.lib;InfraredBrickTower.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);onecoreuap.lib;winusb.lib;d3d12.lib;d3dcompiler.lib;dxgi.lib;PBrickLogic.lib;TowerLogic.lib;InfraredBrickTower.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

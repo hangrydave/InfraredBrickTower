@@ -8,7 +8,26 @@ namespace LASM
 #define LO_BYTE(b) b & 0x00ff
 #define HI_BYTE(b) (b & 0xff00) >> 8
 
-	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData, ULONG expectedReplyLength)
+	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData)
+	{
+		BYTE* replyBuffer = new BYTE[COMMAND_REPLY_BUFFER_LENGTH];
+		BOOL success = SendCommand(
+			command,
+			towerData,
+			replyBuffer,
+			COMMAND_REPLY_BUFFER_LENGTH,
+			false);
+
+		delete[] replyBuffer;
+		return success;
+	}
+
+	BOOL SendCommand(
+		CommandData* command,
+		Tower::RequestData* towerData,
+		BYTE* replyBuffer,
+		ULONG expectedReplyLength,
+		BOOL skipReplyValidation)
 	{
 		ULONG lengthWritten = 0;
 		BOOL writeSuccess = Tower::WriteData(
@@ -24,7 +43,6 @@ namespace LASM
 			return TRUE;
 
 		ULONG lengthRead = 0;
-		BYTE replyBuffer[COMMAND_REPLY_BUFFER_LENGTH];
 		BOOL readSuccess = Tower::ReadData(
 			replyBuffer,
 			COMMAND_REPLY_BUFFER_LENGTH,
@@ -33,6 +51,9 @@ namespace LASM
 
 		if (!readSuccess)
 			return FALSE;
+
+		if (skipReplyValidation)
+			return TRUE;
 
 		return ValidateReply(command, replyBuffer, lengthRead);
 	}
@@ -506,18 +527,37 @@ namespace LASM
 		*paramsPtr++ = HI_BYTE(byteCount);
 
 		BYTE* dataPtr = data;
-		BYTE blockChecksum = 0;
+		INT sum = 0;
 		BYTE bytesLeft = byteCount;
 		while (bytesLeft > 0)
 		{
 			BYTE b = *dataPtr++;
-			blockChecksum += b;
+			sum += b;
 			*paramsPtr++ = b;
 			bytesLeft--;
 		}
 
-		*paramsPtr = blockChecksum;
+		*paramsPtr = sum % 256; // as per page 90 of the LASM doc
 		ComposeCommand(Command::Download, params, paramCount, commandData);
+	}
+
+	VOID Cmd_BeginFirmwareDownload(INT checksum, CommandData& commandData)
+	{
+		BYTE params[5]
+		{
+			LO_BYTE(0x8000),
+			HI_BYTE(0x8000),
+			LO_BYTE(checksum),
+			HI_BYTE(checksum),
+			0
+		};
+		ComposeCommand(Command::BeginFirmwareDownLoad, params, 5, commandData);
+	}
+
+	VOID Cmd_UnlockFirmware(CommandData& commandData)
+	{
+		BYTE params[5]{ 0x4C, 0x45, 0x47, 0x4F, 0xAE };
+		ComposeCommand(Command::UnlockFirmware, params, 5, commandData);
 	}
 
 	VOID Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction, CommandData& commandData)
