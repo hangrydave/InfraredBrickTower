@@ -18,7 +18,6 @@ namespace Tower
 		RequestData* data)
 	{
 		lengthRead = 0;
-		Sleep(WRITE_PAUSE_TIME); // give time to finish
 
 		INT readAttemptCount = 0;
 		BOOL success = FALSE;
@@ -40,29 +39,26 @@ namespace Tower
 		return success || (lengthRead > 0);
 	}
 
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, RequestData* data)
-	{
-		ULONG lengthWritten;
-		return WriteData(buffer, bufferLength, lengthWritten, data);
-	}
-
 	BOOL WriteData(
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthWritten,
-		RequestData* data)
+		RequestData* data,
+		BOOL preFlush)
 	{
-		// nqc flushes the read before writing, which is a very good idea!
-		ULONG lengthRead = -1;
-		PUCHAR readBuffer = new UCHAR[512];
-
-		while (lengthRead != 0)
+		if (preFlush)
 		{
-			data->commInterface->Read(readBuffer, 512, lengthRead);
-		}
-		Sleep(WRITE_PAUSE_TIME); // give time to finish
+			// nqc flushes the read before writing, which is a very good idea!
+			ULONG lengthRead = -1;
+			PUCHAR readBuffer = new UCHAR[512];
 
-		delete[] readBuffer;
+			while (lengthRead != 0)
+			{
+				data->commInterface->Read(readBuffer, 512, lengthRead);
+			}
+
+			delete[] readBuffer;
+		}
 
 		// Try to write the data!
 		INT writeAttemptCount = 0;

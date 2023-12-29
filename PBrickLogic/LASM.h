@@ -170,7 +170,8 @@ namespace LASM
 		Tower::RequestData* towerData,
 		BYTE* replyBuffer,
 		BOOL skipReply = false,
-		BOOL skipReplyValidation = false);
+		BOOL skipReplyValidation = false,
+		BOOL preWriteFlush = true);
 	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command);
 
 	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData);
@@ -360,7 +361,7 @@ namespace LASM
 	
 	VOID Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData);
 
-	VOID Cmd_GoIntoBootMode();
+	VOID Cmd_GoIntoBootMode(CommandData& commandData);
 
 	VOID Cmd_BeginFirmwareDownload(INT checksum, CommandData& commandData);
 	

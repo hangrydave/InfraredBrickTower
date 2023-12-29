@@ -261,7 +261,12 @@ namespace Tower
 		~RequestData(){ }
 	};
 
-	BOOL WriteData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthWritten, RequestData* data);
+	BOOL WriteData(
+		PUCHAR buffer,
+		ULONG bufferLength,
+		ULONG& lengthWritten,
+		RequestData* data,
+		BOOL preFlush = true);
 	BOOL ReadData(PUCHAR buffer, ULONG bufferLength, ULONG& lengthRead, RequestData* data);
 
 	VOID Flush(CommBuffer buffer, RequestData* data);

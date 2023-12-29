@@ -15,8 +15,9 @@ namespace LASM
 			command,
 			towerData,
 			replyBuffer,
-			COMMAND_REPLY_BUFFER_LENGTH,
-			false);
+			false,
+			false,
+			true);
 
 		delete[] replyBuffer;
 		return success;
@@ -27,14 +28,16 @@ namespace LASM
 		Tower::RequestData* towerData,
 		BYTE* replyBuffer,
 		BOOL skipReply,
-		BOOL skipReplyValidation)
+		BOOL skipReplyValidation,
+		BOOL preWriteFlush)
 	{
 		ULONG lengthWritten = 0;
 		BOOL writeSuccess = Tower::WriteData(
 			command->data,
 			command->dataLength,
 			lengthWritten,
-			towerData);
+			towerData,
+			preWriteFlush);
 
 		if (!writeSuccess)
 			return FALSE;
@@ -539,6 +542,12 @@ namespace LASM
 
 		*paramsPtr = sum % 256; // as per page 90 of the LASM doc
 		ComposeCommand(Command::Download, params, paramCount, commandData);
+	}
+
+	VOID Cmd_GoIntoBootMode(CommandData& commandData)
+	{
+		BYTE params[5]{ 1, 3, 5, 7, 11 };
+		ComposeCommand(Command::GoIntoBootMode, params, 5, commandData);
 	}
 
 	VOID Cmd_BeginFirmwareDownload(INT checksum, CommandData& commandData)

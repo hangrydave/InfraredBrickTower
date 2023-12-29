@@ -372,6 +372,14 @@ if (!condition) \
 		BYTE* replyBuffer = new BYTE[COMMAND_REPLY_BUFFER_LENGTH];
 
 		LASM::CommandData command;
+		LASM::Cmd_GoIntoBootMode(command);
+		_returnIfFalse(LASM::SendCommand(
+			&command,
+			towerData,
+			replyBuffer,
+			COMMAND_REPLY_BUFFER_LENGTH,
+			true));
+
 		LASM::Cmd_BeginFirmwareDownload(firmwareChecksum, command);
 		_returnIfFalse(LASM::SendCommand(
 			&command,

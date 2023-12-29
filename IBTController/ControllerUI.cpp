@@ -51,6 +51,13 @@ namespace IBTUI
 			true);
 
 		// flush read
+		ULONG lengthRead = -1;
+		PUCHAR readBuffer = new UCHAR[512];
+
+		while (lengthRead != 0)
+		{
+			towerData->commInterface->Read(readBuffer, 512, lengthRead);
+		}
 
 		while (!programIsDone)
 		{
@@ -119,15 +126,17 @@ namespace IBTUI
 						towerData,
 						towerData->replyBuffer,
 						true,
-						true);
+						true,
+						false);
 
 					LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
 					LASM::SendCommand(
 						&lasmCommand,
 						towerData,
 						towerData->replyBuffer,
-						false,
-						true);
+						true,
+						true,
+						false);
 				}
 
 				if (rcxRemoteData.downloadFilePath != nullptr)
