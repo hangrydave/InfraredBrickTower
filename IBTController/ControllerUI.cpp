@@ -7,8 +7,9 @@ namespace IBTUI
 {
 	static RCXRemoteData rcxRemoteData;
 	static VLLData vllData;
-	static unsigned long towerLengthWritten = 0;
 	static LASM::CommandData lasmCommand;
+	static unsigned long towerLengthWritten = 0;
+	static bool isDownloadingSomething = false;
 
 	void SendVLL(BYTE* data, Tower::RequestData* towerData)
 	{
@@ -144,6 +145,7 @@ namespace IBTUI
 
 				if (rcxRemoteData.downloadFilePath != nullptr)
 				{
+					isDownloadingSomething = true;
 					if (rcxRemoteData.downloadFirmware)
 					{
 						RCX::DownloadFirmware(rcxRemoteData.downloadFilePath->c_str(), towerData);
@@ -152,6 +154,8 @@ namespace IBTUI
 					{
 						RCX::DownloadProgram(rcxRemoteData.downloadFilePath->c_str(), 0, towerData);
 					}
+					isDownloadingSomething = false;
+
 					rcxRemoteData.downloadFilePath = nullptr;
 				}
 			}
@@ -461,6 +465,13 @@ namespace IBTUI
 			fileDialog.SetTitle("Select an RCX firmware file");
 			fileDialog.SetTypeFilters({ ".lgo" });
 			fileDialog.Open();
+		}
+
+		if (isDownloadingSomething)
+		{
+			ImGui::Separator();
+			// from https://github.com/ocornut/imgui/issues/1901#issuecomment-400563921
+			ImGui::Text("Downloading to RCX %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
 		}
 
 		ImGui::End();
