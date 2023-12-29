@@ -29,35 +29,13 @@ namespace IBTUI
 			return;
 		}
 
-		/*unsigned long remoteBufferLen = 1;
-		unsigned long remoteReadLength = 0;
-		unsigned char* remoteReadBuffer = new unsigned char[remoteBufferLen];*/
-
 		Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
+
+		Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
+		towerData->commInterface->Flush();
 
 		while (!programIsDone)
 		{
-
-			Tower::SetCommMode(Tower::CommMode::IR, towerData);
-
-			/*
-			This was code testing the ability to read input from various lego IR remotes, and the results are promising!
-			I was able to get input from both a Manas remote and (to my surprise) a Power Functions remote.
-			*/
-			//if (usbTowerInterface->Read(remoteReadBuffer, remoteBufferLen, remoteReadLength))
-			//{
-			//    if (remoteReadLength > 0)
-			//    {
-			//        printf("remote input, size %d: ", remoteReadLength);
-			//        for (int i = 0; i < remoteReadLength; i++)
-			//        {
-			//            //printf("%#x", remoteReadBuffer[i]);
-			//            std::cout << (int) (remoteReadBuffer[i]);
-			//        }
-			//        printf("\n");
-			//    }
-			//}
-
 			// RCX
 			{
 				// remote
@@ -104,15 +82,42 @@ namespace IBTUI
 				Tower::SetCommMode(Tower::CommMode::IR, towerData);
 				if (rcxRemoteData.request != 0)
 				{
+
 					LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
-					LASM::SendCommand(&lasmCommand, towerData, 0);
+					LASM::SendCommand(
+						&lasmCommand,
+						towerData,
+						towerData->replyBuffer,
+						0,
+						true);
+
+					// TODO: grabbed this from bricxcc wireshark. what is this
+					lasmCommand.commandByte = 0xd2;
+					lasmCommand.data[0] = 0x55;
+					lasmCommand.data[1] = 0xff;
+					lasmCommand.data[2] = 0x00;
+					lasmCommand.data[3] = 0xd2;
+					lasmCommand.data[4] = 0x2d;
+					lasmCommand.data[5] = 0x00;
+					lasmCommand.data[6] = 0xff;
+					lasmCommand.data[7] = 0x00;
+					lasmCommand.data[8] = 0xff;
+					lasmCommand.data[9] = 0xd2;
+					lasmCommand.data[10] = 0x2d;
+					lasmCommand.dataLength = 11;
+					LASM::SendCommand(
+						&lasmCommand,
+						towerData,
+						towerData->replyBuffer,
+						0,
+						true);
 				}
 
 				if (rcxRemoteData.downloadFilePath != nullptr)
 				{
 					if (rcxRemoteData.downloadFirmware)
 					{
-						//RCX::DownloadFirmware(rcxRemoteData.downloadFilePath->c_str(), towerData);
+						RCX::DownloadFirmware(rcxRemoteData.downloadFilePath->c_str(), towerData);
 					}
 					else
 					{
@@ -201,8 +206,6 @@ namespace IBTUI
 	static ImGui::FileBrowser fileDialog;
 	void Init()
 	{
-		fileDialog.SetTitle("Select an RCX program");
-		fileDialog.SetTypeFilters({ ".rcx" });
 	}
 
 	void BuildMicroScoutRemote(const ImGuiViewport* mainViewport)
@@ -416,6 +419,18 @@ namespace IBTUI
 		if (ImGui::Button("Download Program"))
 		{
 			rcxRemoteData.downloadFirmware = false;
+
+			fileDialog.SetTitle("Select an RCX program");
+			fileDialog.SetTypeFilters({ ".rcx" });
+			fileDialog.Open();
+		}
+
+		if (ImGui::Button("Download Firmware"))
+		{
+			rcxRemoteData.downloadFirmware = true;
+
+			fileDialog.SetTitle("Select an RCX firmware file");
+			fileDialog.SetTypeFilters({ ".lgo" });
 			fileDialog.Open();
 		}
 

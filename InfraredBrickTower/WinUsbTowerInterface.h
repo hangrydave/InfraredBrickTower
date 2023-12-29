@@ -15,6 +15,9 @@ private:
 	HANDLE                  deviceHandle;
 	TCHAR*                  devicePath;
 
+#define MAX_TIMEOUT_COUNT 5
+	UINT timeoutCounter;
+
 	VOID PrintErrorIfAny(const char* caller) const;
 
 public:
@@ -34,9 +37,9 @@ public:
 		BYTE* buffer,
 		ULONG& lengthTransferred) const;
 
-	BOOL EnableForeverTimeout() const;
+	/*BOOL EnableForeverTimeout() const;
 
-	BOOL ResetTimeout() const;
+	BOOL ResetTimeout() const;*/
 
 	BOOL Write(
 		PUCHAR buffer,
@@ -46,7 +49,7 @@ public:
 	BOOL Read(
 		PUCHAR buffer,
 		ULONG bufferLength,
-		ULONG& lengthRead) const;
+		ULONG& lengthRead);
 
 	BOOL Flush() const;
 };

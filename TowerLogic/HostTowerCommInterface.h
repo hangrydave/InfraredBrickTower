@@ -16,9 +16,9 @@ public:
 		BYTE* buffer,
 		ULONG& lengthTransferred) const = 0;
 
-	virtual BOOL EnableForeverTimeout() const = 0;
+	/*virtual BOOL EnableForeverTimeout() const = 0;
 
-	virtual BOOL ResetTimeout() const = 0;
+	virtual BOOL ResetTimeout() const = 0;*/
 	
 	virtual BOOL Write(
 		PUCHAR buffer,
@@ -28,7 +28,7 @@ public:
 	virtual BOOL Read(
 		PUCHAR buffer,
 		ULONG bufferLength,
-		ULONG& lengthRead) const = 0;
+		ULONG& lengthRead) = 0;
 
 	virtual BOOL Flush() const = 0;
 };

@@ -57,15 +57,37 @@ int main()
 	Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
 	usbTowerInterface->Flush();
 
-	RCX::DownloadFirmware("C:\\Users\\david\\source\\repos\\LegoInfraredUSBTower\\ConsoleTester\\x64\\Debug\\firm0332.lgo", towerData);
+	//RCX::DownloadFirmware("C:\\Users\\david\\source\\repos\\LegoInfraredUSBTower\\ConsoleTester\\x64\\Debug\\firm0332.lgo", towerData);
 
 
 	//assert(RCX::DownloadProgram("drive_until_button.rcx", 0, towerData));
 	//assert(RCX::DownloadProgram("example_program.rcx", 1, towerData));
 	//assert(RCX::DownloadProgram("beep.rcx", 2, towerData));
 	//DriveMotors(towerData));
-	//BeepRCX(towerData);
+	BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
+
+	while (true)
+	{
+
+		/*
+		This was code testing the ability to read input from various lego IR remotes, and the results are promising!
+		I was able to get input from both a Manas remote and (to my surprise) a Power Functions remote.
+		*/
+		//if (usbTowerInterface->Read(remoteReadBuffer, remoteBufferLen, remoteReadLength))
+		//{
+		//    if (remoteReadLength > 0)
+		//    {
+		//        printf("remote input, size %d: ", remoteReadLength);
+		//        for (int i = 0; i < remoteReadLength; i++)
+		//        {
+		//            //printf("%#x", remoteReadBuffer[i]);
+		//            std::cout << (int) (remoteReadBuffer[i]);
+		//        }
+		//        printf("\n");
+		//    }
+		//}
+	}
 
 	usbTowerInterface->Flush();
 

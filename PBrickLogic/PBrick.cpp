@@ -366,8 +366,6 @@ if (!condition) \
 			COMMAND_REPLY_BUFFER_LENGTH,
 			true));
 
-		//towerData->commInterface->EnableForeverTimeout();
-
 		ULONG lengthWritten = 0;
 		for (int i = 0; i < commandCount; i++)
 		{
@@ -378,8 +376,6 @@ if (!condition) \
 				10, 
 				true));
 		}
-
-		//towerData->commInterface->ResetTimeout();
 
 		LASM::Cmd_UnlockFirmware(command);
 		_returnIfFalse(LASM::SendCommand(

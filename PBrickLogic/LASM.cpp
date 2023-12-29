@@ -49,7 +49,7 @@ namespace LASM
 			lengthRead,
 			towerData);
 
-		if (!readSuccess)
+ 		if (!readSuccess)
 			return FALSE;
 
 		if (skipReplyValidation)
