@@ -169,7 +169,7 @@ namespace LASM
 		CommandData* command,
 		Tower::RequestData* towerData,
 		BYTE* replyBuffer,
-		ULONG expectedReplyLength = COMMAND_REPLY_BUFFER_LENGTH,
+		BOOL skipReply = false,
 		BOOL skipReplyValidation = false);
 	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command);
 

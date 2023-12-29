@@ -17,12 +17,8 @@ namespace Tower
 		ULONG& lengthRead,
 		RequestData* data)
 	{
-		while (GetTransmitterState(data) == TransmitterState::BUSY)
-		{
-			printf("Tower busy, can't read...\n");
-		}
-
 		lengthRead = 0;
+		Sleep(WRITE_PAUSE_TIME); // give time to finish
 
 		INT readAttemptCount = 0;
 		BOOL success = FALSE;
@@ -56,19 +52,15 @@ namespace Tower
 		ULONG& lengthWritten,
 		RequestData* data)
 	{
-		while (GetTransmitterState(data) == TransmitterState::BUSY)
-		{
-			printf("Tower busy, can't write...\n");
-		}
-
 		// nqc flushes the read before writing, which is a very good idea!
 		ULONG lengthRead = -1;
 		PUCHAR readBuffer = new UCHAR[512];
 
 		while (lengthRead != 0)
 		{
-			data->commInterface->Read(readBuffer, bufferLength, lengthRead);
+			data->commInterface->Read(readBuffer, 512, lengthRead);
 		}
+		Sleep(WRITE_PAUSE_TIME); // give time to finish
 
 		delete[] readBuffer;
 
@@ -78,7 +70,6 @@ namespace Tower
 		while (!success && writeAttemptCount < MAX_WRITE_ATTEMPTS)
 		{
 			success = data->commInterface->Write(buffer, bufferLength, lengthWritten);
-
 			// (This number was chosen arbitrarily)
 			// What I think is happening is that when downloading firmware, it works fine because
 			// the packets are big enough to provide a timeout long enough, but if the data is smaller,

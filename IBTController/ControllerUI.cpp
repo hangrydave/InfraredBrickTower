@@ -34,6 +34,24 @@ namespace IBTUI
 		Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
 		towerData->commInterface->Flush();
 
+		LASM::Cmd_PBAliveOrNot(lasmCommand);
+		bool success = LASM::SendCommand(
+			&lasmCommand,
+			towerData,
+			towerData->replyBuffer,
+			0,
+			true);
+
+		LASM::Cmd_PBAliveOrNot(lasmCommand);
+		success = LASM::SendCommand(
+			&lasmCommand,
+			towerData,
+			towerData->replyBuffer,
+			0,
+			true);
+
+		// flush read
+
 		while (!programIsDone)
 		{
 			// RCX
@@ -82,15 +100,6 @@ namespace IBTUI
 				Tower::SetCommMode(Tower::CommMode::IR, towerData);
 				if (rcxRemoteData.request != 0)
 				{
-
-					LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
-					LASM::SendCommand(
-						&lasmCommand,
-						towerData,
-						towerData->replyBuffer,
-						0,
-						true);
-
 					// TODO: grabbed this from bricxcc wireshark. what is this
 					lasmCommand.commandByte = 0xd2;
 					lasmCommand.data[0] = 0x55;
@@ -109,7 +118,15 @@ namespace IBTUI
 						&lasmCommand,
 						towerData,
 						towerData->replyBuffer,
-						0,
+						true,
+						true);
+
+					LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
+					LASM::SendCommand(
+						&lasmCommand,
+						towerData,
+						towerData->replyBuffer,
+						false,
 						true);
 				}
 

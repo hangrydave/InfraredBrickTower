@@ -67,8 +67,8 @@ int main()
 	BeepRCX(towerData);
 	//MicroScoutCLI(towerData);
 
-	while (true)
-	{
+	//while (true)
+	//{
 
 		/*
 		This was code testing the ability to read input from various lego IR remotes, and the results are promising!
@@ -87,7 +87,7 @@ int main()
 		//        printf("\n");
 		//    }
 		//}
-	}
+	//}
 
 	usbTowerInterface->Flush();
 
@@ -334,14 +334,14 @@ VOID BeepRCX(Tower::RequestData* towerData)
 	Tower::SetCommMode(Tower::CommMode::IR, towerData);
 
 	LASM::CommandData command;
-	LASM::Cmd_PBAliveOrNot(command);
-	assert(LASM::SendCommand(&command, towerData));
+	/*LASM::Cmd_PBAliveOrNot(command);
+	LASM::SendCommand(&command, towerData);*/
 
 	LASM::Cmd_StopAllTasks(command);
-	assert(LASM::SendCommand(&command, towerData));
+	LASM::SendCommand(&command, towerData);
 
 	LASM::Cmd_PlaySystemSound(LASM::SystemSound::BEEP, command);
-	assert(LASM::SendCommand(&command, towerData));
+	LASM::SendCommand(&command, towerData);
 }
 
 VOID BeepRCXAndMicroScout(Tower::RequestData* towerData)

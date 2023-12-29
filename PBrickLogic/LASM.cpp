@@ -26,7 +26,7 @@ namespace LASM
 		CommandData* command,
 		Tower::RequestData* towerData,
 		BYTE* replyBuffer,
-		ULONG expectedReplyLength,
+		BOOL skipReply,
 		BOOL skipReplyValidation)
 	{
 		ULONG lengthWritten = 0;
@@ -39,7 +39,7 @@ namespace LASM
 		if (!writeSuccess)
 			return FALSE;
 
-		if (expectedReplyLength <= 0)
+		if (skipReply)
 			return TRUE;
 
 		ULONG lengthRead = 0;
@@ -579,11 +579,11 @@ namespace LASM
 		UINT dataSum = 0;
 
 		// command, reply, and repeat both
-		commandData.previousCommandByte = commandData.commandByte;
+		//commandData.previousCommandByte = commandData.commandByte;
 		commandData.commandByte = (BYTE)lasmCommand;
 		
-		if (commandData.previousCommandByte == commandData.commandByte)
-			commandData.commandByte ^= 8; // refer to line 252 in RCX_PipeTransport.cpp from NQC
+		//if (commandData.previousCommandByte == commandData.commandByte)
+		//	commandData.commandByte ^= 8; // refer to line 252 in RCX_PipeTransport.cpp from NQC
 
 		commandData.data[index++] = commandData.commandByte;
 		commandData.data[index++] = ~commandData.commandByte;
