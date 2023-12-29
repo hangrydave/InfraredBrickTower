@@ -292,6 +292,20 @@ if (!condition) \
 		input.close();
 
 
+		/*
+		
+		TODO
+
+		In loop below, when you do stuff with the bytes on lines 340 to 351, instead of
+		the current loop, read directly from the file
+
+		i.e.:
+
+		nvm figure it out
+		
+		*/
+
+
 		int dataByteCount = firmware.chunkCount * 16;
 
 		// in the wireshark dumps there are 125 ContinueFirmwareDownload commands sent
