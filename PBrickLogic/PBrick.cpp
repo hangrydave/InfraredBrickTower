@@ -2,6 +2,9 @@
 #include "PBrick.h"
 #include "LASM.h"
 #include <assert.h>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace RCX
 {
@@ -175,96 +178,14 @@ if (!condition) \
 
 		// line 112, nqc.cpp
 #define MAX_FIRMWARE_LENGTH 65536
+#define HEADER_BYTE_COUNT 28
+#define CHUNK_BYTE_COUNT 22
+#define FOOTER_BYTE_COUNT 6
 
-		int chunkCount = 0;
+		fs::path path = filePath;
+		int fileSize = fs::file_size(path);
 
-		char partData[42];
-		char partIndex = 0;
-		bool done = false;
-
-		int inChunk = false;
-
-		int fileLength = 0;
-
-		BYTE dataBytes[MAX_FIRMWARE_LENGTH];
-		int fileDataIndex = 0;
-
-		while (!done)
-		{
-			// these files have an even number of characters, so this should be safe
-			char pair[2];
-			input.get(pair[0]);
-			input.get(pair[1]);
-
-			fileLength += 2;
-
-			//bool eof = input.eof();
-
-			bool skipPair = !inChunk ;
-
-			switch (pair[0])
-			{
-			case 'S':
-				switch (pair[1])
-				{
-				case '1':
-					chunkCount++;
-					inChunk = true;
-					break;
-				default:
-					inChunk = false;
-					break;
-				}
-				break;
-			case 0x0D:
-				if (pair[1] == 0x0A)
-				{
-					partIndex = 0;
-				}
-				break;
-			default:
-				// might also need to do this chunk of code when input.eof()
-
-				// TODO: this line sucks. What it does is skip the header and also avoid the end bit,
-				// but it sucks
-
-				// I think this might just be avoiding the end? This might not be necessary idk.
-				// is nessary probably actuall. look more into it.
-				bool shouldSaveDataByte = 6 <= partIndex && partIndex <= 36;
-				if (partIndex > 36)
-				{
-					printf("hi");
-				}
-
-				partData[partIndex++] = pair[0];
-				partData[partIndex++] = pair[1];
-
-				if (inChunk && shouldSaveDataByte)
-				{
-					// convert from the stuff in the string into the actual byte
-					dataBytes[fileDataIndex++] = GetValueFromPair(pair[0], pair[1]);
-				}
-				break;
-			}
-		}
-
-		input.close();
-
-
-		/*
-		
-		TODO
-
-		In loop below, when you do stuff with the bytes on lines 340 to 351, instead of
-		the current loop, read directly from the file
-
-		i.e.:
-
-		nvm figure it out
-		
-		*/
-
-
+		int chunkCount = 1 + ((fileSize / 2) - HEADER_BYTE_COUNT - FOOTER_BYTE_COUNT) / CHUNK_BYTE_COUNT;
 		int dataByteCount = chunkCount * 16;
 
 		// in the wireshark dumps there are 125 ContinueFirmwareDownload commands sent
@@ -273,7 +194,6 @@ if (!condition) \
 
 		// TODO: find way to calculate this, or a justification for 200
 		int dataByteCountPerCommand = 200;
-
 		int commandCount = dataByteCount / dataByteCountPerCommand;
 		int leftover = dataByteCount % dataByteCountPerCommand;
 		if (leftover > 0)
@@ -283,6 +203,9 @@ if (!condition) \
 
 		int startAddress = 0x8000; // Refer to page 92 of LASM doc
 		int sumOfFirst19456Bytes = 0;
+
+		BYTE* cmdDataBytes = new BYTE[dataByteCountPerCommand];
+		char byteChars[2];
 
 		LASM::CommandData* continueDownloadCommands = new LASM::CommandData[commandCount];
 
@@ -298,26 +221,76 @@ if (!condition) \
 			int dataByteStartIndex = commandIndex * dataByteCountPerCommand;
 			int cmdDataByteSum = 0;
 
-			BYTE* cmdDataBytes = new BYTE[lengthForThisOne];
-			for (int byteIndex = 0; byteIndex < lengthForThisOne; byteIndex++)
+			int cmdDataByteIndex = 0;
+
+			bool done = false;
+			bool inChunk = false;
+			int partByteIndex = 0;
+			while (!done)
 			{
-				int actualIndex = dataByteStartIndex + byteIndex;
-				BYTE byte = dataBytes[actualIndex];
+				input.get(byteChars[0]);
+				input.get(byteChars[1]);
 
-				if (actualIndex <= 19455)
+				switch (byteChars[0])
 				{
-					// This is to calculate the firmware checksum
-					// (refer to page 92 of LASM doc)
-					sumOfFirst19456Bytes += byte;
-				}
+				case 'S':
+					switch (byteChars[1])
+					{
+					case '1':
+						chunkCount++;
+						inChunk = true;
+						break;
+					case '9':
+						break;
+					default:
+						inChunk = false;
+						break;
+					}
+					break;
+				case 0x0D:
+					if (byteChars[1] == 0x0A)
+					{
+						partByteIndex = 0;
+					}
+					break;
+				default:
+					if (!inChunk)
+					{
+						break;
+					}
 
-				cmdDataBytes[byteIndex] = byte;
-				cmdDataByteSum += byte;
+#define DATA_START 3
+#define DATA_END 18
+					bool byteIsUseful = partByteIndex >= DATA_START && partByteIndex <= DATA_END;
+					partByteIndex++;
+
+					if (!byteIsUseful)
+					{
+						break;
+					}
+
+					BYTE byte = GetValueFromPair(byteChars[0], byteChars[1]);
+					cmdDataBytes[cmdDataByteIndex++] = byte;
+					cmdDataByteSum += byte;
+
+					if (cmdDataByteIndex == lengthForThisOne)
+					{
+						done = true;
+					}
+
+					if (dataByteStartIndex + cmdDataByteIndex <= 19455)
+					{
+						// This is to calculate the firmware checksum
+						// (refer to page 92 of LASM doc)
+						sumOfFirst19456Bytes += byte;
+					}
+
+					break;
+				}
 			}
-			
+
 			int blockCount = (commandIndex + 1) % commandCount;
 
-			// Create the actual command to send later
 			LASM::Cmd_Download(
 				cmdDataBytes,
 				blockCount,
@@ -325,10 +298,16 @@ if (!condition) \
 				continueDownloadCommands[commandIndex]);
 		}
 
-		int firmwareChecksum = sumOfFirst19456Bytes % 65536;
+		delete[] byteChars;
+		delete[] cmdDataBytes;
+
+		input.close();
+
 
 		ULONG lengthRead = 0;
 		BYTE* replyBuffer = new BYTE[COMMAND_REPLY_BUFFER_LENGTH];
+
+		// TODO: clean up calls to SendCommand
 
 		LASM::CommandData command;
 		LASM::Cmd_GoIntoBootMode(command);
@@ -339,6 +318,7 @@ if (!condition) \
 			COMMAND_REPLY_BUFFER_LENGTH,
 			true));
 
+		int firmwareChecksum = sumOfFirst19456Bytes % 65536;
 		LASM::Cmd_BeginFirmwareDownload(firmwareChecksum, command);
 		_returnIfFalse(LASM::SendCommand(
 			&command,
@@ -366,6 +346,9 @@ if (!condition) \
 			COMMAND_REPLY_BUFFER_LENGTH,
 			true));
 
-		printf("done");
+		delete[] continueDownloadCommands;
+		delete[] replyBuffer;
+
+		return true;
  	}
 }
