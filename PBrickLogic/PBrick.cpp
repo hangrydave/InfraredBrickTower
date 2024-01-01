@@ -176,52 +176,13 @@ if (!condition) \
 		// line 112, nqc.cpp
 #define MAX_FIRMWARE_LENGTH 65536
 
-#pragma pack(push, 1)
-		struct FirmwareHeader
-		{
-			char filename[32];
-		};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-		struct FirmwareChunk
-		{
-			char header[6];
-			char body[32];
-			char footer[2];
-		};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-		struct FirmwareFooter
-		{
-			char footer[10];
-		};
-#pragma pack(pop)
-
-#define CHUNK_COUNT 1600
-
-#pragma pack(push, 1)
-		struct Firmware
-		{
-			FirmwareHeader header;
-			int chunkCount = 0;
-			FirmwareChunk chunks[CHUNK_COUNT];
-			FirmwareFooter footer;
-		};
-#pragma pack(pop)
-
-		char lgoFileData[MAX_FIRMWARE_LENGTH];
-		Firmware firmware;
+		int chunkCount = 0;
 
 		char partData[42];
 		char partIndex = 0;
 		bool done = false;
 
-#define HEADER 0
-#define CHUNK 1
-#define FOOTER 2
-		int currentPart = HEADER;
+		int inChunk = false;
 
 		int fileLength = 0;
 
@@ -237,55 +198,53 @@ if (!condition) \
 
 			fileLength += 2;
 
-			bool atEndOfPart = (pair[0] == 0x0D && pair[1] == 0x0A) || input.eof();
+			//bool eof = input.eof();
 
-			if (pair[0] == 'S' && pair[1] == '0')
+			bool skipPair = !inChunk ;
+
+			switch (pair[0])
 			{
-				currentPart = HEADER;
-			}
-			else if (pair[0] == 'S' && pair[1] == '1')
-			{
-				currentPart = CHUNK;
-			}
-			else if (pair[0] == 'S' && pair[1] == '9')
-			{
-				currentPart = FOOTER;
-			}
-			else if (!atEndOfPart)
-			{
+			case 'S':
+				switch (pair[1])
+				{
+				case '1':
+					chunkCount++;
+					inChunk = true;
+					break;
+				default:
+					inChunk = false;
+					break;
+				}
+				break;
+			case 0x0D:
+				if (pair[1] == 0x0A)
+				{
+					partIndex = 0;
+				}
+				break;
+			default:
+				// might also need to do this chunk of code when input.eof()
+
+				// TODO: this line sucks. What it does is skip the header and also avoid the end bit,
+				// but it sucks
+
+				// I think this might just be avoiding the end? This might not be necessary idk.
+				// is nessary probably actuall. look more into it.
 				bool shouldSaveDataByte = 6 <= partIndex && partIndex <= 36;
+				if (partIndex > 36)
+				{
+					printf("hi");
+				}
 
 				partData[partIndex++] = pair[0];
 				partData[partIndex++] = pair[1];
 
-				// partIndex >= 8 to get past the opening header bytes of the part
-				if (currentPart == CHUNK && shouldSaveDataByte)
+				if (inChunk && shouldSaveDataByte)
 				{
 					// convert from the stuff in the string into the actual byte
 					dataBytes[fileDataIndex++] = GetValueFromPair(pair[0], pair[1]);
 				}
-			}
-			else if (atEndOfPart)
-			{
-				switch (currentPart)
-				{
-				case HEADER:
-					firmware.header = *reinterpret_cast<FirmwareHeader*>(partData);
-					break;
-				case CHUNK:
-				{
-					firmware.chunks[firmware.chunkCount++] = *reinterpret_cast<FirmwareChunk*>(partData);
-					break;
-				}
-				case FOOTER:
-					firmware.footer = *reinterpret_cast<FirmwareFooter*>(partData);
-					done = true;
-					break;
-				default:
-					break;
-				}
-				
-				partIndex = 0;
+				break;
 			}
 		}
 
@@ -306,7 +265,7 @@ if (!condition) \
 		*/
 
 
-		int dataByteCount = firmware.chunkCount * 16;
+		int dataByteCount = chunkCount * 16;
 
 		// in the wireshark dumps there are 125 ContinueFirmwareDownload commands sent
 		// there are also 200 data bytes in each one

@@ -57,7 +57,7 @@ int main()
 	Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
 	usbTowerInterface->Flush();
 
-	//RCX::DownloadFirmware("C:\\Users\\david\\source\\repos\\LegoInfraredUSBTower\\ConsoleTester\\x64\\Debug\\firm0332.lgo", towerData);
+	RCX::DownloadFirmware("C:\\Users\\david\\source\\repos\\LegoInfraredUSBTower\\ConsoleTester\\x64\\Debug\\firm0332.lgo", towerData);
 
 
 	//assert(RCX::DownloadProgram("drive_until_button.rcx", 0, towerData));
