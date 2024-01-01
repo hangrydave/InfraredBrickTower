@@ -17,39 +17,39 @@ namespace RCX
 
 	*/
 
-	BOOL ParseRCXFile(const CHAR* filePath, RCXFile& file)
+	bool ParseRCXFile(const char* filePath, RCXFile& file)
 	{
 		std::ifstream input(filePath, std::ios::binary);
 		if (!input)
 		{
 			printf("RCX::ParseRCXFile: file not found");
-			return FALSE;
+			return false;
 		}
 
-		input.read(reinterpret_cast<CHAR*>(&file), FILE_HEADER_LENGTH);
+		input.read(reinterpret_cast<char*>(&file), FILE_HEADER_LENGTH);
 
 		file.chunks = new Chunk[file.chunkCount];
-		for (UINT i = 0; i < file.chunkCount; i++)
+		for (int i = 0; i < file.chunkCount; i++)
 		{
-			input.read(reinterpret_cast<CHAR*>(&file.chunks[i]), CHUNK_HEADER_LENGTH);
+			input.read(reinterpret_cast<char*>(&file.chunks[i]), CHUNK_HEADER_LENGTH);
 			Chunk* chunk = &file.chunks[i];
 
 			chunk->data = new BYTE[chunk->length];
-			input.read(reinterpret_cast<CHAR*>(chunk->data), chunk->length);
+			input.read(reinterpret_cast<char*>(chunk->data), chunk->length);
 
 			// from line 100 in rcxifile.h in the nqc project
 			// also line 240 in RCX_Image.cpp
-			UINT paddingBytes = (4 - chunk->length) & 3;
+			int paddingBytes = (4 - chunk->length) & 3;
 			input.seekg(paddingBytes, std::ios::cur);
 		}
 
 		file.symbols = new Symbol[file.symbolCount];
-		for (UINT i = 0; i < file.symbolCount; i++)
+		for (int i = 0; i < file.symbolCount; i++)
 		{
 			input.read(reinterpret_cast<char*>(&file.symbols[i]), SYMBOL_HEADER_LENGTH);
 			Symbol* symbol = &file.symbols[i];
 
-			symbol->name = new CHAR[symbol->length];
+			symbol->name = new char[symbol->length];
 			input.read(symbol->name, symbol->length);
 
 			// TODO: look at logic at line 261 onwards in RCX_Image.cpp
@@ -57,20 +57,20 @@ namespace RCX
 		}
 
 		input.close();
-		return TRUE;
+		return true;
 	}
 
-	BOOL DownloadProgram(const CHAR* filePath, BYTE programSlot, Tower::RequestData* towerData)
+	bool DownloadProgram(const char* filePath, BYTE programSlot, Tower::RequestData* towerData)
 	{
 #define _returnIfFalse(condition) \
 if (!condition) \
 { \
-	return FALSE; \
+	return false; \
 }
 
 #define CHUNK_DOWNLOAD_SIZE 20
 		BYTE replyBuffer[CHUNK_DOWNLOAD_SIZE]{};
-		ULONG lengthRead = 0;
+		unsigned long lengthRead = 0;
 
 		RCX::RCXFile rcxFile;
 		_returnIfFalse(RCX::ParseRCXFile(filePath, rcxFile));
@@ -91,7 +91,7 @@ if (!condition) \
 		LASM::Cmd_DeleteAllSubs(command);
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-		for (UINT i = 0; i < rcxFile.chunkCount; i++)
+		for (int i = 0; i < rcxFile.chunkCount; i++)
 		{
 			RCX::Chunk* chunk = &rcxFile.chunks[i];
 
@@ -105,9 +105,9 @@ if (!condition) \
 
 			_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-			UINT remainingDataSize = chunk->length;
-			UINT sizeToSend = 0;
-			UINT chunkSequenceNumber = 1;
+			int remainingDataSize = chunk->length;
+			int sizeToSend = 0;
+			int chunkSequenceNumber = 1;
 			BYTE* chunkData = chunk->data;
 			while (remainingDataSize > 0)
 			{
@@ -132,7 +132,7 @@ if (!condition) \
 		LASM::Cmd_PlaySystemSound(LASM::SystemSound::FAST_SWEEP_UP, command);
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-		return TRUE;
+		return true;
 	}
 
 	BYTE GetValueFromPair(const BYTE a, const BYTE b)
@@ -164,13 +164,13 @@ if (!condition) \
 		return result;
 	}
 
-	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData)
+	bool DownloadFirmware(const char* filePath, Tower::RequestData* towerData)
 	{
 		std::ifstream input(filePath, std::ios::binary);
 		if (!input)
 		{
 			printf("RCX::DownloadFirmware: file not found");
-			return FALSE;
+			return false;
 		}
 
 		// line 112, nqc.cpp
@@ -284,7 +284,7 @@ if (!condition) \
 				default:
 					break;
 				}
-
+				
 				partIndex = 0;
 			}
 		}
@@ -293,7 +293,7 @@ if (!condition) \
 
 
 		/*
-
+		
 		TODO
 
 		In loop below, when you do stuff with the bytes on lines 340 to 351, instead of
@@ -302,7 +302,7 @@ if (!condition) \
 		i.e.:
 
 		nvm figure it out
-
+		
 		*/
 
 
@@ -355,7 +355,7 @@ if (!condition) \
 				cmdDataBytes[byteIndex] = byte;
 				cmdDataByteSum += byte;
 			}
-
+			
 			int blockCount = (commandIndex + 1) % commandCount;
 
 			// Create the actual command to send later
@@ -368,7 +368,7 @@ if (!condition) \
 
 		int firmwareChecksum = sumOfFirst19456Bytes % 65536;
 
-		ULONG lengthRead = 0;
+		unsigned long lengthRead = 0;
 		BYTE* replyBuffer = new BYTE[COMMAND_REPLY_BUFFER_LENGTH];
 
 		LASM::CommandData command;
@@ -388,14 +388,14 @@ if (!condition) \
 			COMMAND_REPLY_BUFFER_LENGTH,
 			true));
 
-		ULONG lengthWritten = 0;
+		unsigned long lengthWritten = 0;
 		for (int i = 0; i < commandCount; i++)
 		{
 			_returnIfFalse(LASM::SendCommand(
 				&continueDownloadCommands[i],
-				towerData,
+				towerData, 
 				replyBuffer,
-				10,
+				10, 
 				true));
 		}
 
@@ -408,5 +408,6 @@ if (!condition) \
 			true));
 
 		printf("done");
+		return true;
 	}
 }

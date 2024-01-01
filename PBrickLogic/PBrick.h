@@ -1,7 +1,19 @@
 #pragma once
 
 #include <fstream>
+
+#if defined(WIN64)
+
+#include <stdio.h>
 #include <Windows.h>
+
+#elif defined(__linux)
+
+#include <cstdio>
+#define BYTE unsigned char
+#define WORD unsigned short
+
+#endif
 
 #include "TowerController.h"
 
@@ -66,7 +78,7 @@ namespace RCX
 		BYTE length;
 		BYTE reserved;
 
-		CHAR* name;
+		char* name;
 
 		~Symbol()
 		{
@@ -79,10 +91,10 @@ namespace RCX
 #pragma pack(push, 1)
 	struct RCXFile
 	{
-		UINT32 signature;
-		UINT16 version;
-		UINT16 chunkCount;
-		UINT16 symbolCount;
+		unsigned int signature;
+		unsigned short version;
+		unsigned short chunkCount;
+		unsigned short symbolCount;
 		BYTE targetType;
 		BYTE reserved;
 
@@ -98,8 +110,8 @@ namespace RCX
 #pragma pack(pop)
 #define FILE_HEADER_LENGTH 12
 
-	BOOL ParseRCXFile(const CHAR* filePath, RCXFile& file);
-	BOOL DownloadProgram(const CHAR* filePath, BYTE programSlot, Tower::RequestData* towerData);
+	bool ParseRCXFile(const char* filePath, RCXFile& file);
+	bool DownloadProgram(const char* filePath, BYTE programSlot, Tower::RequestData* towerData);
 	BYTE GetValueFromPair(const BYTE a, const BYTE b);
-	BOOL DownloadFirmware(const CHAR* filePath, Tower::RequestData* towerData);
+	bool DownloadFirmware(const char* filePath, Tower::RequestData* towerData);
 }

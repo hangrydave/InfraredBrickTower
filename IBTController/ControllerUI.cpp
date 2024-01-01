@@ -1,5 +1,11 @@
 #include "ControllerUI.h"
+
+#if defined(WIN64)
 #include "WinUsbTowerInterface.h"
+#elif defined(__linux)
+#include "LinuxUsbTowerInterface.h"
+#endif
+
 #include "PBrick.h"
 #include <iostream>
 
@@ -20,11 +26,17 @@ namespace IBTUI
 
 	void RunTowerThread(bool& couldNotAccessTower, bool& programIsDone)
 	{
-		WinUsbTowerInterface* usbTowerInterface;
+		HostTowerCommInterface* usbTowerInterface;
+
+#if defined(WIN64)
 		bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+#elif defined(__linux)
+		bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
+#endif
+
 		if (!gotInterface)
 		{
-			printf("Error getting WinUSB interface!\n");
+			printf("Error getting USB interface!\n");
 			couldNotAccessTower = true;
 			programIsDone = true;
 			return;
@@ -52,8 +64,8 @@ namespace IBTUI
 			true);
 
 		// flush read
-		ULONG lengthRead = -1;
-		PUCHAR readBuffer = new UCHAR[512];
+		unsigned long lengthRead = -1;
+		BYTE* readBuffer = new BYTE[512];
 
 		while (lengthRead != 0)
 		{

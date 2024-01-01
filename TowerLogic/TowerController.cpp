@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#if defined(WIN64)
+#elif defined(__linux)
+#include <unistd.h>
+#endif
+
+#define WORD unsigned short
+
 #define MAX_WRITE_ATTEMPTS 4
 #define MAX_READ_ATTEMPTS 4
 
@@ -11,16 +18,16 @@
 
 namespace Tower
 {
-	BOOL ReadData(
-		PUCHAR buffer,
-		ULONG bufferLength,
-		ULONG& lengthRead,
+	bool ReadData(
+		BYTE* buffer,
+		unsigned long bufferLength,
+		unsigned long& lengthRead,
 		RequestData* data)
 	{
 		lengthRead = 0;
 
-		INT readAttemptCount = 0;
-		BOOL success = FALSE;
+		int readAttemptCount = 0;
+		bool success = false;
 		while (!success &&
 			readAttemptCount < MAX_READ_ATTEMPTS &&
 			lengthRead == 0)
@@ -39,18 +46,18 @@ namespace Tower
 		return success || (lengthRead > 0);
 	}
 
-	BOOL WriteData(
-		PUCHAR buffer,
-		ULONG bufferLength,
-		ULONG& lengthWritten,
+	bool WriteData(
+		BYTE* buffer,
+		unsigned long bufferLength,
+		unsigned long& lengthWritten,
 		RequestData* data,
-		BOOL preFlush)
+		bool preFlush)
 	{
 		if (preFlush)
 		{
 			// nqc flushes the read before writing, which is a very good idea!
-			ULONG lengthRead = -1;
-			PUCHAR readBuffer = new UCHAR[512];
+			unsigned long lengthRead = -1;
+			BYTE* readBuffer = new BYTE[512];
 
 			while (lengthRead != 0)
 			{
@@ -61,8 +68,8 @@ namespace Tower
 		}
 
 		// Try to write the data!
-		INT writeAttemptCount = 0;
-		BOOL success = FALSE;
+		int writeAttemptCount = 0;
+		bool success = false;
 		while (!success && writeAttemptCount < MAX_WRITE_ATTEMPTS)
 		{
 			success = data->commInterface->Write(buffer, bufferLength, lengthWritten);
@@ -72,7 +79,12 @@ namespace Tower
 			// we need an additional timeout.
 			if (bufferLength < 350)
 			{
-				Sleep(WRITE_PAUSE_TIME); // give time to finish
+				// give time to finish
+#if defined(WIN64)
+            	Sleep(WRITE_PAUSE_TIME);
+#elif defined(__linux)
+            	sleep(WRITE_PAUSE_TIME / 1000);
+#endif
 			}
 			
 			writeAttemptCount++;
@@ -81,7 +93,7 @@ namespace Tower
 		return bufferLength == lengthWritten;
 	}
 
-	VOID Flush(CommBuffer buffer, RequestData* data)
+	void Flush(CommBuffer buffer, RequestData* data)
 	{
 		BYTE loByte = (BYTE)buffer;
 		BYTE hiByte = 0;
@@ -92,7 +104,7 @@ namespace Tower
 			data);
 	}
 
-	VOID Reset(RequestData* data)
+	void Reset(RequestData* data)
 	{
 		MakeRequest(RequestType::RESET, data);
 	}
@@ -117,7 +129,7 @@ namespace Tower
 		return *reinterpret_cast<StatisticsData*>(data->replyBuffer + 4);
 	}
 
-	VOID ResetStatistics(RequestData* data)
+	void ResetStatistics(RequestData* data)
 	{
 		MakeRequest(RequestType::RESET_STATISTICS, data);
 	}
@@ -129,7 +141,7 @@ namespace Tower
 		return (CommSpeed) *(data->replyBuffer + 4);
 	}
 
-	VOID SetTransmissionSpeed(CommSpeed speed, RequestData* data)
+	void SetTransmissionSpeed(CommSpeed speed, RequestData* data)
 	{
 		MakeRequest(
 			RequestType::SET_TRANSMISSION_SPEED,
@@ -145,7 +157,7 @@ namespace Tower
 		return (CommSpeed) *(data->replyBuffer + 4);
 	}
 
-	VOID SetReceivingSpeed(CommSpeed speed, RequestData* data)
+	void SetReceivingSpeed(CommSpeed speed, RequestData* data)
 	{
 		MakeRequest(
 			RequestType::SET_RECEIVING_SPEED,
@@ -174,7 +186,7 @@ namespace Tower
 		return (LEDColor) *(data->replyBuffer + 5);
 	}
 
-	VOID SetLEDColor(LED led, LEDColor color, RequestData* data)
+	void SetLEDColor(LED led, LEDColor color, RequestData* data)
 	{
 		BYTE loByte = (BYTE)led;
 		BYTE hiByte = (BYTE)color;
@@ -199,34 +211,34 @@ namespace Tower
 		return *reinterpret_cast<VersionData*>(data->replyBuffer + 4);
 	}
 
-	VOID GetCopyright(RequestData* data)
+	void GetCopyright(RequestData* data)
 	{
 		MakeRequest(RequestType::GET_COPYRIGHT, data);
 
 		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID GetCredits(RequestData* data)
+	void GetCredits(RequestData* data)
 	{
 		MakeRequest(RequestType::GET_CREDITS, data);
 
 		ReadStringFromReplyBuffer(data);
 	}
 
-	VOID ReadStringFromReplyBuffer(RequestData* data)
+	void ReadStringFromReplyBuffer(RequestData* data)
 	{
 		// the vendor requests that reply with a string put the length at the front of the buffer
 		data->stringLength = *((WORD*)(data->replyBuffer));
 
 		// start at 4; skip the non-string stuff
-		for (UINT i = 4; i < data->stringLength; i += 2)
+		for (int i = 4; i < data->stringLength; i += 2)
 		{
-			WCHAR wide = (WCHAR) data->replyBuffer[i];
+			wchar_t wide = (wchar_t) data->replyBuffer[i];
 			data->stringBuffer[(i - 4) / 2] = wide;
 		}
 	}
 
-	VOID SetParameter(
+	void SetParameter(
 		ParamType parameter,
 		BYTE value,
 		RequestData* data)
@@ -249,12 +261,12 @@ namespace Tower
 		return *(data->replyBuffer + 3);
 	}
 
-	VOID MakeRequest(RequestType request, RequestData* data)
+	void MakeRequest(RequestType request, RequestData* data)
 	{
 		MakeRequest(request, 0, data);
 	}
 
-	VOID MakeRequest(
+	void MakeRequest(
 		RequestType request,
 		BYTE loByte,
 		BYTE hiByte,
@@ -264,7 +276,7 @@ namespace Tower
 		MakeRequest(request, value, data);
 	}
 
-	VOID MakeRequest(
+	void MakeRequest(
 		RequestType request,
 		WORD value,
 		RequestData* data)
@@ -272,7 +284,7 @@ namespace Tower
 		// not used rn, will implement when used
 		WORD index = 0;
 
-		BOOL success = data->commInterface->ControlTransfer(
+		bool success = data->commInterface->ControlTransfer(
 			(BYTE)request,
 			value,
 			index,

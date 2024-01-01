@@ -29,4 +29,6 @@ public:
 		unsigned long& lengthRead) = 0;
 
 	virtual bool Flush() const = 0;
+
+	virtual bool Close() const = 0;
 };

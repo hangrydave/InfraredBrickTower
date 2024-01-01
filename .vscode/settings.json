@@ -1,0 +1,11 @@
+{
+    "cmake.configureSettings": {
+      "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/scripts/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    },
+    "dotnet.defaultSolution": "disable",
+    "files.associations": {
+      "iostream": "cpp",
+      "memory_resource": "cpp"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+  }
