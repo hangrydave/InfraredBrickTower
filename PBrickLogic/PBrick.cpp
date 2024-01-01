@@ -203,6 +203,7 @@ if (!condition) \
 
 		int startAddress = 0x8000; // Refer to page 92 of LASM doc
 		int sumOfFirst19456Bytes = 0;
+		int fileIndex = 0;
 
 		BYTE* cmdDataBytes = new BYTE[dataByteCountPerCommand];
 		char byteChars[2];
@@ -230,6 +231,9 @@ if (!condition) \
 			{
 				input.get(byteChars[0]);
 				input.get(byteChars[1]);
+				BYTE byte = GetValueFromPair(byteChars[0], byteChars[1]);
+
+				fileIndex += 2;
 
 				switch (byteChars[0])
 				{
@@ -241,6 +245,7 @@ if (!condition) \
 						inChunk = true;
 						break;
 					case '9':
+						inChunk = false;
 						break;
 					default:
 						inChunk = false;
@@ -269,7 +274,6 @@ if (!condition) \
 						break;
 					}
 
-					BYTE byte = GetValueFromPair(byteChars[0], byteChars[1]);
 					cmdDataBytes[cmdDataByteIndex++] = byte;
 					cmdDataByteSum += byte;
 
@@ -296,6 +300,13 @@ if (!condition) \
 				blockCount,
 				lengthForThisOne,
 				continueDownloadCommands[commandIndex]);
+
+			for (int i = 0; i < continueDownloadCommands[commandIndex].dataLength; i++)
+			{
+				char c = continueDownloadCommands[commandIndex].data[i];
+				printf("%02hhx", c);
+			}
+			printf("\n");
 		}
 
 		delete[] byteChars;
