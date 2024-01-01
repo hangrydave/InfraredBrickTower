@@ -1,8 +1,4 @@
 
-[submodule "imgui-filebrowser"]
-	path = lib/imgui-filebrowser/imgui-filebrowser
-	url = https://github.com/AirGuanZ/imgui-filebrowser.git
-
 [submodule "imgui"]
 	path = lib/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
