@@ -6,7 +6,7 @@
 namespace RCX
 {
 	/*
-	
+
 	Big questions!
 
 	Is this type of file something that the NQC dev created?
@@ -14,7 +14,7 @@ namespace RCX
 	Is it something created by the official software?
 
 	Not sure!
-	
+
 	*/
 
 	BOOL ParseRCXFile(const CHAR* filePath, RCXFile& file)
@@ -284,7 +284,7 @@ if (!condition) \
 				default:
 					break;
 				}
-				
+
 				partIndex = 0;
 			}
 		}
@@ -293,7 +293,7 @@ if (!condition) \
 
 
 		/*
-		
+
 		TODO
 
 		In loop below, when you do stuff with the bytes on lines 340 to 351, instead of
@@ -302,7 +302,7 @@ if (!condition) \
 		i.e.:
 
 		nvm figure it out
-		
+
 		*/
 
 
@@ -355,7 +355,7 @@ if (!condition) \
 				cmdDataBytes[byteIndex] = byte;
 				cmdDataByteSum += byte;
 			}
-			
+
 			int blockCount = (commandIndex + 1) % commandCount;
 
 			// Create the actual command to send later
@@ -393,9 +393,9 @@ if (!condition) \
 		{
 			_returnIfFalse(LASM::SendCommand(
 				&continueDownloadCommands[i],
-				towerData, 
+				towerData,
 				replyBuffer,
-				10, 
+				10,
 				true));
 		}
 
@@ -408,5 +408,5 @@ if (!condition) \
 			true));
 
 		printf("done");
- 	}
+	}
 }

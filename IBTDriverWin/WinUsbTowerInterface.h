@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HostTowerCommInterface.h"
-#include <winusb.h>
+#include <Windows.h>
 
 class WinUsbTowerInterface : public HostTowerCommInterface
 {
@@ -11,7 +11,7 @@ private:
 	// I can't store a DEVICE_DATA variable in here for reasons I can't comprehend,
 	// so in the meantime, I'll just store a copy of everything in there.
 	BOOL                    handlesOpen;
-	WINUSB_INTERFACE_HANDLE winUsbHandle;
+	PVOID					winUsbHandle;
 	HANDLE                  deviceHandle;
 	TCHAR*                  devicePath;
 
@@ -23,13 +23,13 @@ private:
 public:
 	WinUsbTowerInterface(
 		BOOL handlesOpen,
-		WINUSB_INTERFACE_HANDLE winUsbHandle,
+		PVOID winUsbHandle,
 		HANDLE deviceHandle,
 		PTCHAR devicePath);
 
 	~WinUsbTowerInterface();
 
-	BOOL ControlTransfer(
+	bool ControlTransfer(
 		BYTE request,
 		WORD value,
 		WORD index,
@@ -37,21 +37,17 @@ public:
 		BYTE* buffer,
 		ULONG& lengthTransferred) const;
 
-	/*BOOL EnableForeverTimeout() const;
-
-	BOOL ResetTimeout() const;*/
-
-	BOOL Write(
+	bool Write(
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthWritten) const;
 
-	BOOL Read(
+	bool Read(
 		PUCHAR buffer,
 		ULONG bufferLength,
 		ULONG& lengthRead);
 
-	BOOL Flush() const;
+	bool Flush() const;
 };
 
 BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface);
