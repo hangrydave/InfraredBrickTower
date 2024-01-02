@@ -117,9 +117,9 @@ namespace IBTUI
 				if (rcxRemoteData.sound-- > 0)
 					rcxRemoteData.request |= LASM::RemoteCommandRequest::REMOTE_SOUND;
 
-				Tower::SetCommMode(Tower::CommMode::IR, towerData);
 				if (rcxRemoteData.request != 0)
 				{
+					Tower::SetCommMode(Tower::CommMode::IR, towerData);
 					if (rcxRemoteData.request & LASM::RemoteCommandRequest::REMOTE_SOUND)
 					{
 						// TODO: grabbed this from bricxcc wireshark. what is this
@@ -157,6 +157,7 @@ namespace IBTUI
 
 				if (rcxRemoteData.downloadFilePath != nullptr)
 				{
+					Tower::SetCommMode(Tower::CommMode::IR, towerData);
 					isDownloadingSomething = true;
 					if (rcxRemoteData.downloadFirmware)
 					{
