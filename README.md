@@ -9,6 +9,9 @@ This project is currently built off of WinUSB, but at some point I'd like to shi
 
 I'd like this to be useful to other people than myself, but this is first and foremost a passion project. Current goals are to support downloading compiled RCX programs and bytecode, and to communicate in VLL with the Micro Scout. Also, (for the better or worse of my own sanity) I'm planning on writing a [NQC](http://bricxcc.sourceforge.net/nqc/) compiler at some point.
 
+## Linux Info
+For the USB tower to work with this on Linux, follow the instructions [here](https://pbrick.info/index.html-p=178.html).
+
 ## Compiling
 Install [vcpkg](https://vcpkg.io/en/index.html), and then run:
 ```
