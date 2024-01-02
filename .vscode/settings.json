@@ -5,7 +5,8 @@
     "dotnet.defaultSolution": "disable",
     "files.associations": {
       "iostream": "cpp",
-      "memory_resource": "cpp"
+      "memory_resource": "cpp",
+      "new": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
   }
