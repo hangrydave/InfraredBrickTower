@@ -24,10 +24,14 @@ git submodule update --init --recursive
 
 - #### Linux
     For the USB tower to work on Linux, follow the instructions [here](https://pbrick.info/index.html-p=178.html).
+    Additionally, there's a few packages you'll need. Here's what that'll look like on an Ubuntu-based system:
+    ```
+    sudo apt install ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev
+    ```
 
 ### Part 3: Success
 
-From here, you'd probably be able to use whatever C++ IDE that supports CMake that you'd like. Personally, I use Visual Studio Code with Microsoft's CMake Tools extension. Build the project and have fun!
+From here, you'd probably be able to use whichever C++ IDE you like, as long as it supports CMake. Personally, I use Visual Studio Code with Microsoft's CMake Tools extension. Build the project and have fun!
 
 
 ### Just For Fun
