@@ -15,6 +15,15 @@
 #include "imfilebrowser.h"
 #include "ControllerUI.h"
 
+#include "PBrick.h"
+#if defined(WIN32)
+#include "WinUsbTowerInterface.h"
+
+#elif defined(__linux)
+#include "LinuxUsbTowerInterface.h"
+
+#endif
+
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
 // Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
@@ -52,6 +61,38 @@ void RunTowerThread()
 // Main code
 int main(int, char**)
 {
+    HostTowerCommInterface *usbTowerInterface;
+
+#if defined(WIN32)
+    bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+#elif defined(__linux)
+    bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
+#endif
+
+    if (!gotInterface)
+    {
+        printf("Error getting USB interface!\n");
+        return 1;
+    }
+
+    Tower::RequestData *towerData = new Tower::RequestData(usbTowerInterface);
+
+    Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
+    towerData->commInterface->Flush();
+
+    LASM::CommandData lasmCommand;
+    LASM::Cmd_PBAliveOrNot(lasmCommand);
+    bool success = LASM::SendCommand(
+        &lasmCommand,
+        towerData,
+        towerData->replyBuffer,
+        0,
+        true);
+
+    RCX::DownloadFirmware("/home/davidreidsma/firm0332.lgo", towerData);
+
+    return 0;
+
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
