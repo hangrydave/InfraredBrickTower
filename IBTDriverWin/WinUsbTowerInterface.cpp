@@ -2,6 +2,7 @@
 
 #include "WinUsbTowerInterface.h"
 #include <stdio.h>
+#include <winusb.h>
 
 // useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint
 
@@ -11,7 +12,7 @@
 
 #define DEBUG 0
 
-BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
+BOOL OpenWinUsbTowerInterface(HostTowerCommInterface*& towerInterface)
 {
 	DEVICE_DATA           deviceData;
 	HRESULT               hr;
@@ -121,7 +122,7 @@ BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
 
 WinUsbTowerInterface::WinUsbTowerInterface(
 	BOOL handlesOpen,
-	WINUSB_INTERFACE_HANDLE winUsbHandle,
+	PVOID winUsbHandle,
 	HANDLE deviceHandle,
 	PTCHAR devicePath)
 {
@@ -136,7 +137,7 @@ WinUsbTowerInterface::~WinUsbTowerInterface()
 {
 }
 
-BOOL WinUsbTowerInterface::ControlTransfer(
+bool WinUsbTowerInterface::ControlTransfer(
 	BYTE request,
 	WORD value,
 	WORD index,
@@ -169,7 +170,7 @@ BOOL WinUsbTowerInterface::ControlTransfer(
 	return success;
 }
 
-BOOL WinUsbTowerInterface::Write(
+bool WinUsbTowerInterface::Write(
 	PUCHAR buffer,
 	ULONG bufferLength,
 	ULONG& lengthWritten) const
@@ -193,7 +194,7 @@ BOOL WinUsbTowerInterface::Write(
 	return success;
 }
 
-BOOL WinUsbTowerInterface::Read(
+bool WinUsbTowerInterface::Read(
 	PUCHAR buffer,
 	ULONG bufferLength,
 	ULONG& lengthRead)
@@ -230,7 +231,7 @@ BOOL WinUsbTowerInterface::Read(
 	return success;	
 }
 
-BOOL WinUsbTowerInterface::Flush() const
+bool WinUsbTowerInterface::Flush() const
 {
 	WinUsb_FlushPipe(this->winUsbHandle, TOWER_WRITE_PIPE_ID);
 	WinUsb_FlushPipe(this->winUsbHandle, TOWER_READ_PIPE_ID);
@@ -258,4 +259,9 @@ VOID WinUsbTowerInterface::PrintErrorIfAny(const char* caller) const
 		printf("%s: timeout\n", caller);
 		break;
 	}
+}
+
+bool WinUsbTowerInterface::Close() const
+{
+	return true;
 }

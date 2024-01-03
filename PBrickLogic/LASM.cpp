@@ -2,16 +2,17 @@
 #include "LASM.h"
 #include "stdio.h"
 #include "TowerController.h"
+#include <string.h>
 
 namespace LASM
 {
 #define LO_BYTE(b) b & 0x00ff
 #define HI_BYTE(b) (b & 0xff00) >> 8
 
-	BOOL SendCommand(CommandData* command, Tower::RequestData* towerData)
+	bool SendCommand(CommandData* command, Tower::RequestData* towerData)
 	{
 		BYTE* replyBuffer = new BYTE[COMMAND_REPLY_BUFFER_LENGTH];
-		BOOL success = SendCommand(
+		bool success = SendCommand(
 			command,
 			towerData,
 			replyBuffer,
@@ -23,16 +24,16 @@ namespace LASM
 		return success;
 	}
 
-	BOOL SendCommand(
+	bool SendCommand(
 		CommandData* command,
 		Tower::RequestData* towerData,
 		BYTE* replyBuffer,
-		BOOL skipReply,
-		BOOL skipReplyValidation,
-		BOOL preWriteFlush)
+		bool skipReply,
+		bool skipReplyValidation,
+		bool preWriteFlush)
 	{
-		ULONG lengthWritten = 0;
-		BOOL writeSuccess = Tower::WriteData(
+		unsigned long lengthWritten = 0;
+		bool writeSuccess = Tower::WriteData(
 			command->data,
 			command->dataLength,
 			lengthWritten,
@@ -40,28 +41,28 @@ namespace LASM
 			preWriteFlush);
 
 		if (!writeSuccess)
-			return FALSE;
+			return false;
 
 		if (skipReply)
-			return TRUE;
+			return true;
 
-		ULONG lengthRead = 0;
-		BOOL readSuccess = Tower::ReadData(
+		unsigned long lengthRead = 0;
+		bool readSuccess = Tower::ReadData(
 			replyBuffer,
 			COMMAND_REPLY_BUFFER_LENGTH,
 			lengthRead,
 			towerData);
 
  		if (!readSuccess)
-			return FALSE;
+			return false;
 
 		if (skipReplyValidation)
-			return TRUE;
+			return true;
 
 		return ValidateReply(command, replyBuffer, lengthRead);
 	}
 
-	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength)
+	bool ValidateReply(CommandData* command, BYTE* replyBuffer, unsigned int replyLength)
 	{
 		/*
 		
@@ -89,8 +90,8 @@ namespace LASM
 		// first off, it can't be guaranteed that the typical preamble of 0x55 0xFF 0x00 will be there;
 		// occasionally, just a part of it will be there.
 		// so, i'll search through the buffer for the complement.
-		UINT complementIndex = -1;
-		for (UINT i = 0; i < replyLength; i++)
+		unsigned int complementIndex = -1;
+		for (unsigned int i = 0; i < replyLength; i++)
 		{
 			BYTE b = replyBuffer[i];
 			if (b == complement)
@@ -102,7 +103,7 @@ namespace LASM
 
 		if (complementIndex == -1)
 		{
-			return FALSE;
+			return false;
 		}
 
 		// now it's expected that there is a pattern like <complement> <command>.
@@ -111,7 +112,7 @@ namespace LASM
 			   replyBuffer[complementIndex + 1] == commandByte;
 	}
 
-	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command)
+	void GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command)
 	{
 		// TODO: this is bad
 		BYTE paramA = params[0];
@@ -266,7 +267,7 @@ namespace LASM
 		}
 		else if (strcmp(code, "msgs") == 0)
 		{
-			//Cmd_InternMessage(paramA, *command);
+			//Cmd_internMessage(paramA, *command);
 		}
 		else if (strcmp(code, "playv") == 0)
 		{
@@ -462,62 +463,62 @@ namespace LASM
 		}
 	}
 
-	VOID Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)
+	void Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)
 	{
 		BYTE actionBits = (BYTE)action << 6;
 		BYTE params[1]{ actionBits | motors };
 		ComposeCommand(Command::OnOffFloat, params, 1, commandData);
 	}
 
-	VOID Cmd_PlaySystemSound(SystemSound sound, CommandData& commandData)
+	void Cmd_PlaySystemSound(SystemSound sound, CommandData& commandData)
 	{
 		BYTE params[1]{ (BYTE)sound };
 		ComposeCommand(Command::PlaySystemSound, params, 1, commandData);
 	}
 
-	VOID Cmd_SelectProgram(BYTE program, CommandData& commandData)
+	void Cmd_SelectProgram(BYTE program, CommandData& commandData)
 	{
 		BYTE params[1]{ (BYTE)program };
 		ComposeCommand(Command::SelectProgram, params, 1, commandData);
 	}
 
-	VOID Cmd_RemoteCommand(WORD request, CommandData& commandData)
+	void Cmd_RemoteCommand(WORD request, CommandData& commandData)
 	{
 		BYTE params[2]{ LO_BYTE((WORD)request), HI_BYTE((WORD)request) };
 		ComposeCommand(Command::RemoteCommand, params, 2, commandData);
 	}
 
-	VOID Cmd_SetPower(BYTE motors, ParamSource powerSource, BYTE powerValue, CommandData& commandData)
+	void Cmd_SetPower(BYTE motors, ParamSource powerSource, BYTE powerValue, CommandData& commandData)
 	{
 		BYTE params[3]{ motors, (BYTE)powerSource, powerValue};
 		ComposeCommand(Command::SetPower, params, 3, commandData);
 	}
 
-	VOID Cmd_PlayTone(WORD frequency, BYTE duration, CommandData& commandData)
+	void Cmd_PlayTone(WORD frequency, BYTE duration, CommandData& commandData)
 	{
 		BYTE params[3]{ LO_BYTE(frequency), HI_BYTE(frequency), duration };
 		ComposeCommand(Command::PlayTone, params, 3, commandData);
 	}
 
-	VOID Cmd_UnlockPBrick(CommandData& commandData)
+	void Cmd_UnlockPBrick(CommandData& commandData)
 	{
 		BYTE params[5]{ 1, 3, 5, 7, 11 };
 		ComposeCommand(Command::UnlockPBrick, params, 5, commandData);
 	}
 
-	VOID Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData)
+	void Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData)
 	{
 		BYTE params[5]{ 0, taskNumber, 0, LO_BYTE(taskSize), HI_BYTE(taskSize)};
 		ComposeCommand(Command::BeginOfTask, params, 5, commandData);
 	}
 	
-	VOID Cmd_BeginOfSub(BYTE subNumber, BYTE subSize, CommandData& commandData)
+	void Cmd_BeginOfSub(BYTE subNumber, BYTE subSize, CommandData& commandData)
 	{
 		BYTE params[5]{ 0, subNumber, 0, LO_BYTE(subSize), HI_BYTE(subSize)};
 		ComposeCommand(Command::BeginOfSub, params, 5, commandData);
 	}
 
-	VOID Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData)
+	void Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData)
 	{
 		// look at RCX_Cmd::MakeDownload in the NQC code for reference
 		
@@ -530,7 +531,7 @@ namespace LASM
 		*paramsPtr++ = HI_BYTE(byteCount);
 
 		BYTE* dataPtr = data;
-		INT sum = 0;
+		int sum = 0;
 		BYTE bytesLeft = byteCount;
 		while (bytesLeft > 0)
 		{
@@ -544,13 +545,13 @@ namespace LASM
 		ComposeCommand(Command::Download, params, paramCount, commandData);
 	}
 
-	VOID Cmd_GoIntoBootMode(CommandData& commandData)
+	void Cmd_GoIntoBootMode(CommandData& commandData)
 	{
 		BYTE params[5]{ 1, 3, 5, 7, 11 };
 		ComposeCommand(Command::GoIntoBootMode, params, 5, commandData);
 	}
 
-	VOID Cmd_BeginFirmwareDownload(INT checksum, CommandData& commandData)
+	void Cmd_BeginFirmwareDownload(int checksum, CommandData& commandData)
 	{
 		BYTE params[5]
 		{
@@ -563,29 +564,29 @@ namespace LASM
 		ComposeCommand(Command::BeginFirmwareDownLoad, params, 5, commandData);
 	}
 
-	VOID Cmd_UnlockFirmware(CommandData& commandData)
+	void Cmd_UnlockFirmware(CommandData& commandData)
 	{
 		BYTE params[5]{ 0x4C, 0x45, 0x47, 0x4F, 0xAE };
 		ComposeCommand(Command::UnlockFirmware, params, 5, commandData);
 	}
 
-	VOID Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction, CommandData& commandData)
+	void Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction, CommandData& commandData)
 	{
 		BYTE directionBits = (BYTE)direction << 6;
 		BYTE params[1]{ directionBits | motors };
 		ComposeCommand(Command::SetFwdSetRwdRewDir, params, 1, commandData);
 	}
 
-	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData)
+	void ComposeCommand(Command lasmCommand, BYTE* params, unsigned int paramsLength, CommandData& commandData)
 	{
-		UINT index = 0;
+		unsigned int index = 0;
 
 		// preamble
 		commandData.data[index++] = 0x55;
 		commandData.data[index++] = 0xFF;
 		commandData.data[index++] = 0x00;
 
-		UINT dataSum = 0;
+		unsigned int dataSum = 0;
 
 		// command, reply, and repeat both
 		//commandData.previousCommandByte = commandData.commandByte;
@@ -599,7 +600,7 @@ namespace LASM
 
 		dataSum += commandData.commandByte;
 
-		for (UINT i = 0; i < paramsLength; i++)
+		for (unsigned int i = 0; i < paramsLength; i++)
 		{
 			BYTE paramByte = params[i];
 			commandData.data[index++] = paramByte;

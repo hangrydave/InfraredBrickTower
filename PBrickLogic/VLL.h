@@ -173,7 +173,7 @@ RCX2VLL.h from the Mindstorms SDK has some stuff to say on this. TODO: research 
 #define VLL_DELETE_PROGRAM		0x51, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x15, 0x0a, 0x15, 0x0a, 0x0b, 0x14, 0x15, 0x0a, 0x0b, 0x0b, 0x00
 
 #define GenerateVLLFunction(commandName, commandData) \
-inline void Cmd_##commandName##(unsigned char* buffer) \
+inline void Cmd_##commandName(unsigned char* buffer) \
 { \
 	unsigned char commandBytes[VLL_PACKET_LENGTH] { commandData }; \
 	for (int i = 0; i < VLL_PACKET_LENGTH; i++) \
@@ -211,4 +211,4 @@ inline void Cmd_##commandName##(unsigned char* buffer) \
 	GenerateVLLFunction(KeepAlive, VLL_KEEP_ALIVE)
 }
 
-#endif VLLCOMMANDS_H
+#endif

@@ -1,5 +1,13 @@
 #include "ControllerUI.h"
+
+#if defined(WIN32)
 #include "WinUsbTowerInterface.h"
+
+#elif defined(__linux)
+#include "LinuxUsbTowerInterface.h"
+
+#endif
+
 #include "PBrick.h"
 #include <iostream>
 
@@ -20,11 +28,17 @@ namespace IBTUI
 
 	void RunTowerThread(bool& couldNotAccessTower, bool& programIsDone)
 	{
-		WinUsbTowerInterface* usbTowerInterface;
+		HostTowerCommInterface* usbTowerInterface;
+
+#if defined(WIN32)
 		bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+#elif defined(__linux)
+		bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
+#endif
+
 		if (!gotInterface)
 		{
-			printf("Error getting WinUSB interface!\n");
+			printf("Error getting USB interface!\n");
 			couldNotAccessTower = true;
 			programIsDone = true;
 			return;
@@ -52,8 +66,8 @@ namespace IBTUI
 			true);
 
 		// flush read
-		ULONG lengthRead = -1;
-		PUCHAR readBuffer = new UCHAR[512];
+		unsigned long lengthRead = -1;
+		BYTE* readBuffer = new BYTE[512];
 
 		while (lengthRead != 0)
 		{
@@ -105,9 +119,9 @@ namespace IBTUI
 				if (rcxRemoteData.sound-- > 0)
 					rcxRemoteData.request |= LASM::RemoteCommandRequest::REMOTE_SOUND;
 
-				Tower::SetCommMode(Tower::CommMode::IR, towerData);
 				if (rcxRemoteData.request != 0)
 				{
+					Tower::SetCommMode(Tower::CommMode::IR, towerData);
 					if (rcxRemoteData.request & LASM::RemoteCommandRequest::REMOTE_SOUND)
 					{
 						// TODO: grabbed this from bricxcc wireshark. what is this
@@ -145,6 +159,7 @@ namespace IBTUI
 
 				if (rcxRemoteData.downloadFilePath != nullptr)
 				{
+					Tower::SetCommMode(Tower::CommMode::IR, towerData);
 					isDownloadingSomething = true;
 					if (rcxRemoteData.downloadFirmware)
 					{

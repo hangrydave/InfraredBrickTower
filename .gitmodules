@@ -1,8 +1,8 @@
 
-[submodule "lib/imgui-filebrowser"]
-	path = lib/imgui-filebrowser
-	url = https://github.com/AirGuanZ/imgui-filebrowser.git
 
-[submodule "lib/imgui/imgui"]
-	path = lib/imgui/imgui
-	url = https://github.com/ocornut/imgui.git
+[submodule "lib/imgui_filebrowser/imgui-filebrowser"]
+	path = lib/imgui_filebrowser/imgui-filebrowser
+	url = https://github.com/AirGuanZ/imgui-filebrowser.git
+[submodule "scripts/vcpkg"]
+	path = scripts/vcpkg
+	url = https://github.com/microsoft/vcpkg.git

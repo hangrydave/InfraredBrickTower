@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Windows.h>
-
 #include "TowerController.h"
+
+#define BYTE unsigned char
+#define WORD unsigned short
 
 namespace LASM
 {
@@ -118,7 +119,7 @@ namespace LASM
 		SENSOR_TYPE =	10,
 		SENSOR_MODE =	11,
 		SENSOR_RAW =	12,
-		SENSOR_BOOL =	13,
+		SENSOR_bool =	13,
 		WATCH =			14,
 		MESSAGE =		15,
 		GLOBAL_MOTOR_STATUS = 17,
@@ -144,7 +145,7 @@ namespace LASM
 		BYTE previousCommandByte = 0;
 		BYTE commandByte = 0;
 		BYTE data[MAX_COMMAND_LENGTH];
-		UINT dataLength = 0;
+		unsigned int dataLength = 0;
 
 		CommandData()
 		{
@@ -161,20 +162,20 @@ namespace LASM
 		~CommandData() { }
 	};
 
-	BOOL ValidateReply(CommandData* command, BYTE* replyBuffer, UINT replyLength);
-	BOOL SendCommand(
+	bool ValidateReply(CommandData* command, BYTE* replyBuffer, unsigned int replyLength);
+	bool SendCommand(
 		CommandData* command,
 		Tower::RequestData* towerData);
-	BOOL SendCommand(
+	bool SendCommand(
 		CommandData* command,
 		Tower::RequestData* towerData,
 		BYTE* replyBuffer,
-		BOOL skipReply = false,
-		BOOL skipReplyValidation = false,
-		BOOL preWriteFlush = true);
-	VOID GetCommandFromCode(const char* code, BYTE* params, ULONG paramCount, CommandData* command);
+		bool skipReply = false,
+		bool skipReplyValidation = false,
+		bool preWriteFlush = true);
+	void GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command);
 
-	VOID ComposeCommand(Command lasmCommand, BYTE* params, UINT paramsLength, CommandData& commandData);
+	void ComposeCommand(Command lasmCommand, BYTE* params, unsigned int paramsLength, CommandData& commandData);
 
 	enum class MotorAction : BYTE
 	{
@@ -191,14 +192,14 @@ namespace LASM
 		const BYTE C = 0b100;
 	}
 
-	VOID Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData);
+	void Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData);
 
 	enum class IRTransmissionRange : BYTE
 	{
 		SHORT = 0,
 		LONG = 1
 	};
-	VOID Cmd_PbTXPower(IRTransmissionRange range, CommandData& commandData);
+	void Cmd_PbTXPower(IRTransmissionRange range, CommandData& commandData);
 
 	enum class SystemSound : BYTE
 	{
@@ -209,26 +210,26 @@ namespace LASM
 		ERROR_SOUND = 4,
 		FAST_SWEEP_UP = 5
 	};
-	VOID Cmd_PlaySystemSound(SystemSound sound, CommandData& commandData);
+	void Cmd_PlaySystemSound(SystemSound sound, CommandData& commandData);
 
 	// task is number from 0 to 9
-	VOID Cmd_DeleteTask(BYTE task, CommandData& commandData);
-	VOID Cmd_StartTask(BYTE task, CommandData& commandData);
-	VOID Cmd_StopTask(BYTE task, CommandData& commandData);
+	void Cmd_DeleteTask(BYTE task, CommandData& commandData);
+	void Cmd_StartTask(BYTE task, CommandData& commandData);
+	void Cmd_StopTask(BYTE task, CommandData& commandData);
 
 	// program is number from 0 to 5
-	VOID Cmd_SelectProgram(BYTE program, CommandData& commandData);
+	void Cmd_SelectProgram(BYTE program, CommandData& commandData);
 
 	// timer is number from 0 to 3
-	VOID Cmd_ClearTimer(BYTE timer, CommandData& commandData);
+	void Cmd_ClearTimer(BYTE timer, CommandData& commandData);
 
-	VOID Cmd_PBPowerDownTime(BYTE minutes, CommandData& commandData);
+	void Cmd_PBPowerDownTime(BYTE minutes, CommandData& commandData);
 
 	// subroutine is number from 0 to 7
-	VOID Cmd_DeleteSub(BYTE subroutine, CommandData& commandData);
+	void Cmd_DeleteSub(BYTE subroutine, CommandData& commandData);
 
 	// sensor is number from 0 to 3
-	VOID Cmd_ClearSensorValue(BYTE sensor, CommandData& commandData);
+	void Cmd_ClearSensorValue(BYTE sensor, CommandData& commandData);
 
 	enum class MotorDirection : BYTE
 	{
@@ -236,10 +237,10 @@ namespace LASM
 		REVERSE = 1,
 		FORWARDS = 2
 	};
-	VOID Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction, CommandData& commandData);
+	void Cmd_SetFwdSetRwdRewDir(BYTE motors, MotorDirection direction, CommandData& commandData);
 
 	// subroutine is number from 0 to 7
-	VOID Cmd_GoSub(BYTE subroutine, CommandData& commandData);
+	void Cmd_GoSub(BYTE subroutine, CommandData& commandData);
 
 	enum class JumpDirection : BYTE
 	{
@@ -247,30 +248,30 @@ namespace LASM
 		BACKWARDS = 1
 	};
 	// distance is number from 0 to 6
-	VOID Cmd_SJump(BYTE distance, JumpDirection direction, CommandData& commandData);
-	VOID Cmd_SCheckLoopCounter(BYTE distance, CommandData& commandData);
+	void Cmd_SJump(BYTE distance, JumpDirection direction, CommandData& commandData);
+	void Cmd_SCheckLoopCounter(BYTE distance, CommandData& commandData);
 
-	VOID Cmd_ConnectDisconnect(BYTE motor, MotorAction action, CommandData& commandData);
+	void Cmd_ConnectDisconnect(BYTE motor, MotorAction action, CommandData& commandData);
 
 	// counter is number from 0 to 2
-	VOID Cmd_IncCounter(BYTE counter, CommandData& commandData);
-	VOID Cmd_DecCounter(BYTE counter, CommandData& commandData);
-	VOID Cmd_ClearCounter(BYTE counter, CommandData& commandData);
+	void Cmd_IncCounter(BYTE counter, CommandData& commandData);
+	void Cmd_DecCounter(BYTE counter, CommandData& commandData);
+	void Cmd_ClearCounter(BYTE counter, CommandData& commandData);
 
 	// priority is number from 0 to 255 (0 is highest priority)
-	VOID Cmd_SetPriority(BYTE priority, CommandData& commandData);
+	void Cmd_SetPriority(BYTE priority, CommandData& commandData);
 
 	// dunno what irMessage is, page 48 of the Firmware Command Overview
-	VOID Cmd_InternMessage(BYTE irMessage, CommandData& commandData);
+	void Cmd_InternMessage(BYTE irMessage, CommandData& commandData);
 
 	// duration is in 1/100 second
-	VOID Cmd_PlayToneVar(BYTE variableNumber, BYTE duration, CommandData& commandData);
+	void Cmd_PlayToneVar(BYTE variableNumber, BYTE duration, CommandData& commandData);
 
 	// dunno what source and value are
-	VOID Cmd_Poll(BYTE source, BYTE value, CommandData& commandData);
+	void Cmd_Poll(BYTE source, BYTE value, CommandData& commandData);
 
 	// i assume 24 hour time, so hours is 0-23 and minutes is 0-59?
-	VOID Cmd_SetWatch(BYTE hours, BYTE minutes, CommandData& commandData);
+	void Cmd_SetWatch(BYTE hours, BYTE minutes, CommandData& commandData);
 
 	enum class SensorType : BYTE
 	{
@@ -281,12 +282,12 @@ namespace LASM
 		ANGLE = 4
 	};
 	// sensorNumber is 0-2 i think
-	VOID Cmd_SetSensorType(BYTE sensorNumber, SensorType type, CommandData& commandData);
+	void Cmd_SetSensorType(BYTE sensorNumber, SensorType type, CommandData& commandData);
 
 	enum class SensorMode : BYTE
 	{
 		RAW = 0,
-		BOOLEAN = 1,
+		boolEAN = 1,
 		TRANSITION_COUNT = 2,
 		PERIOD_COUNTER = 3,
 		PCT_FULL_SCALE = 4,
@@ -295,17 +296,17 @@ namespace LASM
 		ANGLE_STEPS = 7
 	};
 	// slope is number from 0 to 31
-	VOID Cmd_SetSensorMode(BYTE sensorNumber, BYTE slope, SensorMode mode, CommandData& commandData);
+	void Cmd_SetSensorMode(BYTE sensorNumber, BYTE slope, SensorMode mode, CommandData& commandData);
 
-	VOID Cmd_SetDataLog();
-	VOID Cmd_DataLogNext();
+	void Cmd_SetDataLog();
+	void Cmd_DataLogNext();
 
-	VOID Cmd_LJump(BYTE distance, JumpDirection direction, CommandData& commandData);
+	void Cmd_LJump(BYTE distance, JumpDirection direction, CommandData& commandData);
 
-	VOID Cmd_SetLoopCounter();
-	VOID Cmd_LCheckLoopCounter();
-	VOID Cmd_SendPBMessage();
-	VOID Cmd_SendUARTData();
+	void Cmd_SetLoopCounter();
+	void Cmd_LCheckLoopCounter();
+	void Cmd_SendPBMessage();
+	void Cmd_SendUARTData();
 
 	enum RemoteCommandRequest : WORD
 	{
@@ -326,55 +327,55 @@ namespace LASM
 		MOTOR_A_BACKWARDS = 0x4000,
 		MOTOR_B_BACKWARDS = 0x8000
 	};
-	VOID Cmd_RemoteCommand(WORD request, CommandData& commandData);
+	void Cmd_RemoteCommand(WORD request, CommandData& commandData);
 
-	VOID Cmd_SDecVarJumpLTZero();
-	VOID Cmd_DirectEvent();
+	void Cmd_SDecVarJumpLTZero();
+	void Cmd_DirectEvent();
 
-	VOID Cmd_SetPower(BYTE motorList, ParamSource powerSource, BYTE powerValue, CommandData& commandData);
-	VOID Cmd_PlayTone(WORD frequency, BYTE duration, CommandData& commandData);
+	void Cmd_SetPower(BYTE motorList, ParamSource powerSource, BYTE powerValue, CommandData& commandData);
+	void Cmd_PlayTone(WORD frequency, BYTE duration, CommandData& commandData);
 
-	VOID Cmd_SelectDisplay();
-	VOID Cmd_Wait();
-	VOID Cmd_UploadRAM();
-	VOID Cmd_EnterAccessControl();
-	VOID Cmd_SetEvent();
-	VOID Cmd_SetMaxPower();
-	VOID Cmd_LDecVarJumpLTZero();
-	VOID Cmd_CalibrateEvent();
-	VOID Cmd_SetVar();
-	VOID Cmd_SumVar();
-	VOID Cmd_SubVar();
-	VOID Cmd_DivVar();
-	VOID Cmd_MulVar();
-	VOID Cmd_SgnVar();
-	VOID Cmd_AbsVar();
-	VOID Cmd_AndVar();
-	VOID Cmd_OrVar();
-	VOID Cmd_Upload();
-	VOID Cmd_SEnterEventCheck();
-	VOID Cmd_SetSourceValue();
-	VOID Cmd_UnlockPBrick(CommandData& commandData);
+	void Cmd_SelectDisplay();
+	void Cmd_Wait();
+	void Cmd_UploadRAM();
+	void Cmd_EnterAccessControl();
+	void Cmd_SetEvent();
+	void Cmd_SetMaxPower();
+	void Cmd_LDecVarJumpLTZero();
+	void Cmd_CalibrateEvent();
+	void Cmd_SetVar();
+	void Cmd_SumVar();
+	void Cmd_SubVar();
+	void Cmd_DivVar();
+	void Cmd_MulVar();
+	void Cmd_SgnVar();
+	void Cmd_AbsVar();
+	void Cmd_AndVar();
+	void Cmd_OrVar();
+	void Cmd_Upload();
+	void Cmd_SEnterEventCheck();
+	void Cmd_SetSourceValue();
+	void Cmd_UnlockPBrick(CommandData& commandData);
 
-	VOID Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData);
-	VOID Cmd_BeginOfSub(BYTE subNumber, BYTE subSize, CommandData& commandData);
+	void Cmd_BeginOfTask(BYTE taskNumber, BYTE taskSize, CommandData& commandData);
+	void Cmd_BeginOfSub(BYTE subNumber, BYTE subSize, CommandData& commandData);
 	
-	VOID Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData);
+	void Cmd_Download(BYTE* data, BYTE blockCount, BYTE byteCount, CommandData& commandData);
 
-	VOID Cmd_GoIntoBootMode(CommandData& commandData);
+	void Cmd_GoIntoBootMode(CommandData& commandData);
 
-	VOID Cmd_BeginFirmwareDownload(INT checksum, CommandData& commandData);
+	void Cmd_BeginFirmwareDownload(int checksum, CommandData& commandData);
 	
-	VOID Cmd_SCheckDo();
-	VOID Cmd_LCheckDo();
-	VOID Cmd_UnlockFirmware(CommandData& commandData);
-	VOID Cmd_LEnterEventCheck();
-	VOID Cmd_ViewSourceValue();
+	void Cmd_SCheckDo();
+	void Cmd_LCheckDo();
+	void Cmd_UnlockFirmware(CommandData& commandData);
+	void Cmd_LEnterEventCheck();
+	void Cmd_ViewSourceValue();
 
 #define Cmd(command, availabilityArg) \
-inline VOID Cmd_##command##(CommandData& commandData) \
+inline void Cmd_##command(CommandData& commandData) \
 { \
-	ComposeCommand(Command::##command##, nullptr, 0, commandData); \
+	ComposeCommand(Command::command, nullptr, 0, commandData); \
 }
 
 #define COMMA ,

@@ -1,0 +1,26 @@
+{
+  "dependencies": [
+    {
+      "name": "imgui",
+      "default-features": false,
+      "features": [
+        "docking-experimental",
+        "glfw-binding",
+        "opengl3-binding"
+      ],
+      "platform": "linux"
+    },
+    {
+      "name": "imgui",
+      "default-features": false,
+      "features": [
+        "docking-experimental",
+        "glfw-binding",
+        "opengl3-binding",
+        "win32-binding"
+      ],
+      "platform": "windows"
+    },
+    "libusb"
+  ]
+}

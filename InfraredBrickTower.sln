@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InfraredBrickTower", "InfraredBrickTower\InfraredBrickTower.vcxproj", "{549C3FAC-B8E5-493C-9429-6AC4B636C8B4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IBTDriverWin", "IBTDriverWin\IBTDriverWin.vcxproj", "{549C3FAC-B8E5-493C-9429-6AC4B636C8B4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C840DE05-B9E7-429D-AC23-CE3CC0E05F98}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,16 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TowerLogic", "TowerLogic\TowerLogic.vcxproj", "{F861C0BE-C3A7-4AE8-82A3-0317CF07AFB8}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PBrickLogic", "PBrickLogic\PBrickLogic.vcxproj", "{322A372E-0BD7-4478-8A93-538D28566C4F}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IBTController", "IBTController\IBTController.vcxproj", "{1522A058-2DF3-4F60-A493-21E3620C5B34}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IBTDriverPackage", "IBTDriverPackage\IBTDriverPackage.vcxproj", "{0ACF8A76-22DB-403C-AE5C-8329B1A5B305}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleTester", "ConsoleTester\ConsoleTester.vcxproj", "{8EA89559-6054-40AD-9178-BB2DF7A5CF7E}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
