@@ -20,7 +20,7 @@ git submodule update --init --recursive
 
 ### Part 2: Setup
 - #### Windows
-    This project is in two parts on Windows. The main part is the desktop application, and the second part is the actual USB driver. First, you need to open the Visual Studio solution file in Visual Studio 2022 and build the solution.
+    This project is in two parts on Windows. The main part is the desktop application, and the second part is the actual USB driver. Before building the desktop application, you need to open the Visual Studio solution file in Visual Studio 2022 and build the solution.
 
 - #### Linux
     For the USB tower to work on Linux, follow the instructions [here](https://pbrick.info/index.html-p=178.html).
