@@ -15,10 +15,6 @@ endif()
 
 project(InfraredBrickTower)
 
-if (WIN32)
-	find_package(directxtk12 CONFIG REQUIRED)
-endif()
-
 ## Find dependencies
 find_package(glfw3 REQUIRED)
 
