@@ -1,17 +1,9 @@
 #pragma once
 
-#if defined(WIN64)
-
-// #include <Windows.h>
-
-#elif defined(__linux)
+#include "TowerController.h"
 
 #define BYTE unsigned char
 #define WORD unsigned short
-
-#endif
-
-#include "TowerController.h"
 
 namespace LASM
 {

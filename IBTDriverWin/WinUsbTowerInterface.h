@@ -48,6 +48,8 @@ public:
 		ULONG& lengthRead);
 
 	bool Flush() const;
+
+	bool Close() const;
 };
 
-BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface);
+BOOL OpenWinUsbTowerInterface(HostTowerCommInterface*& towerInterface);

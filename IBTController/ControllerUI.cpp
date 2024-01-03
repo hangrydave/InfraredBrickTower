@@ -1,9 +1,11 @@
 #include "ControllerUI.h"
 
-#if defined(WIN64)
+#if defined(WIN32)
 #include "WinUsbTowerInterface.h"
+
 #elif defined(__linux)
 #include "LinuxUsbTowerInterface.h"
+
 #endif
 
 #include "PBrick.h"
@@ -28,7 +30,7 @@ namespace IBTUI
 	{
 		HostTowerCommInterface* usbTowerInterface;
 
-#if defined(WIN64)
+#if defined(WIN32)
 		bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
 #elif defined(__linux)
 		bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);

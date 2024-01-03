@@ -2,20 +2,20 @@
 
 #include <fstream>
 
-#if defined(WIN64)
+#if defined(WIN32)
 
 #include <stdio.h>
-#include <Windows.h>
 
 #elif defined(__linux)
 
 #include <cstdio>
-#define BYTE unsigned char
-#define WORD unsigned short
 
 #endif
 
 #include "TowerController.h"
+
+#define BYTE unsigned char
+#define WORD unsigned short
 
 /*
 

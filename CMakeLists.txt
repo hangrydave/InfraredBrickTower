@@ -36,6 +36,8 @@ include_directories("${CMAKE_SOURCE_DIR}/PBrickLogic")
 include_directories("${CMAKE_SOURCE_DIR}/TowerLogic")
 
 if (WIN32)
+	add_subdirectory(IBTDriverWin)
+	include_directories("${CMAKE_SOURCE_DIR}/IBTDriverWin")
 else()
 	add_subdirectory(IBTDriverLinux)
 	include_directories("${CMAKE_SOURCE_DIR}/IBTDriverLinux")

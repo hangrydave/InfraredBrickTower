@@ -12,7 +12,7 @@
 
 #define DEBUG 0
 
-BOOL OpenWinUsbTowerInterface(WinUsbTowerInterface*& towerInterface)
+BOOL OpenWinUsbTowerInterface(HostTowerCommInterface*& towerInterface)
 {
 	DEVICE_DATA           deviceData;
 	HRESULT               hr;
@@ -259,4 +259,9 @@ VOID WinUsbTowerInterface::PrintErrorIfAny(const char* caller) const
 		printf("%s: timeout\n", caller);
 		break;
 	}
+}
+
+bool WinUsbTowerInterface::Close() const
+{
+	return true;
 }
