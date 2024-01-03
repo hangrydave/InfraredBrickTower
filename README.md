@@ -26,7 +26,7 @@ git submodule update --init --recursive
     For the USB tower to work on Linux, follow the instructions [here](https://pbrick.info/index.html-p=178.html).
     Additionally, there's a set of packages you'll need. Here's what that'll look like on an Ubuntu-based system:
     ```
-    sudo apt install ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb
+    sudo apt install ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb make
     ```
 
 ### Part 3: Success
