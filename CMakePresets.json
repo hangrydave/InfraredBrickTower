@@ -3,9 +3,9 @@
     "configurePresets": [
         {
             "name": "Linux",
-            "displayName": "Unix Makefiles",
-            "description": "Unix Makefiles",
-            "generator": "Unix Makefiles",
+            "displayName": "Ninja",
+            "description": "Using Ninja",
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
