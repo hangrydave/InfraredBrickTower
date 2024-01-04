@@ -99,7 +99,7 @@ namespace IBTUI
         int stop = 0;
         BYTE stopBytes[VLL_PACKET_LENGTH]{ VLL_STOP };
 
-        int deleteProgram = 0;
+        int deletePrgm = 0;
         BYTE deleteBytes[VLL_PACKET_LENGTH]{ VLL_DELETE_PROGRAM };
     };
 
