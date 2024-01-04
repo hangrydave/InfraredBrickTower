@@ -3,9 +3,9 @@
     "configurePresets": [
         {
             "name": "Linux",
-            "displayName": "Ninja",
-            "description": "Sets Ninja generator, build and install directory",
-            "generator": "Ninja",
+            "displayName": "Unix Makefiles",
+            "description": "Unix Makefiles",
+            "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -36,6 +36,12 @@
             "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
             "configurePreset": "Windows",
             "configuration": "Debug"
+        },
+        {
+            "name": "Linux",
+            "description": "Linux makefiles",
+            "displayName": "Linux",
+            "configurePreset": "Linux"
         }
     ]
 }
