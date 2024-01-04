@@ -36,9 +36,6 @@ jobs:
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
-          - os: ubuntu-latest
-            c_compiler: ninja
-            cpp_compiler: ninja++
         exclude:
           - os: windows-latest
             c_compiler: gcc
