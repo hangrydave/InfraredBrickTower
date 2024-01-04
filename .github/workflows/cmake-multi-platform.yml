@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install necessary packages
-      - run: sudo apt install -y ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb make
+        run: sudo apt install -y ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb make
       - uses: actions/checkout@v2.3.4
       #-uses: actions/cache@v3   <===== YOU DO NOT NEED THIS!
 
