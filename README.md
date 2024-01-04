@@ -2,7 +2,7 @@
 
 IBT is a project to bring new life to the Lego Mindstorms RCX USB infrared transmission tower for modern operating systems.
 
-![A screenshot of the main application.](screenshot.png)
+![A screenshot of the main application.](images/screenshot.png)
 
 This is very work-in-progress. Feel free to contribute by submitting a pull request or by opening issues!
 
@@ -37,7 +37,7 @@ From here, you'd probably be able to use whichever C++ IDE you like, as long as 
 ### Just For Fun
 An image of the USB infrared transmission tower:
 
-![An image of the Lego USB infrared transmission tower](https://github.com/hangrydave/InfraredBrickTower_WinUSB/blob/main/tower.jpg?raw=true)
+![An image of the Lego USB infrared transmission tower](images/tower.jpg)
 
 ## Contributing
 If you have changes you'd like to make or recommendations, feel free to open a pull request or an issue!
