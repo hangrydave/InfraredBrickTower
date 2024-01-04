@@ -10,8 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Submodules
-        run: git submodule update --init --recursive
+      - name: checkout all the submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Install necessary packages
         run: sudo apt install -y ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb make
       - uses: actions/checkout@v2.3.4
