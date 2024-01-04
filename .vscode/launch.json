@@ -22,7 +22,7 @@
             "program": "${workspaceFolder}/out/build/Linux/InfraredBrickTower",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
