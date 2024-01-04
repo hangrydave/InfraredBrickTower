@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      CC: g++
     steps:
       #-uses: actions/cache@v3   <===== YOU DO NOT NEED THIS!
 
