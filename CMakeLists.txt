@@ -50,7 +50,7 @@ add_executable(
 	IBTController/ControllerUI.cpp)
 
 add_executable(
-	ConsoleTesterProgram
+	IBTConsole
 	ConsoleTester/ConsoleTester.cpp)
 
 target_link_libraries(InfraredBrickTower PRIVATE imgui::imgui)
@@ -79,8 +79,8 @@ target_link_libraries(InfraredBrickTower PRIVATE glfw)
 target_link_libraries(InfraredBrickTower PRIVATE TowerLogic)
 target_link_libraries(InfraredBrickTower PRIVATE PBrickLogic)
 
-target_link_libraries(ConsoleTesterProgram PRIVATE TowerLogic)
-target_link_libraries(ConsoleTesterProgram PRIVATE PBrickLogic)
+target_link_libraries(IBTConsole PRIVATE TowerLogic)
+target_link_libraries(IBTConsole PRIVATE PBrickLogic)
 
 if (WIN32)
 	target_link_libraries(InfraredBrickTower PRIVATE winusb)
@@ -88,14 +88,14 @@ if (WIN32)
 	target_link_libraries(InfraredBrickTower PRIVATE IBTDriverWin)
 	target_link_libraries(InfraredBrickTower PRIVATE opengl32.lib)
 	
-	target_link_libraries(ConsoleTesterProgram PRIVATE winusb)
-	target_link_libraries(ConsoleTesterProgram PRIVATE cfgmgr32)
-	target_link_libraries(ConsoleTesterProgram PRIVATE IBTDriverWin)
+	target_link_libraries(IBTConsole PRIVATE winusb)
+	target_link_libraries(IBTConsole PRIVATE cfgmgr32)
+	target_link_libraries(IBTConsole PRIVATE IBTDriverWin)
 else()
 	target_link_libraries(InfraredBrickTower PRIVATE PkgConfig::libusb)
 	target_link_libraries(InfraredBrickTower PRIVATE IBTDriverLinux)
 	target_link_libraries(InfraredBrickTower PRIVATE OpenGL)
 
-	target_link_libraries(ConsoleTesterProgram PRIVATE PkgConfig::libusb)
-	target_link_libraries(ConsoleTesterProgram PRIVATE IBTDriverLinux)
+	target_link_libraries(IBTConsole PRIVATE PkgConfig::libusb)
+	target_link_libraries(IBTConsole PRIVATE IBTDriverLinux)
 endif()

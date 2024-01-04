@@ -16,10 +16,10 @@
             "console": "externalTerminal"
         },
         {
-            "name": "(Windows) Launch ConsoleTester",
+            "name": "(Windows) Launch IBTConsole",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/out/build/Windows/Debug/ConsoleTesterProgram",
+            "program": "${workspaceFolder}/out/build/Windows/Debug/IBTConsole",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -51,10 +51,10 @@
             ]
         },
         {
-            "name": "(gdb) Launch ConsoleTester",
+            "name": "(gdb) Launch IBTConsole",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/out/build/Linux/ConsoleTesterProgram",
+            "program": "${workspaceFolder}/out/build/Linux/IBTConsole",
             "args": [ "~/RCX/firm0332.lgo" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
