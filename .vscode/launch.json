@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Launch",
+            "name": "(Windows) Launch IBTController",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/out/build/Windows/Debug/InfraredBrickTower",
@@ -16,11 +16,46 @@
             "console": "externalTerminal"
         },
         {
-            "name": "(gdb) Launch",
+            "name": "(Windows) Launch ConsoleTester",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/build/Windows/Debug/ConsoleTesterProgram",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
+            "name": "(gdb) Launch IBTController",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/out/build/Linux/InfraredBrickTower",
             "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) Launch ConsoleTester",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/build/Linux/ConsoleTesterProgram",
+            "args": [ "~/RCX/firm0332.lgo" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

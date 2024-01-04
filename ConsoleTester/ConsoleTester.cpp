@@ -1,30 +1,41 @@
-#include "../IBTDriverWin/WinUsbTowerInterface.h"
-#include "../TowerLogic/TowerController.h"
-#include "../PBrickLogic/VLL.h"
-#include "../PBrickLogic/LASM.h"
-#include "../PBrickLogic/PBrick.h"
+#if defined(WIN32)
+#include "WinUsbTowerInterface.h"
+
+#elif defined(__linux)
+#include "LinuxUsbTowerInterface.h"
+
+#endif
+#include "TowerController.h"
+#include "VLL.h"
+#include "LASM.h"
+#include "PBrick.h"
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
 
-BOOL StringsAreEqual(char* strOne, char* strTwo);
-VOID MicroScoutCLI(Tower::RequestData* towerData);
+bool StringsAreEqual(char* strOne, char* strTwo);
+void MicroScoutCLI(Tower::RequestData* towerData);
 
-VOID TestTower(Tower::RequestData* data);
-VOID DriveMotors(Tower::RequestData* towerData);
-VOID BeepRCX(Tower::RequestData* towerData);
-VOID BeepMicroScout(Tower::RequestData* towerData);
-VOID BeepRCXAndMicroScout(Tower::RequestData* towerData);
+void TestTower(Tower::RequestData* data);
+void DriveMotors(Tower::RequestData* towerData);
+void BeepRCX(Tower::RequestData* towerData);
+void BeepMicroScout(Tower::RequestData* towerData);
+void BeepRCXAndMicroScout(Tower::RequestData* towerData);
 
-int main()
+int main(int argc, char *argv[])
 {
-	WinUsbTowerInterface* usbTowerInterface;
-	BOOL gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+	HostTowerCommInterface* usbTowerInterface;
+
+#if defined(WIN32)
+		bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
+#elif defined(__linux)
+		bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
+#endif
+
 	if (!gotInterface)
 	{
-		printf("Error getting WinUSB interface!\n");
-		system("pause");
-		return 0;
+		printf("Error getting USB interface!\n");
+		return 1;
 	}
 
 	Tower::RequestData* towerData = new Tower::RequestData(usbTowerInterface);
@@ -32,39 +43,13 @@ int main()
 	Tower::SetCommMode(Tower::CommMode::IR, towerData);
 
 	BYTE replyBuffer[64];
-	ULONG lengthRead = 0;
-
-	ULONG lengthWritten = 0;
-	/*BOOL writeSuccess = Tower::WriteData(
-		command.data,
-		command.dataLength,
-		lengthWritten,
-		towerData);
-
-	BOOL readSuccess = Tower::ReadData(
-		replyBuffer,
-		21,
-		lengthRead,
-		towerData);*/
-
-	/*int rom_major = replyBuffer[7];
-	int rom_minor = replyBuffer[10];
-
-	int ram_major = replyBuffer[14];
-	int ram_minor = replyBuffer[16] * 10 + replyBuffer[17];*/
+	unsigned long lengthRead = 0;
+	unsigned long lengthWritten = 0;
 
 	Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
 	usbTowerInterface->Flush();
 
-	RCX::DownloadFirmware("C:\\Users\\david\\source\\repos\\LegoInfraredUSBTower\\ConsoleTester\\x64\\Debug\\firm0332.lgo", towerData);
-
-
-	//assert(RCX::DownloadProgram("drive_until_button.rcx", 0, towerData));
-	//assert(RCX::DownloadProgram("example_program.rcx", 1, towerData));
-	//assert(RCX::DownloadProgram("beep.rcx", 2, towerData));
-	//DriveMotors(towerData));
-	BeepRCX(towerData);
-	//MicroScoutCLI(towerData);
+	RCX::DownloadFirmware(argv[1], towerData);
 
 	//while (true)
 	//{

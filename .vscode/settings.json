@@ -63,5 +63,6 @@
       "cinttypes": "cpp",
       "typeinfo": "cpp"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.clang_format_style": ".vscode/.clang-format"
   }

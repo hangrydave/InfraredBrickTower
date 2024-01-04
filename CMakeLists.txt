@@ -49,6 +49,10 @@ add_executable(
 	IBTController/ControllerUI.h
 	IBTController/ControllerUI.cpp)
 
+add_executable(
+	ConsoleTesterProgram
+	ConsoleTester/ConsoleTester.cpp)
+
 target_link_libraries(InfraredBrickTower PRIVATE imgui::imgui)
 
 if (WIN32)
@@ -69,34 +73,29 @@ if (WIN32)
 		IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/x64/Debug/IBTDriverWin.lib"
 		INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/IBTDriverWin"
 	)
-else()
 endif()
-
-#set(IMGUI_FILEBROWSER_SRC 
-#	${CMAKE_SOURCE_DIR}/lib/imgui_filebrowser/imgui-filebrowser/imfilebrowser.h)
-
-#target_sources(InfraredBrickTower PRIVATE ${IMGUI_FILEBROWSER_SRC})
 
 target_link_libraries(InfraredBrickTower PRIVATE glfw)
 target_link_libraries(InfraredBrickTower PRIVATE TowerLogic)
 target_link_libraries(InfraredBrickTower PRIVATE PBrickLogic)
 
+target_link_libraries(ConsoleTesterProgram PRIVATE TowerLogic)
+target_link_libraries(ConsoleTesterProgram PRIVATE PBrickLogic)
+
 if (WIN32)
-	# https://github.com/microsoft/DirectXTK12/wiki/Adding-the-DirectX-Tool-Kit
-	# target_link_libraries(InfraredBrickTower PRIVATE
-	# 	d3d12.lib dxgi.lib dxguid.lib uuid.lib
-	# 	kernel32.lib user32.lib
-	# 	comdlg32.lib advapi32.lib shell32.lib
-	# 	ole32.lib oleaut32.lib
-	# 	runtimeobject.lib
-	# 	Microsoft::DirectXTK12
-	# )
 	target_link_libraries(InfraredBrickTower PRIVATE winusb)
 	target_link_libraries(InfraredBrickTower PRIVATE cfgmgr32)
 	target_link_libraries(InfraredBrickTower PRIVATE IBTDriverWin)
 	target_link_libraries(InfraredBrickTower PRIVATE opengl32.lib)
+	
+	target_link_libraries(ConsoleTesterProgram PRIVATE winusb)
+	target_link_libraries(ConsoleTesterProgram PRIVATE cfgmgr32)
+	target_link_libraries(ConsoleTesterProgram PRIVATE IBTDriverWin)
 else()
 	target_link_libraries(InfraredBrickTower PRIVATE PkgConfig::libusb)
 	target_link_libraries(InfraredBrickTower PRIVATE IBTDriverLinux)
 	target_link_libraries(InfraredBrickTower PRIVATE OpenGL)
+
+	target_link_libraries(ConsoleTesterProgram PRIVATE PkgConfig::libusb)
+	target_link_libraries(ConsoleTesterProgram PRIVATE IBTDriverLinux)
 endif()
