@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "TowerController.h"
 #include <string.h>
+#include <cassert>
 
 namespace LASM
 {
@@ -19,6 +20,8 @@ namespace LASM
 			false,
 			false,
 			true);
+
+		assert(success);
 
 		delete[] replyBuffer;
 		return success;
@@ -66,35 +69,50 @@ namespace LASM
 	{
 		/*
 		
-		NOTES TO SELF
-
-
 		The format of these commands is
 
 		0			0x55  \
-		1			0xff   | Preamble
+		1			0xff   | Header
 		2			0x00  /
 		3			Command
-		4			Complement of command
-		...			Parameters (each byte followed by its complement)
-		n - 2		Checksum
+		4			Command complement
+		5?			Parameter byte
+		6?			Parameter complement
+		...
+		n - 2		Checksum (each non-complement command and parameter byte added up)
 		n - 1		Complement of checksum
 
 		Every byte after the preamble is followed immediately by its complement.
 
+		We need to make sure that the reply is as expected.
+		In most cases, the reply will look like this:
+
+		0			0x55  \
+		1			0xff   | Header
+		2			0x00  /
+		3			Command complement
+		4			Command
+		5?			Parameter complement
+		6?			Parameter
+		...
+		n - 2		Checksum (each complement command and parameter byte added up)
+		n - 1		Complement of checksum
+
 		*/
 
-		BYTE commandByte = command->commandByte;
-		BYTE complement = ~commandByte & 0xff;
+		BYTE commandByte = command->commandByte & 0xf7;
+		BYTE complement = ~commandByte & 0xf7;
 
-		// first off, it can't be guaranteed that the typical preamble of 0x55 0xFF 0x00 will be there;
-		// occasionally, just a part of it will be there.
-		// so, i'll search through the buffer for the complement.
+		// Instead of looking past the header, I'll just look for the complement followed by the byte.
 		unsigned int complementIndex = -1;
-		for (unsigned int i = 0; i < replyLength; i++)
+
+		// replyLength - 1 to leave some room at the end for the command following the complement
+		for (unsigned int i = 0; i < replyLength - 1; i++)
 		{
-			BYTE b = replyBuffer[i];
-			if (b == complement)
+			// I don't completely understand what this & 0xf7 is doing?
+			// Check RCX_PipeTransport::VerifyReply to see examples of this.
+			BYTE adjustedByte = replyBuffer[i] & 0xf7;
+			if (adjustedByte == complement)
 			{
 				complementIndex = i;
 				break;
@@ -108,7 +126,7 @@ namespace LASM
 
 		// now it's expected that there is a pattern like <complement> <command>.
 		// the presence of that will determine if the reply is good or not
-		return replyBuffer[complementIndex] == complement &&
+		return (replyBuffer[complementIndex] & 0xf7) == complement &&
 			   replyBuffer[complementIndex + 1] == commandByte;
 	}
 
@@ -589,11 +607,11 @@ namespace LASM
 		unsigned int dataSum = 0;
 
 		// command, reply, and repeat both
-		//commandData.previousCommandByte = commandData.commandByte;
+		// commandData.previousCommandByte = commandData.commandByte;
 		commandData.commandByte = (BYTE)lasmCommand;
 		
-		//if (commandData.previousCommandByte == commandData.commandByte)
-		//	commandData.commandByte ^= 8; // refer to line 252 in RCX_PipeTransport.cpp from NQC
+		// if (commandData.previousCommandByte == commandData.commandByte)
+		// 	commandData.commandByte ^= 8; // refer to line 252 in RCX_PipeTransport.cpp from NQC
 
 		commandData.data[index++] = commandData.commandByte;
 		commandData.data[index++] = ~commandData.commandByte;
