@@ -29,10 +29,10 @@ namespace Tower
 
 		int readAttemptCount = 0;
 		bool success = false;
-		while (!success &&
-			readAttemptCount < MAX_READ_ATTEMPTS &&
-			lengthRead == 0)
+		while (readAttemptCount < MAX_READ_ATTEMPTS &&
+			   lengthRead == 0)
 		{
+			printf("Read zero bytes, trying again...\n");
 			success = data->commInterface->Read(buffer, bufferLength, lengthRead);
 
 			if (lengthRead == 1)

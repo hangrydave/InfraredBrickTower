@@ -61,37 +61,6 @@ void RunTowerThread()
 // Main code
 int main(int, char**)
 {
-    HostTowerCommInterface *usbTowerInterface;
-
-#if defined(WIN32)
-    bool gotInterface = OpenWinUsbTowerInterface(usbTowerInterface);
-#elif defined(__linux)
-    bool gotInterface = OpenLinuxUSBTowerInterface(usbTowerInterface);
-#endif
-
-    if (!gotInterface)
-    {
-        printf("Error getting USB interface!\n");
-        return 1;
-    }
-
-    Tower::RequestData *towerData = new Tower::RequestData(usbTowerInterface);
-
-    Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
-    towerData->commInterface->Flush();
-
-    LASM::CommandData lasmCommand;
-    LASM::Cmd_PBAliveOrNot(lasmCommand);
-    bool success = LASM::SendCommand(
-        &lasmCommand,
-        towerData,
-        towerData->replyBuffer,
-        0,
-        true);
-
-    RCX::DownloadFirmware("/home/davidreidsma/firm0332.lgo", towerData);
-
-    return 0;
 
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
