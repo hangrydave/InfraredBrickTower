@@ -3,6 +3,6 @@
 [submodule "lib/imgui_filebrowser/imgui-filebrowser"]
 	path = lib/imgui_filebrowser/imgui-filebrowser
 	url = https://github.com/AirGuanZ/imgui-filebrowser.git
-[submodule "scripts/vcpkg"]
-	path = scripts/vcpkg
+[submodule "lib/vcpkg"]
+	path = lib/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
