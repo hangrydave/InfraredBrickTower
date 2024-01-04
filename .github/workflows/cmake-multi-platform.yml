@@ -29,7 +29,7 @@ jobs:
         with:
           # This is the default location of the directory containing vcpkg sources.
           # Change it to the right location if needed.
-          vcpkgDirectory: '**/scripts/vcpkg'
+          vcpkgDirectory: '${{ github.workspace }}/scripts/vcpkg'
 
           # If not using a Git submodule for vcpkg sources, this input
           # specifies which commit id to checkout from a Git repo.
