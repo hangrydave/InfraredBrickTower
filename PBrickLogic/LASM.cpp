@@ -21,8 +21,6 @@ namespace LASM
 			false,
 			true);
 
-		assert(success);
-
 		delete[] replyBuffer;
 		return success;
 	}
@@ -130,7 +128,7 @@ namespace LASM
 			   replyBuffer[complementIndex + 1] == commandByte;
 	}
 
-	void GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command)
+	bool GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command)
 	{
 		// TODO: this is bad
 		BYTE paramA = params[0];
@@ -479,6 +477,11 @@ namespace LASM
 		{
 
 		}
+		else
+		{
+			return false;
+		}
+		return true;
 	}
 
 	void Cmd_OnOffFloat(BYTE motors, MotorAction action, CommandData& commandData)

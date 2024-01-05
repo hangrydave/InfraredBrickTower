@@ -103,6 +103,7 @@ namespace IBTUI
         BYTE deleteBytes[VLL_PACKET_LENGTH]{ VLL_DELETE_PROGRAM };
     };
 
+	bool ParseAndSendLASM(Tower::RequestData* towerData);
     void SendVLL(BYTE* data, Tower::RequestData* towerData);
     void RunTowerThread(bool& couldNotAccessTower, bool& programIsDone);
 
@@ -110,4 +111,5 @@ namespace IBTUI
     void BuildMicroScoutRemote(const ImGuiViewport* mainViewport);
     void BuildRCXRemote(const ImGuiViewport* mainViewport);
     void BuildInfoWindow(const ImGuiViewport* mainViewport);
+    void BuildLASMWindow(const ImGuiViewport* mainViewport);
 }

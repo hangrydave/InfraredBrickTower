@@ -173,7 +173,7 @@ namespace LASM
 		bool skipReply = false,
 		bool skipReplyValidation = false,
 		bool preWriteFlush = true);
-	void GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command);
+	bool GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command);
 
 	void ComposeCommand(Command lasmCommand, BYTE* params, unsigned int paramsLength, CommandData& commandData);
 

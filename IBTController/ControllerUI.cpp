@@ -17,6 +17,7 @@ namespace IBTUI
 	static VLLData vllData;
 	static LASM::CommandData lasmCommand;
 	static unsigned long towerLengthWritten = 0;
+
 	static bool isDownloadingSomething = false;
 
 	static Tower::VersionData towerVersionData;
@@ -24,6 +25,66 @@ namespace IBTUI
 	static int towerCreditsLen = 0;
 	static char* towerCopyright = new char[1000];
 	static int towerCopyrightLen = 0;
+
+#define WINDOW_MAX_WIDTH 550
+#define WINDOW_MAX_HEIGHT 550
+#define WINDOW_GAP 25
+#define RCX_X WINDOW_GAP
+#define RCX_Y WINDOW_GAP
+#define RCX_WIDTH 300
+#define RCX_HEIGHT 300
+#define VLL_X RCX_X + RCX_WIDTH + WINDOW_GAP
+#define VLL_Y WINDOW_GAP
+#define VLL_WIDTH 320
+#define VLL_HEIGHT 300
+#define LASM_X WINDOW_GAP
+#define LASM_Y RCX_Y + RCX_HEIGHT + WINDOW_GAP
+#define LASM_WIDTH 300
+#define LASM_HEIGHT 300
+#define INFO_X LASM_X + LASM_WIDTH + WINDOW_GAP
+#define INFO_Y RCX_Y + RCX_HEIGHT + WINDOW_GAP
+#define INFO_WIDTH 450
+#define INFO_HEIGHT 370
+
+	static char lasmInput[32] = "";
+	enum LASMStatus
+	{
+		LASM_DEFAULT,
+		LASM_SUCCESS,
+		LASM_BAD_PARAMS,
+		LASM_NO_REPLY,
+		LASM_WRITE_FAILED,
+		LASM_FAILED_OTHER,
+		LASM_COMMAND_NOT_FOUND,
+		LASM_IN_PROGRESS
+	};
+	static LASMStatus lasmStatus = LASM_DEFAULT;
+	static bool lasmEntered = false;
+
+	bool ParseAndSendLASM(Tower::RequestData* towerData)
+	{
+		lasmStatus = LASM_IN_PROGRESS;
+
+		BYTE params[5] = { 0, 0, 0, 0, 0 };
+		if (LASM::GetCommandFromCode(lasmInput, params, 0, &lasmCommand))
+		{
+			if (LASM::SendCommand(&lasmCommand, towerData))
+			{
+				lasmStatus = LASM_SUCCESS;
+				return true;
+			}
+			else
+			{
+				lasmStatus = LASM_FAILED_OTHER;
+			}
+		}
+		else
+		{
+			lasmStatus = LASM_COMMAND_NOT_FOUND;
+		}
+
+		return false;
+	}
 
 	void SendVLL(BYTE* data, Tower::RequestData* towerData)
 	{
@@ -230,6 +291,15 @@ namespace IBTUI
 				if (vllData.deletePrgm > 0) { vllData.deletePrgm--; SendVLL(vllData.deleteBytes, towerData); }
 
 			}
+		
+			// LASM
+			{
+				if (lasmEntered)
+				{
+					bool success = ParseAndSendLASM(towerData);
+					lasmEntered = false;
+				}
+			}
 		}
 
 		delete towerData;
@@ -243,8 +313,8 @@ namespace IBTUI
 
 	void BuildMicroScoutRemote(const ImGuiViewport* mainViewport)
 	{
-		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + VLL_X, mainViewport->WorkPos.y + VLL_Y), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(VLL_WIDTH, VLL_HEIGHT), ImGuiCond_FirstUseEver);
 
 		// VLL window
 		ImGui::Begin("MicroScout Remote");
@@ -372,8 +442,8 @@ namespace IBTUI
 
 	void BuildRCXRemote(const ImGuiViewport* mainViewport)
 	{
-		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 350), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + RCX_X, mainViewport->WorkPos.y + RCX_Y), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(RCX_WIDTH, RCX_HEIGHT), ImGuiCond_FirstUseEver);
 
 		// RCX remote
 		ImGui::Begin("RCX Remote");
@@ -486,10 +556,9 @@ namespace IBTUI
 
 	void BuildInfoWindow(const ImGuiViewport* mainViewport)
 	{
-		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 350), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(450, 450), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + INFO_X, mainViewport->WorkPos.y + INFO_Y), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(INFO_WIDTH, INFO_HEIGHT), ImGuiCond_FirstUseEver);
 
-		// RCX remote
 		ImGui::Begin("Tower Info");
 
 		ImGui::Text(towerCopyright);
@@ -498,6 +567,51 @@ namespace IBTUI
 		ImGui::Separator();
 		ImGui::Text("Build number: %d", towerVersionData.buildNumber);
 		ImGui::Text("Version: %d.%d", towerVersionData.majorVersion, towerVersionData.minorVersion);
+
+		ImGui::End();
+	}
+
+	void BuildLASMWindow(const ImGuiViewport* mainViewport)
+	{
+		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + LASM_X, mainViewport->WorkPos.y + LASM_Y), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(LASM_WIDTH, LASM_HEIGHT), ImGuiCond_FirstUseEver);
+
+		ImGui::Begin("LASM Console");
+
+		if (ImGui::InputText("LASM", lasmInput, IM_ARRAYSIZE(lasmInput), ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			lasmEntered = true;
+		}
+
+		ImGui::Separator();
+
+		switch (lasmStatus)
+		{
+		case LASM_IN_PROGRESS:
+			ImGui::Text("Sending LASM %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+			break;
+		case LASM_SUCCESS:
+			ImGui::Text("Sent LASM successfully");
+			break;
+		case LASM_BAD_PARAMS:
+			ImGui::Text("Bad parameters supplied");
+			break;
+		case LASM_NO_REPLY:
+			ImGui::Text("No reply received");
+			break;
+		case LASM_WRITE_FAILED:
+			ImGui::Text("Write failed");
+			break;
+		case LASM_FAILED_OTHER:
+			ImGui::Text("Failed to send LASM");
+			break;
+		case LASM_COMMAND_NOT_FOUND:
+			ImGui::Text("Command %s could not be parsed", lasmInput);
+			break;
+		case LASM_DEFAULT:
+		default:
+			break;
+		}
 
 		ImGui::End();
 	}
