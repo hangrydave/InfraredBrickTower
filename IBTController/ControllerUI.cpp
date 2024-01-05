@@ -65,8 +65,19 @@ namespace IBTUI
 	{
 		lasmStatus = LASM_IN_PROGRESS;
 
-		BYTE params[5] = { 0, 0, 0, 0, 0 };
-		if (LASM::GetCommandFromCode(lasmInput, params, 0, &lasmCommand))
+		std::string inputString(lasmInput);
+		std::string inputParts[5];
+		int partIndex = 0;
+
+		size_t partLength = 0;
+		while ((partLength = inputString.find(" ")) != std::string::npos) {
+			inputParts[partIndex++] = inputString.substr(0, partLength);
+			inputString.erase(0, partLength + 1);
+		}
+		inputParts[partIndex] = inputString;
+		
+		static LASM::CommandData lasmCommand;
+		if (LASM::GetCommandFromCode(inputParts[0].c_str(), inputParts + 1, partIndex, &lasmCommand))
 		{
 			if (LASM::SendCommand(&lasmCommand, towerData))
 			{

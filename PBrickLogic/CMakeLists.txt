@@ -12,5 +12,7 @@ file(GLOB SOURCE_C
 
 add_library(PBrickLogic ${SOURCE_C})
 
+target_link_libraries(PBrickLogic PUBLIC Common)
 target_link_libraries(PBrickLogic PUBLIC TowerLogic)
+target_include_directories(PBrickLogic PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/Common)
 target_include_directories(PBrickLogic PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/TowerLogic)

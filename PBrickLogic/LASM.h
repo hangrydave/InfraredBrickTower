@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TowerController.h"
+#include <string>
 
 #define BYTE unsigned char
 #define WORD unsigned short
@@ -173,7 +174,11 @@ namespace LASM
 		bool skipReply = false,
 		bool skipReplyValidation = false,
 		bool preWriteFlush = true);
-	bool GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command);
+	bool GetCommandFromCode(
+		const char* code, 
+		std::string parameters[],
+		unsigned long paramCount,
+		CommandData* command);
 
 	void ComposeCommand(Command lasmCommand, BYTE* params, unsigned int paramsLength, CommandData& commandData);
 

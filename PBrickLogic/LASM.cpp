@@ -4,6 +4,7 @@
 #include "TowerController.h"
 #include <string.h>
 #include <cassert>
+#include "Utilities.h"
 
 namespace LASM
 {
@@ -128,15 +129,8 @@ namespace LASM
 			   replyBuffer[complementIndex + 1] == commandByte;
 	}
 
-	bool GetCommandFromCode(const char* code, BYTE* params, unsigned long paramCount, CommandData* command)
+	bool GetCommandFromCode(const char* code, std::string parameters[], unsigned long paramCount, CommandData* command)
 	{
-		// TODO: this is bad
-		BYTE paramA = params[0];
-		BYTE paramB = params[1];
-		BYTE paramC = params[2];
-		BYTE paramD = params[3];
-		BYTE paramE = params[4];
-
 		if (strcmp(code, "ping") == 0)
 		{
 			Cmd_PBAliveOrNot(*command);
@@ -199,7 +193,9 @@ namespace LASM
 		}
 		else if (strcmp(code, "out") == 0)
 		{
-			Cmd_OnOffFloat(paramA, (MotorAction)paramB, *command);
+			BYTE motors = Utilities::ReadNumFromString<BYTE>(&parameters[0]);
+			MotorAction action = (MotorAction) Utilities::ReadNumFromString<BYTE>(&parameters[1]);
+			Cmd_OnOffFloat(motors, action, *command);
 		}
 		else if (strcmp(code, "txs") == 0)
 		{
@@ -207,7 +203,8 @@ namespace LASM
 		}
 		else if (strcmp(code, "plays") == 0)
 		{
-			Cmd_PlaySystemSound((SystemSound)paramA, *command);
+			SystemSound sound = (SystemSound) Utilities::ReadNumFromString<BYTE>(&parameters[0]);
+			Cmd_PlaySystemSound(sound, *command);
 		}
 		else if (strcmp(code, "delt") == 0)
 		{
@@ -223,7 +220,8 @@ namespace LASM
 		}
 		else if (strcmp(code, "prgm") == 0)
 		{
-			Cmd_SelectProgram(paramA, *command);
+			BYTE program = Utilities::ReadNumFromString<BYTE>(&parameters[0]);
+			Cmd_SelectProgram(program, *command);
 		}
 		else if (strcmp(code, "tmrz") == 0)
 		{
@@ -243,7 +241,9 @@ namespace LASM
 		}
 		else if (strcmp(code, "dir") == 0)
 		{
-			Cmd_SetFwdSetRwdRewDir(paramA, (MotorDirection)paramB, *command);
+			BYTE motors = Utilities::ReadNumFromString<BYTE>(&parameters[0]);
+			MotorDirection direction = (MotorDirection) Utilities::ReadNumFromString<BYTE>(&parameters[1]);
+			Cmd_SetFwdSetRwdRewDir(motors, direction, *command);
 		}
 		else if (strcmp(code, "calls") == 0)
 		{
@@ -347,11 +347,16 @@ namespace LASM
 		}
 		else if (strcmp(code, "pwr") == 0)
 		{
-			Cmd_SetPower(paramA, (ParamSource)paramB, paramC, *command);
+			BYTE motors = Utilities::ReadNumFromString<BYTE>(&parameters[0]);;
+			ParamSource paramSource = (ParamSource) Utilities::ReadNumFromString<BYTE>(&parameters[1]);;
+			BYTE powerValue = Utilities::ReadNumFromString<BYTE>(&parameters[2]);
+			Cmd_SetPower(motors, paramSource, powerValue, *command);
 		}
 		else if (strcmp(code, "playt") == 0)
 		{
-			Cmd_PlayTone(*reinterpret_cast<WORD*>(params), paramC, *command);
+			WORD frequency = Utilities::ReadNumFromString<WORD>(&parameters[0]);
+			BYTE duration = Utilities::ReadNumFromString<BYTE>(&parameters[1]);
+			Cmd_PlayTone(frequency, duration, *command);
 		}
 		else if (strcmp(code, "view") == 0)
 		{

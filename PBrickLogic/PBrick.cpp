@@ -3,6 +3,7 @@
 #include "LASM.h"
 #include <assert.h>
 #include <filesystem>
+#include "Utilities.h"
 
 namespace fs = std::filesystem;
 
@@ -138,35 +139,6 @@ if (!condition) \
 		return true;
 	}
 
-	BYTE GetValueFromPair(const BYTE a, const BYTE b)
-	{
-		BYTE result = 1;
-
-		if (a >= '0' && a <= '9')
-		{
-			// 30 is the hex value of '1' on the ascii table
-			result = (a - 48) * 16;
-		}
-		else if (a >= 'A' && a <= 'F')
-		{
-			// it's numeric
-			result = 160 + ((a - 65) * 16);
-		}
-
-		if (b >= '0' && b <= '9')
-		{
-			// 30 is the hex value of '1' on the ascii table
-			result += (b - 48);
-		}
-		else if (b >= 'A' && b <= 'F')
-		{
-			// it's numeric
-			result += (b - 65) + 10;
-		}
-
-		return result;
-	}
-
 	bool DownloadFirmware(const char* filePath, Tower::RequestData* towerData)
 	{
 		std::ifstream input(filePath, std::ios::binary);
@@ -266,7 +238,7 @@ if (!condition) \
 
 					if (byteIsADataByte)
 					{
-						BYTE byte = GetValueFromPair(charPair[0], charPair[1]);
+						BYTE byte = Utilities::ReadByteFromTwoHexChars(charPair[0], charPair[1]);
 						
 #define CHECKSUM_BYTE_COUNT 19456
 						if (dataByteIndex++ < CHECKSUM_BYTE_COUNT)

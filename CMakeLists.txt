@@ -29,9 +29,11 @@ pkg_check_modules(libusb REQUIRED IMPORTED_TARGET libusb-1.0)
 add_subdirectory(IBTController)
 add_subdirectory(ConsoleTester)
 
+add_subdirectory(Common)
 add_subdirectory(PBrickLogic)
 add_subdirectory(TowerLogic)
 
+include_directories("${CMAKE_SOURCE_DIR}/Common")
 include_directories("${CMAKE_SOURCE_DIR}/PBrickLogic")
 include_directories("${CMAKE_SOURCE_DIR}/TowerLogic")
 
@@ -76,9 +78,11 @@ if (WIN32)
 endif()
 
 target_link_libraries(InfraredBrickTower PRIVATE glfw)
+target_link_libraries(InfraredBrickTower PRIVATE Common)
 target_link_libraries(InfraredBrickTower PRIVATE TowerLogic)
 target_link_libraries(InfraredBrickTower PRIVATE PBrickLogic)
 
+target_link_libraries(IBTConsole PRIVATE Common)
 target_link_libraries(IBTConsole PRIVATE TowerLogic)
 target_link_libraries(IBTConsole PRIVATE PBrickLogic)
 
