@@ -19,6 +19,12 @@ namespace IBTUI
 	static unsigned long towerLengthWritten = 0;
 	static bool isDownloadingSomething = false;
 
+	static Tower::VersionData towerVersionData;
+	static char* towerCredits = new char[1000];
+	static int towerCreditsLen = 0;
+	static char* towerCopyright = new char[1000];
+	static int towerCopyrightLen = 0;
+
 	void SendVLL(BYTE* data, Tower::RequestData* towerData)
 	{
 		// todo: store current comm mode
@@ -53,6 +59,14 @@ namespace IBTUI
 
 		Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
 		towerData->commInterface->Flush();
+
+		towerVersionData = Tower::GetVersion(towerData);
+
+		Tower::GetCopyright(towerData);
+		memcpy(towerCopyright, towerData->stringBuffer, towerData->stringLength);
+		
+		Tower::GetCredits(towerData);
+		memcpy(towerCredits, towerData->stringBuffer, towerData->stringLength);
 
 		LASM::Cmd_PBAliveOrNot(lasmCommand);
 		bool success = LASM::SendCommand(
@@ -230,7 +244,7 @@ namespace IBTUI
 	void BuildMicroScoutRemote(const ImGuiViewport* mainViewport)
 	{
 		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(300, 300));
+		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 
 		// VLL window
 		ImGui::Begin("MicroScout Remote");
@@ -359,7 +373,7 @@ namespace IBTUI
 	void BuildRCXRemote(const ImGuiViewport* mainViewport)
 	{
 		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 350), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(300, 300));
+		ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
 
 		// RCX remote
 		ImGui::Begin("RCX Remote");
@@ -468,5 +482,23 @@ namespace IBTUI
 			rcxRemoteData.downloadFilePath = new std::string(fileDialog.GetSelected().string());
 			fileDialog.ClearSelected();
 		}
+	}
+
+	void BuildInfoWindow(const ImGuiViewport* mainViewport)
+	{
+		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + 50, mainViewport->WorkPos.y + 350), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(450, 450), ImGuiCond_FirstUseEver);
+
+		// RCX remote
+		ImGui::Begin("Tower Info");
+
+		ImGui::Text(towerCopyright);
+		ImGui::Separator();
+		ImGui::Text(towerCredits);
+		ImGui::Separator();
+		ImGui::Text("Build number: %d", towerVersionData.buildNumber);
+		ImGui::Text("Version: %d.%d", towerVersionData.majorVersion, towerVersionData.minorVersion);
+
+		ImGui::End();
 	}
 }

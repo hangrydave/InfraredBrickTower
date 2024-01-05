@@ -109,4 +109,5 @@ namespace IBTUI
     void Init();
     void BuildMicroScoutRemote(const ImGuiViewport* mainViewport);
     void BuildRCXRemote(const ImGuiViewport* mainViewport);
+    void BuildInfoWindow(const ImGuiViewport* mainViewport);
 }

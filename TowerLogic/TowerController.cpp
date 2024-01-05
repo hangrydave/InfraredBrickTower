@@ -234,8 +234,10 @@ namespace Tower
 		// start at 4; skip the non-string stuff
 		for (int i = 4; i < data->stringLength; i += 2)
 		{
+			data->stringBuffer[(i - 4) / 2] = data->replyBuffer[i];
+
 			wchar_t wide = (wchar_t) data->replyBuffer[i];
-			data->stringBuffer[(i - 4) / 2] = wide;
+			data->wideStringBuffer[(i - 4) / 2] = wide;
 		}
 	}
 
