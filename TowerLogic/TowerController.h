@@ -260,13 +260,14 @@ namespace Tower
 		unsigned long lastReplyLength = 0;
 		BYTE replyBuffer[REQUEST_REPLY_BUFFER_LENGTH];
 		unsigned long stringLength = 0;
-		wchar_t stringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
+		char stringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
+		wchar_t wideStringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
 
 		RequestData(HostTowerCommInterface* commInterface)
 		{
 			this->commInterface = commInterface;
 			*replyBuffer = {};
-			*stringBuffer = {};
+			*wideStringBuffer = {};
 		}
 
 		~RequestData(){ }
