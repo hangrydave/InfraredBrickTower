@@ -56,18 +56,19 @@ jobs:
         with:
           vs-version: '17.8.3'
       
-      - name: Build driver
-        run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Release -property:Platform=x64
+      # - name: Build driver
+      #   run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Release -property:Platform=x64
       
-      - name: Run CMake
-        uses: lukka/run-cmake@v10
-        with:
-          configurePreset: 'Windows-release'
-          buildPreset: 'Windows-release'
+      # - name: Run CMake
+      #   uses: lukka/run-cmake@v10
+      #   with:
+      #     configurePreset: 'Windows-release'
+      #     buildPreset: 'Windows-release'
 
       - name: Zip up
         if: startsWith(github.ref, 'refs/tags/')
-        run: Compress-Archive -Path "${{ github.workspace }}\x64\Release\IBTDriverWin.lib", "${{ github.workspace }}\x64\Release\IBTDriver.inf", "${{ github.workspace }}\x64\Release\IBTDriverPackage\ibtdriver.cat", "${{ github.workspace }}\x64\Release\IBTDriverPackage.cer" -DestinationPath $WINDOWS_ZIP_PATH
+        # run: Compress-Archive -Path "${{ github.workspace }}\x64\Release\IBTDriverWin.lib", "${{ github.workspace }}\x64\Release\IBTDriver.inf", "${{ github.workspace }}\x64\Release\IBTDriverPackage\ibtdriver.cat", "${{ github.workspace }}\x64\Release\IBTDriverPackage.cer" -DestinationPath "$WINDOWS_ZIP_PATH"
+        run: Compress-Archive -Path "${{ github.workspace }}\README.md -DestinationPath "$WINDOWS_ZIP_PATH"
     
       - name: Fix path
         if: startsWith(github.ref, 'refs/tags/')
