@@ -46,7 +46,7 @@ jobs:
       #   with:
       #     submodules: recursive
       
-      # - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.4
       
       # - name: Setup anew (or from cache) vcpkg (and does not build any package)
       #   uses: lukka/run-vcpkg@v11
