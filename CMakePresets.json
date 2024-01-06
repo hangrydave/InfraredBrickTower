@@ -2,8 +2,8 @@
     "version": 2,
     "configurePresets": [
         {
-            "name": "Linux",
-            "displayName": "Ninja",
+            "name": "Linux-debug",
+            "displayName": "Linux debug",
             "description": "Using Ninja",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
@@ -14,8 +14,20 @@
             }
         },
         {
-            "name": "Windows",
-            "displayName": "Visual Studio Community 2022 Release - amd64",
+            "name": "Linux-release",
+            "displayName": "Linux release",
+            "description": "Using Ninja",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/lib/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+            }
+        },
+        {
+            "name": "Windows-debug",
+            "displayName": "Windows debug",
             "description": "Using compilers for Visual Studio 17 2022 (x64 architecture)",
             "generator": "Visual Studio 17 2022",
             "toolset": "host=x64",
@@ -28,6 +40,22 @@
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/lib/vcpkg/scripts/buildsystems/vcpkg.cmake"
             }
+        },
+        {
+            "name": "Windows-release",
+            "displayName": "Windows release",
+            "description": "Using compilers for Visual Studio 17 2022 (x64 architecture)",
+            "generator": "Visual Studio 17 2022",
+            "toolset": "host=x64",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/lib/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            }
         }
     ],
     "buildPresets": [
@@ -36,6 +64,12 @@
             "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
             "configurePreset": "Windows",
             "configuration": "Debug"
+        },
+        {
+            "name": "Windows-release",
+            "displayName": "Visual Studio Community 2022 Release - amd64 - Release",
+            "configurePreset": "Windows",
+            "configuration": "Release"
         },
         {
             "name": "Linux",
