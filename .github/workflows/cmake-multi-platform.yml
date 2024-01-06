@@ -95,7 +95,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
-          SELECTED_COLOR: ${{ steps.fix-path.outputs.FIXED_PATH }}
+          FIXED_PATH: ${{ steps.fix-path.outputs.FIXED_PATH }}
         with:
           files: $FIXED_PATH
           
