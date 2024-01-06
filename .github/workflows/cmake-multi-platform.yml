@@ -72,11 +72,17 @@ jobs:
     
       - name: Fix path
         if: startsWith(github.ref, 'refs/tags/')
-        run: $zip_path = "$WINDOWS_ZIP_PATH" -replace '\','/'
+        run: $zip_path = "$WINDOWS_ZIP_PATH" -replace '\\','/'
+      
+      - name: Set path
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          "$WINDOWS_ZIP_PATH=$zip_path" | Out-File -FilePath $env:GITHUB_ENV -Append
+
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: $zip_path
+          files: $WINDOWS_ZIP_PATH
           
