@@ -41,41 +41,40 @@ jobs:
       WINDOWS_ZIP_PATH: ${{ github.workspace }}\InfraredBrickTower-${{ github.ref_name }}-Windows-x64.zip
     runs-on: windows-latest
     steps:
-      # - name: checkout all the submodules
-      #   uses: actions/checkout@v2
-      #   with:
-      #     submodules: recursive
+      - name: checkout all the submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
       
       - uses: actions/checkout@v2.3.4
       
-      # - name: Setup anew (or from cache) vcpkg (and does not build any package)
-      #   uses: lukka/run-vcpkg@v11
+      - name: Setup anew (or from cache) vcpkg (and does not build any package)
+        uses: lukka/run-vcpkg@v11
         
-      # - name: Add msbuild to PATH
-      #   uses: microsoft/setup-msbuild@v1.1
-      #   with:
-      #     vs-version: '17.8.3'
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: '17.8.3'
       
-      # - name: Build driver
-      #   run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Release -property:Platform=x64
+      - name: Build driver
+        run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Release -property:Platform=x64
       
-      # - name: Run CMake
-      #   uses: lukka/run-cmake@v10
-      #   with:
-      #     configurePreset: 'Windows-release'
-      #     buildPreset: 'Windows-release'
+      - name: Run CMake
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: 'Windows-release'
+          buildPreset: 'Windows-release'
 
       - name: Zip up
         if: startsWith(github.ref, 'refs/tags/')
-        # run: Compress-Archive -Path "${{ github.workspace }}\x64\Release\IBTDriverWin.lib", "${{ github.workspace }}\x64\Release\IBTDriver.inf", "${{ github.workspace }}\x64\Release\IBTDriverPackage\ibtdriver.cat", "${{ github.workspace }}\x64\Release\IBTDriverPackage.cer" -DestinationPath "$WINDOWS_ZIP_PATH"
-        run: Compress-Archive -Path "${{ github.workspace }}\README.md" -DestinationPath "$env:WINDOWS_ZIP_PATH"
+        run: Compress-Archive -Path "${{ github.workspace }}\x64\Release\IBTDriverWin.lib", "${{ github.workspace }}\x64\Release\IBTDriver.inf", "${{ github.workspace }}\x64\Release\IBTDriverPackage\ibtdriver.cat", "${{ github.workspace }}\x64\Release\IBTDriverPackage.cer" -DestinationPath "$WINDOWS_ZIP_PATH"
     
       - name: Fix path
         id: fix-path
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          $bababooey = "$env:WINDOWS_ZIP_PATH" -replace '\\','/'
-          "FIXED_PATH=$bababooey" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $fixed_path = "$env:WINDOWS_ZIP_PATH" -replace '\\','/'
+          "FIXED_PATH=$fixed_path" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Release
         uses: softprops/action-gh-release@v1
