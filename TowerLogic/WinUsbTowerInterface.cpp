@@ -1,4 +1,13 @@
+#if defined(WIN32)
+
 #include "pch.h"
+#include <Windows.h>
+#include <tchar.h>
+#include <strsafe.h>
+#include <winusb.h>
+#include <usb.h>
+
+#include "device.h"
 
 #include "WinUsbTowerInterface.h"
 #include <stdio.h>
@@ -265,3 +274,5 @@ bool WinUsbTowerInterface::Close() const
 {
 	return true;
 }
+
+#endif
