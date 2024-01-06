@@ -61,21 +61,29 @@
     "buildPresets": [
         {
             "name": "Windows-debug",
-            "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
-            "configurePreset": "Windows",
+            "displayName": "Windows debug",
+            "description": "Visual Studio Community 2022 Release - amd64 - Debug",
+            "configurePreset": "Windows-debug",
             "configuration": "Debug"
         },
         {
             "name": "Windows-release",
-            "displayName": "Visual Studio Community 2022 Release - amd64 - Release",
-            "configurePreset": "Windows",
+            "displayName": "Windows release",
+            "description": "Visual Studio Community 2022 Release - amd64 - Release",
+            "configurePreset": "Windows-release",
             "configuration": "Release"
         },
         {
             "name": "Linux",
             "description": "Linux makefiles",
-            "displayName": "Linux",
-            "configurePreset": "Linux"
+            "displayName": "Linux debug",
+            "configurePreset": "Linux-debug"
+        },
+        {
+            "name": "Linux-release",
+            "description": "Linux makefiles",
+            "displayName": "Linux release",
+            "configurePreset": "Linux-release"
         }
     ]
 }

@@ -27,7 +27,7 @@ jobs:
         uses: lukka/run-cmake@v10
         with:
           configurePreset: 'Linux-release'
-          buildPreset: 'Linux'
+          buildPreset: 'Linux-release'
 
   build-windows:
     runs-on: windows-latest
@@ -48,7 +48,7 @@ jobs:
           vs-version: '17.8.3'
       
       - name: Build driver
-        run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Debug -property:Platform=x64
+        run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Release -property:Platform=x64
       
       - name: Run CMake
         uses: lukka/run-cmake@v10
