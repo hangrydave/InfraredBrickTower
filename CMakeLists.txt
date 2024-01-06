@@ -41,12 +41,6 @@ include_directories("${CMAKE_SOURCE_DIR}/Common")
 include_directories("${CMAKE_SOURCE_DIR}/PBrickLogic")
 include_directories("${CMAKE_SOURCE_DIR}/TowerLogic")
 
-if (WIN32)
-else()
-	add_subdirectory(IBTDriverLinux)
-	include_directories("${CMAKE_SOURCE_DIR}/IBTDriverLinux")
-endif()
-
 include_directories("${CMAKE_SOURCE_DIR}/lib/imgui_filebrowser/imgui-filebrowser")
 
 add_executable(
