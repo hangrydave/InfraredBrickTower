@@ -11,37 +11,15 @@ env:
   WINDOWS_DEPS: echo 'hi'
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
-      fail-fast: false
-
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
-      #
-      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        include:
-          - os: windows-latest
-            configPreset: 'Windows'
-            buildPreset: 'Windows-debug'
-            getDeps: $WINDOWS_DEPS
-          - os: ubuntu-latest
-            configPreset: 'Linux'
-            buildPreset: 'Linux'
-            getDeps: $UBUNTU_DEPS
+  build-ubuntu:
+    runs-on: ubuntu-latest
     steps:
       - name: checkout all the submodules
         uses: actions/checkout@v2
         with:
           submodules: recursive
       - name: Install necessary packages
-        run: ${{ matrix.getDeps }}
+        run: $UBUNTU_DEPS
       - uses: actions/checkout@v2.3.4
       - name: Setup anew (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
@@ -50,8 +28,73 @@ jobs:
       - name: Run CMake
         uses: lukka/run-cmake@v10
         with:
-          configurePreset: ${{ matrix.configPreset }}
-          buildPreset: ${{ matrix.buildPreset }}
+          configurePreset: 'Linux'
+          buildPreset: 'Linux'
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: checkout all the submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      
+      - name: Install necessary packages
+        run: $WINDOWS_DEP
+      
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          # vs-version: '[17)'
+          msbuild-architecture: x64
+      
+      - name: Build app for release
+        run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:AdditionalIncludePaths=${{ github.workspace }}\TowerLogic -property:Configuration=Debug
+      
+      - uses: actions/checkout@v2.3.4
+      
+      - name: Setup anew (or from cache) vcpkg (and does not build any package)
+        uses: lukka/run-vcpkg@v11
+        #with:
+        #  vcpkgDirectory: '${{ github.workspace }}/scripts/vcpkg/scripts'
+      - name: Run CMake
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: 'Windows'
+          buildPreset: 'Windows-debug'
+    # runs-on: ${{ matrix.os }}
+
+    # strategy:
+    #   # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+    #   fail-fast: false
+
+    #   matrix:
+    #     os: [ubuntu-latest, windows-latest]
+    #     include:
+    #       - os: windows-latest
+    #         configPreset: 'Windows'
+    #         buildPreset: 'Windows-debug'
+    #         getDeps: $WINDOWS_DEPS
+    #       - os: ubuntu-latest
+    #         configPreset: 'Linux'
+    #         buildPreset: 'Linux'
+    #         getDeps: $UBUNTU_DEPS
+    # steps:
+    #   - name: checkout all the submodules
+    #     uses: actions/checkout@v2
+    #     with:
+    #       submodules: recursive
+    #   - name: Install necessary packages
+    #     run: ${{ matrix.getDeps }}
+    #   - uses: actions/checkout@v2.3.4
+    #   - name: Setup anew (or from cache) vcpkg (and does not build any package)
+    #     uses: lukka/run-vcpkg@v11
+    #     #with:
+    #     #  vcpkgDirectory: '${{ github.workspace }}/scripts/vcpkg/scripts'
+    #   - name: Run CMake
+    #     uses: lukka/run-cmake@v10
+    #     with:
+    #       configurePreset: ${{ matrix.configPreset }}
+    #       buildPreset: ${{ matrix.buildPreset }}
       # - name: Cmake
         # run: cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/scripts/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/out/install/Linux -S${{ github.workspace }} -B${{ github.workspace }}/out/build/Linux -G Ninja
       #-uses: actions/cache@v3   <===== YOU DO NOT NEED THIS!
