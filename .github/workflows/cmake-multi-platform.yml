@@ -2,23 +2,58 @@ name: vcpkg
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "github_actions_testing" ]
   pull_request:
-    branches: [ "main" ]
-    
+    branches: [ "github_actions_testing" ]
+
+env:
+  UBUNTU_DEPS: sudo apt install -y ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb make
+  WINDOWS_DEPS: echo 'hi'
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      # Set up a matrix to run the following 3 configurations:
+      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
+      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
+      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
+      #
+      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: windows-latest
+            configPreset: 'Windows'
+            buildPreset: 'Windows-debug'
+            getDeps: $WINDOWS_DEPS
+          - os: ubuntu-latest
+            configPreset: 'Linux'
+            buildPreset: 'Linux'
+            getDeps: $UBUNTU_DEPS
     steps:
       - name: checkout all the submodules
         uses: actions/checkout@v2
         with:
           submodules: recursive
       - name: Install necessary packages
-        run: sudo apt install -y ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb make
+        run: ${{ matrix.getDeps }}
       - uses: actions/checkout@v2.3.4
-      - name: Cmake
-        run: cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/scripts/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/out/install/Linux -S${{ github.workspace }} -B${{ github.workspace }}/out/build/Linux -G Ninja
+      - name: Setup anew (or from cache) vcpkg (and does not build any package)
+        uses: lukka/run-vcpkg@v11
+        #with:
+        #  vcpkgDirectory: '${{ github.workspace }}/scripts/vcpkg/scripts'
+      - name: Run CMake
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: ${{ matrix.configPreset }}
+          buildPreset: ${{ matrix.buildPreset }}
+      # - name: Cmake
+        # run: cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/scripts/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/out/install/Linux -S${{ github.workspace }} -B${{ github.workspace }}/out/build/Linux -G Ninja
       #-uses: actions/cache@v3   <===== YOU DO NOT NEED THIS!
 
       # Install latest CMake and Ninja.
