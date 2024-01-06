@@ -177,7 +177,19 @@ if (!condition) \
 		}
 
 		int sumForChecksum = 0;
+
 		bool inChunk = false;
+
+		/*
+		"part" refers to a part in the firmware file.
+
+		For example, a part opening with S0 indicates the header.
+		S9 indicates the footer, and S1 indicates a chunk, which contains data bytes.
+		
+		So, partByteIndex is the index of which byte we are at within the part (starting after the opening 2 characters labeling the part type).
+		*/
+		int partByteIndex = 0;
+
 		BYTE* cmdDataBytes = new BYTE[DATA_BYTE_COUNT_PER_COMMAND];
 		LASM::CommandData* continueDownloadCommands = new LASM::CommandData[commandCount];
 
@@ -191,15 +203,6 @@ if (!condition) \
 				dataByteCountForThisOne = leftover;
 			}
 
-			/*
-			"part" refers to a part in the firmware file.
-
-			For example, a part opening with S0 indicates the header.
-			S9 indicates the footer, and S1 indicates a chunk, which contains data bytes.
-
-			So, partByteIndex is the index of which byte we are at within the part (starting after the S# opener).
-			*/
-			int partByteIndex = 0;
 			int dataBytesRetrieved = 0;
 			while (dataBytesRetrieved < dataByteCountForThisOne)
 			{
@@ -209,7 +212,7 @@ if (!condition) \
 
 				bool atEndOfPart = (charPair[0] == 0x0D && charPair[1] == 0x0A) || input.eof();
 
-				if (charPair[0] == 'S' && charPair[1] == '1')
+				if (charPair[0] == 'S' && charPair[1] == '1') // As mentioned earlier, S1 shows up in front of data chunk parts.
 				{
 					inChunk = true;
 					partByteIndex = 0;
