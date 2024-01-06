@@ -20,7 +20,7 @@ if (WIN32)
 
         add_library(IBTDriverWin STATIC IMPORTED)
         set_target_properties(IBTDriverWin PROPERTIES
-                IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/x64/Debug/IBTDriverWin.lib"
+                IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/x64/${CMAKE_BUILD_TYPE}/IBTDriverWin.lib"
                 INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/IBTDriverWin"
         )
 
