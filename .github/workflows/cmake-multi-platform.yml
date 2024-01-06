@@ -45,7 +45,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
       
       - name: Build app for release
-        run: InfraredBrickTower.sln -property:Configuration=Debug
+        run: ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Debug
       
       - uses: actions/checkout@v2.3.4
       
