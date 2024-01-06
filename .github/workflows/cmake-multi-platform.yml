@@ -83,7 +83,7 @@ jobs:
         id: fix-path
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          $bababooey = $WINDOWS_ZIP_PATH -replace '\\','/'"
+          $bababooey = $WINDOWS_ZIP_PATH -replace '\\','/'
           # "$WINDOWS_ZIP_PATH=$WINDOWS_ZIP_PATH -replace '\\','/'" | Out-File -FilePath $env:GITHUB_ENV -Append
           "FIXED_PATH=$bababooey" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
       
