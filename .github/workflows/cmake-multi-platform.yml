@@ -83,5 +83,5 @@ jobs:
         env:
           FIXED_PATH: ${{ steps.fix-path.outputs.FIXED_PATH }}
         with:
-          files: $FIXED_PATH
+          files: $env:FIXED_PATH
           
