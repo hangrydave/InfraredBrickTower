@@ -28,30 +28,35 @@ jobs:
         with:
           configurePreset: 'Linux-release'
           buildPreset: 'Linux-release'
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: InfraredBrickTower
 
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: checkout all the submodules
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
+  # build-windows:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - name: checkout all the submodules
+  #       uses: actions/checkout@v2
+  #       with:
+  #         submodules: recursive
       
-      - uses: actions/checkout@v2.3.4
+  #     - uses: actions/checkout@v2.3.4
       
-      - name: Setup anew (or from cache) vcpkg (and does not build any package)
-        uses: lukka/run-vcpkg@v11
+  #     - name: Setup anew (or from cache) vcpkg (and does not build any package)
+  #       uses: lukka/run-vcpkg@v11
         
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-        with:
-          vs-version: '17.8.3'
+  #     - name: Add msbuild to PATH
+  #       uses: microsoft/setup-msbuild@v1.1
+  #       with:
+  #         vs-version: '17.8.3'
       
-      - name: Build driver
-        run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Release -property:Platform=x64
+  #     - name: Build driver
+  #       run: msbuild ${{ github.workspace }}/InfraredBrickTower.sln -property:Configuration=Release -property:Platform=x64
       
-      - name: Run CMake
-        uses: lukka/run-cmake@v10
-        with:
-          configurePreset: 'Windows-release'
-          buildPreset: 'Windows-release'
+  #     - name: Run CMake
+  #       uses: lukka/run-cmake@v10
+  #       with:
+  #         configurePreset: 'Windows-release'
+  #         buildPreset: 'Windows-release'
