@@ -4,10 +4,12 @@ IBT is a project to bring new life to the Lego Mindstorms RCX USB infrared trans
 
 ![A screenshot of the main application.](images/screenshot.png)
 
-This is very work-in-progress. Feel free to contribute by submitting a pull request or by opening issues!
+This is very work-in-progress, and everything might not yet work as expected. Feel free to contribute by submitting a pull request or by opening issues!
 
 ## Background
-I'm building this project because, first of all, it's fun, and Legos (I know Legos isn't the correct plural term, but it's fun to say; fight me in the GitHub issues) are pretty cool. The other big reason that I think there's a need for this is that there's barely any community support for this Lego Mindstorms generation nowadays (let alone official support), and there's no way to use the USB version of the tower on 64-bit Windows. (Allegedly the serial version of the tower works on modern Windows with an adapter, but I don't have one to test.)
+In 2001, Lego released the [Robotics Invention System 2.0 (set number 3804)](https://brickset.com/sets/3804-1/Robotics-Invention-System-V2-0). Containing a programmable brick (the RCX) and a variety of motors and sensors, this set was a way for burgeoning engineers and developers to explore robotics and software at a young age. Unfortunately, the original Windows driver for the USB communication tower used to program the RCX does not support 64-bit systems (the tower is pictured below). This project was built to fill that gap.
+
+Beyond supporting the USB tower on modern Windows operating systems, this project provides a more modern way to control and program the RCX and other older Lego programmable bricks (such as the Scout and MicroScout) by reimplementing functionality from many of the tools included in the now-obselete Mindstorms SDKs and various tools from the early 2000s, such as LASM support. 
 
 ## Building
 
@@ -33,8 +35,8 @@ git submodule update --init --recursive
 
 From here, you'd probably be able to use whichever C++ IDE you like, as long as it supports CMake. Personally, I use Visual Studio Code with Microsoft's CMake Tools extension. Build the project and have fun!
 
+---
 
-### Just For Fun
 An image of the USB infrared transmission tower:
 
 ![An image of the Lego USB infrared transmission tower](images/tower.jpg)

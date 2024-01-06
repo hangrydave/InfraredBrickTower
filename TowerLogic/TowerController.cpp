@@ -11,8 +11,8 @@
 #define BYTE unsigned char
 #define WORD unsigned short
 
-#define MAX_WRITE_ATTEMPTS 4
-#define MAX_READ_ATTEMPTS 4
+#define MAX_WRITE_ATTEMPTS 5
+#define MAX_READ_ATTEMPTS 5
 
 // This number isn't pulled from documentation or anything, I've just found I need a small pause between things for it to work, and this is reasonably small
 #define WRITE_PAUSE_TIME 150
