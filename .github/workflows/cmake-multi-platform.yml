@@ -2,9 +2,9 @@ name: vcpkg
 
 on:
   push:
-    branches: [ "github_actions_testing" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "github_actions_testing" ]
+    branches: [ "main" ]
 
 env:
   UBUNTU_DEPS: sudo apt install -y ninja-build curl libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf libudev-dev dh-autoreconf freeglut3-dev gdb make
