@@ -21,8 +21,11 @@ void DriveMotors(Tower::RequestData* towerData);
 void BeepRCX(Tower::RequestData* towerData);
 void BeepMicroScout(Tower::RequestData* towerData);
 void BeepRCXAndMicroScout(Tower::RequestData* towerData);
+bool ParseAndSendLASM(Tower::RequestData* towerData);
 
-int main(int argc, char *argv[])
+static char* lasmInput = "";
+
+int main(int argc, char* argv[])
 {
 	HostTowerCommInterface* usbTowerInterface;
 
@@ -49,7 +52,12 @@ int main(int argc, char *argv[])
 	Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
 	usbTowerInterface->Flush();
 
-	RCX::DownloadFirmware(argv[1], towerData);
+	LASM::CommandData commandData;
+
+	LASM::Cmd_PBAliveOrNot(commandData);
+	LASM::SendCommand(&commandData, towerData);
+
+	// RCX::DownloadFirmware(argv[1], towerData);
 
 	//while (true)
 	//{
@@ -73,6 +81,9 @@ int main(int argc, char *argv[])
 		//}
 	//}
 
+	lasmInput = "plays 1";
+	ParseAndSendLASM(towerData);
+
 	usbTowerInterface->Flush();
 
 	delete usbTowerInterface;
@@ -80,4 +91,54 @@ int main(int argc, char *argv[])
 
 	system("pause");
 	return 0;
+}
+
+	enum LASMStatus
+	{
+		LASM_DEFAULT,
+		LASM_SUCCESS,
+		LASM_BAD_PARAMS,
+		LASM_NO_REPLY,
+		LASM_WRITE_FAILED,
+		LASM_FAILED_OTHER,
+		LASM_COMMAND_NOT_FOUND,
+		LASM_IN_PROGRESS
+	};
+	static LASMStatus lasmStatus = LASM_DEFAULT;
+	static bool lasmEntered = false;
+
+bool ParseAndSendLASM(Tower::RequestData* towerData)
+{
+	lasmStatus = LASM_IN_PROGRESS;
+
+	std::string inputString(lasmInput);
+	std::string inputParts[5];
+	int partIndex = 0;
+
+	size_t partLength = 0;
+	while ((partLength = inputString.find(" ")) != std::string::npos) {
+		inputParts[partIndex++] = inputString.substr(0, partLength);
+		inputString.erase(0, partLength + 1);
+	}
+	inputParts[partIndex] = inputString;
+	
+	static LASM::CommandData lasmCommand;
+	if (LASM::GetCommandFromCode(inputParts[0].c_str(), inputParts + 1, partIndex, &lasmCommand))
+	{
+		if (LASM::SendCommand(&lasmCommand, towerData))
+		{
+			lasmStatus = LASM_SUCCESS;
+			return true;
+		}
+		else
+		{
+			lasmStatus = LASM_FAILED_OTHER;
+		}
+	}
+	else
+	{
+		lasmStatus = LASM_COMMAND_NOT_FOUND;
+	}
+
+	return false;
 }
