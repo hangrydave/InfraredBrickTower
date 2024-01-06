@@ -24,7 +24,11 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(imgui REQUIRED)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(libusb REQUIRED IMPORTED_TARGET libusb-1.0)
+
+IF (WIN32)
+else()
+	pkg_check_modules(libusb REQUIRED IMPORTED_TARGET libusb-1.0)
+endif()
 
 add_subdirectory(IBTController)
 add_subdirectory(ConsoleTester)
