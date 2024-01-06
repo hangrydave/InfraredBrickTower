@@ -24,11 +24,17 @@ jobs:
         with:
           configurePreset: 'Linux-release'
           buildPreset: 'Linux-release'
+
+      - name: Zip up
+        if: startsWith(github.ref, 'refs/tags/')
+        run: zip ${{ github.workspace }}/InfraredBrickTower-Linux-${{ github.ref_name }}-x64.zip ${{ github.workspace }}/out/build/Linux-release/InfraredBrickTower
+
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ github.workspace }}/out/build/Linux-release/InfraredBrickTower
+          files: ${{ github.workspace }}/InfraredBrickTower-Linux-${{ github.ref_name }}-x64.zip
+          
 
   # build-windows:
   #   runs-on: windows-latest
