@@ -67,7 +67,7 @@ jobs:
 
       - name: Zip up
         if: startsWith(github.ref, 'refs/tags/')
-        run: Compress-Archive -Path "${{ github.workspace }}\x64\Release\IBTDriverWin.lib", "${{ github.workspace }}\x64\Release\IBTDriver.inf", "${{ github.workspace }}\x64\Release\IBTDriverPackage\ibtdriver.cat", "${{ github.workspace }}\x64\Release\IBTDriverPackage.cer" -DestinationPath "$env:WINDOWS_ZIP_PATH"
+        run: Compress-Archive -Path "${{ github.workspace }}\x64\Release\IBTDriverWin.lib", "${{ github.workspace }}\x64\Release\IBTDriver.inf", "${{ github.workspace }}\x64\Release\IBTDriverPackage\ibtdriver.cat", "${{ github.workspace }}\x64\Release\IBTDriverPackage.cer", "${{ github.workspace }}\out\build\Windows-release\Release\InfraredBrickTower.exe" -DestinationPath "$env:WINDOWS_ZIP_PATH"
     
       - name: Fix path
         id: fix-path
