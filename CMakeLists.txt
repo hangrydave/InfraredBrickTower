@@ -73,12 +73,6 @@ if (WIN32)
 		IMPORTED_LOCATION "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.22621.0/um/x64/cfgmgr32.lib"
 		INTERFACE_INCLUDE_DIRECTORIES "C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um"
 	)
-
-	add_library(IBTDriverWin STATIC IMPORTED)
-	set_target_properties(IBTDriverWin PROPERTIES
-		IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/x64/Debug/IBTDriverWin.lib"
-		INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/IBTDriverWin"
-	)
 endif()
 
 target_link_libraries(InfraredBrickTower PRIVATE glfw)
@@ -93,12 +87,10 @@ target_link_libraries(IBTConsole PRIVATE PBrickLogic)
 if (WIN32)
 	target_link_libraries(InfraredBrickTower PRIVATE winusb)
 	target_link_libraries(InfraredBrickTower PRIVATE cfgmgr32)
-	target_link_libraries(InfraredBrickTower PRIVATE IBTDriverWin)
 	target_link_libraries(InfraredBrickTower PRIVATE opengl32.lib)
 	
 	target_link_libraries(IBTConsole PRIVATE winusb)
 	target_link_libraries(IBTConsole PRIVATE cfgmgr32)
-	target_link_libraries(IBTConsole PRIVATE IBTDriverWin)
 else()
 	target_link_libraries(InfraredBrickTower PRIVATE PkgConfig::libusb)
 	target_link_libraries(InfraredBrickTower PRIVATE IBTDriverLinux)
