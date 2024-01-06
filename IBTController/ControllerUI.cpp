@@ -75,8 +75,11 @@ namespace IBTUI
 			inputString.erase(0, partLength + 1);
 		}
 		inputParts[partIndex] = inputString;
-		
+
 		static LASM::CommandData lasmCommand;
+		LASM::Cmd_PBAliveOrNot(lasmCommand);
+		LASM::SendCommand(&lasmCommand, towerData);
+
 		if (LASM::GetCommandFromCode(inputParts[0].c_str(), inputParts + 1, partIndex, &lasmCommand))
 		{
 			if (LASM::SendCommand(&lasmCommand, towerData))

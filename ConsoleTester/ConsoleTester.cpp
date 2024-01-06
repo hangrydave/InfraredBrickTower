@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
+#include <unistd.h>
 
 bool StringsAreEqual(char* strOne, char* strTwo);
 void MicroScoutCLI(Tower::RequestData* towerData);
@@ -51,6 +52,34 @@ int main(int argc, char* argv[])
 
 	Tower::Flush(Tower::CommBuffer::ALL_BUFFERS, towerData);
 	usbTowerInterface->Flush();
+
+	LASM::CommandData commandData;
+
+	LASM::Cmd_PBAliveOrNot(commandData);
+	LASM::SendCommand(&commandData, towerData);
+
+	LASM::Cmd_PlaySystemSound((LASM::SystemSound) 1, commandData);
+	LASM::SendCommand(&commandData, towerData);
+	sleep(2);
+	LASM::Cmd_PBAliveOrNot(commandData);
+	// LASM::SendCommand(&commandData, towerData);
+	LASM::Cmd_PlaySystemSound((LASM::SystemSound) 2, commandData);
+	LASM::SendCommand(&commandData, towerData);
+	sleep(2);
+	LASM::Cmd_PBAliveOrNot(commandData);
+	LASM::SendCommand(&commandData, towerData);
+	LASM::Cmd_PlaySystemSound((LASM::SystemSound) 3, commandData);
+	LASM::SendCommand(&commandData, towerData);
+	sleep(2);
+	LASM::Cmd_PBAliveOrNot(commandData);
+	LASM::SendCommand(&commandData, towerData);
+	LASM::Cmd_PlaySystemSound((LASM::SystemSound) 4, commandData);
+	LASM::SendCommand(&commandData, towerData);
+	sleep(2);
+	LASM::Cmd_PBAliveOrNot(commandData);
+	LASM::SendCommand(&commandData, towerData);
+	LASM::Cmd_PlaySystemSound((LASM::SystemSound) 5, commandData);
+	LASM::SendCommand(&commandData, towerData);
 
 	// RCX::DownloadFirmware(argv[1], towerData);
 
