@@ -51,5 +51,7 @@ An image of the USB infrared transmission tower:
 ## Contributing
 If you have changes you'd like to make or recommendations, feel free to open a pull request or an issue!
 
+If you have questions or other feedback, reach out to me on Discord. My username is HangryDave, and my user ID is 260513278822842368.
+
 ## License
 [GNU GPL v3.0](https://choosealicense.com/licenses/gpl-3.0/)
