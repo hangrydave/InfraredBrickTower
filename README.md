@@ -1,5 +1,5 @@
 # IBT (Infrared Brick Tower)
-![Build status.](https://github.com/softprops/action-gh-release/workflows/Main/badge.svg)
+![Build status.](https://github.com/hangrydave/InfraredBrickTower/actions/workflows/cmake-multi-platform.yml/badge.svg)
 
 IBT is a project to bring new life to the Lego Mindstorms RCX USB infrared transmission tower for modern operating systems.
 
