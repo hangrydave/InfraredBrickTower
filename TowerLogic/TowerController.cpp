@@ -46,7 +46,7 @@ namespace Tower
 
 		if (readAttemptCount >= MAX_READ_ATTEMPTS)
 		{
-			printf("Failed to read data three times in a row.\n");
+			printf("Failed to read data %d times in a row.\n", MAX_READ_ATTEMPTS);
 		}
 
 		return success || (lengthRead > 0);

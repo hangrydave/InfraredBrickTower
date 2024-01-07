@@ -89,7 +89,6 @@ int main(int argc, char* argv[])
 	delete usbTowerInterface;
 	delete towerData;
 
-	system("pause");
 	return 0;
 }
 

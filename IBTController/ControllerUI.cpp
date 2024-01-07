@@ -112,7 +112,7 @@ namespace IBTUI
 			false);
 	}
 
-	void RunTowerThread(bool& couldNotAccessTower, bool& programIsDone)
+	void RunTowerThread(bool& couldNotAccessTower, bool* programIsDone)
 	{
 		HostTowerCommInterface* usbTowerInterface;
 
@@ -126,7 +126,7 @@ namespace IBTUI
 		{
 			printf("Error getting USB interface!\n");
 			couldNotAccessTower = true;
-			programIsDone = true;
+			*programIsDone = true;
 			return;
 		}
 
@@ -146,18 +146,12 @@ namespace IBTUI
 		LASM::Cmd_PBAliveOrNot(lasmCommand);
 		bool success = LASM::SendCommand(
 			&lasmCommand,
-			towerData,
-			towerData->replyBuffer,
-			0,
-			true);
+			towerData);
 
 		LASM::Cmd_PBAliveOrNot(lasmCommand);
 		success = LASM::SendCommand(
 			&lasmCommand,
-			towerData,
-			towerData->replyBuffer,
-			0,
-			true);
+			towerData);
 
 		// flush read
 		unsigned long lengthRead = -1;
@@ -168,7 +162,7 @@ namespace IBTUI
 			towerData->commInterface->Read(readBuffer, 512, lengthRead);
 		}
 
-		while (!programIsDone)
+		while (!*programIsDone)
 		{
 			// RCX
 			{
@@ -206,36 +200,22 @@ namespace IBTUI
 				if (rcxRemoteData.request != 0)
 				{
 					Tower::SetCommMode(Tower::CommMode::IR, towerData);
-					if (rcxRemoteData.request & LASM::RemoteCommandRequest::REMOTE_SOUND)
-					{
-						// TODO: grabbed this from bricxcc wireshark. what is this
-						lasmCommand.commandByte = 0xd2;
-						lasmCommand.data[0] = 0x55;
-						lasmCommand.data[1] = 0xff;
-						lasmCommand.data[2] = 0x00;
-						lasmCommand.data[3] = 0xd2;
-						lasmCommand.data[4] = 0x2d;
-						lasmCommand.data[5] = 0x00;
-						lasmCommand.data[6] = 0xff;
-						lasmCommand.data[7] = 0x00;
-						lasmCommand.data[8] = 0xff;
-						lasmCommand.data[9] = 0xd2;
-						lasmCommand.data[10] = 0x2d;
-						lasmCommand.dataLength = 11;
-						LASM::SendCommand(
-							&lasmCommand,
-							towerData,
-							towerData->replyBuffer,
-							true,
-							true,
-							false);
-					}
+
+					// LASM documentation tells us that a remote command with 0 should be sent between multiple remote commands to clear internal buffers
+					LASM::Cmd_RemoteCommand(0, lasmCommand);
+					LASM::SendCommand(
+						&lasmCommand,
+						towerData,
+						NULL,
+						true,
+						true,
+						false);
 
 					LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
 					LASM::SendCommand(
 						&lasmCommand,
 						towerData,
-						towerData->replyBuffer,
+						NULL,
 						true,
 						true,
 						false);

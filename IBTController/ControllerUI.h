@@ -105,7 +105,7 @@ namespace IBTUI
 
 	bool ParseAndSendLASM(Tower::RequestData* towerData);
     void SendVLL(BYTE* data, Tower::RequestData* towerData);
-    void RunTowerThread(bool& couldNotAccessTower, bool& programIsDone);
+    void RunTowerThread(bool& couldNotAccessTower, bool* programIsDone);
 
     void Init();
     void BuildMicroScoutRemote(const ImGuiViewport* mainViewport);

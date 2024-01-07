@@ -55,7 +55,7 @@ static ImGuiViewport* mainViewport;
 
 void RunTowerThread()
 {
-    IBTUI::RunTowerThread(couldNotAccessTower, programIsDone);
+    IBTUI::RunTowerThread(couldNotAccessTower, &programIsDone);
 }
 
 // Main code
@@ -141,6 +141,7 @@ int main(int, char**)
     * Bookmarked so I can find it easily
     *
     */
+
     // Run the tower transmission things on a separate thread
     std::thread towerThread(RunTowerThread);
 
@@ -213,11 +214,10 @@ int main(int, char**)
     * Bookmarked so I can find it easily
     * 
     */
+    printf("Ending tower thread...\n");
+    programIsDone = true;
     towerThread.join();
-    if (couldNotAccessTower)
-    {
-        system("pause");
-    }
 
+    printf("Done\n");
     return 0;
 }
