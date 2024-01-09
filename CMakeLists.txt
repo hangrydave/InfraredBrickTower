@@ -45,13 +45,17 @@ include_directories("${CMAKE_SOURCE_DIR}/lib/imgui_filebrowser/imgui-filebrowser
 
 add_executable(
 	InfraredBrickTower
-	IBTController/IBTController.cpp
+	IBTController/main.cpp
 	IBTController/ControllerUI.h
 	IBTController/ControllerUI.cpp)
 
 add_executable(
-	IBTConsole
-	ConsoleTester/ConsoleTester.cpp)
+	IBTConsoleTester
+	ConsoleTester/main.cpp)
+
+add_executable(
+	ibt
+	IBTConsole/main.cpp)
 
 target_link_libraries(InfraredBrickTower PRIVATE imgui::imgui)
 
@@ -74,20 +78,29 @@ target_link_libraries(InfraredBrickTower PRIVATE Common)
 target_link_libraries(InfraredBrickTower PRIVATE TowerLogic)
 target_link_libraries(InfraredBrickTower PRIVATE PBrickLogic)
 
-target_link_libraries(IBTConsole PRIVATE Common)
-target_link_libraries(IBTConsole PRIVATE TowerLogic)
-target_link_libraries(IBTConsole PRIVATE PBrickLogic)
+target_link_libraries(IBTConsoleTester PRIVATE Common)
+target_link_libraries(IBTConsoleTester PRIVATE TowerLogic)
+target_link_libraries(IBTConsoleTester PRIVATE PBrickLogic)
+
+target_link_libraries(ibt PRIVATE Common)
+target_link_libraries(ibt PRIVATE TowerLogic)
+target_link_libraries(ibt PRIVATE PBrickLogic)
 
 if (WIN32)
 	target_link_libraries(InfraredBrickTower PRIVATE winusb)
 	target_link_libraries(InfraredBrickTower PRIVATE cfgmgr32)
 	target_link_libraries(InfraredBrickTower PRIVATE opengl32.lib)
 	
-	target_link_libraries(IBTConsole PRIVATE winusb)
-	target_link_libraries(IBTConsole PRIVATE cfgmgr32)
+	target_link_libraries(IBTConsoleTester PRIVATE winusb)
+	target_link_libraries(IBTConsoleTester PRIVATE cfgmgr32)
+
+	target_link_libraries(ibt PRIVATE winusb)
+	target_link_libraries(ibt PRIVATE cfgmgr32)
 else()
 	target_link_libraries(InfraredBrickTower PRIVATE PkgConfig::libusb)
 	target_link_libraries(InfraredBrickTower PRIVATE OpenGL)
 
-	target_link_libraries(IBTConsole PRIVATE PkgConfig::libusb)
+	target_link_libraries(IBTConsoleTester PRIVATE PkgConfig::libusb)
+
+	target_link_libraries(ibt PRIVATE PkgConfig::libusb)
 endif()

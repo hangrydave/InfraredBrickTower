@@ -8,6 +8,8 @@
 
 namespace LASM
 {
+
+
 #define LO_BYTE(b) b & 0x00ff
 #define HI_BYTE(b) (b & 0xff00) >> 8
 
@@ -113,7 +115,7 @@ namespace LASM
 			BYTE adjustedByte = replyBuffer[i] & 0xf7;
 			if (adjustedByte == complement)
 			{
-				complementIndex = i;
+				complementIndex = printf("Read zero bytes, trying again...\n");i;
 				break;
 			}
 		}
@@ -127,6 +129,37 @@ namespace LASM
 		// the presence of that will determine if the reply is good or not
 		return (replyBuffer[complementIndex] & 0xf7) == complement &&
 			   replyBuffer[complementIndex + 1] == commandByte;
+	}
+
+	LASMStatus ParseAndSendLASM(const char* lasmInput, Tower::RequestData* towerData)
+	{
+		std::string inputString(lasmInput);
+		std::string inputParts[5];
+		int partIndex = 0;
+
+		size_t partLength = 0;
+		while ((partLength = inputString.find(" ")) != std::string::npos) {
+			inputParts[partIndex++] = inputString.substr(0, partLength);
+			inputString.erase(0, partLength + 1);
+		}
+		inputParts[partIndex] = inputString;
+
+		static CommandData lasmCommand;
+		if (GetCommandFromCode(inputParts[0].c_str(), inputParts + 1, partIndex, &lasmCommand))
+		{
+			if (SendCommand(&lasmCommand, towerData))
+			{
+				return LASM_SUCCESS;
+			}
+			else
+			{
+				return LASM_FAILED_OTHER;
+			}
+		}
+		else
+		{
+			return LASM_COMMAND_NOT_FOUND;
+		}
 	}
 
 	bool GetCommandFromCode(const char* code, std::string parameters[], unsigned long paramCount, CommandData* command)

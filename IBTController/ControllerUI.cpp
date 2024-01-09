@@ -9,13 +9,16 @@
 #endif
 
 #include "PBrick.h"
+#include "LASM.h"
 #include <iostream>
+
+using namespace LASM;
 
 namespace IBTUI
 {
 	static RCXRemoteData rcxRemoteData;
 	static VLLData vllData;
-	static LASM::CommandData lasmCommand;
+	static CommandData lasmCommand;
 	static unsigned long towerLengthWritten = 0;
 
 	static bool isDownloadingSomething = false;
@@ -47,58 +50,8 @@ namespace IBTUI
 #define INFO_HEIGHT 370
 
 	static char lasmInput[32] = "";
-	enum LASMStatus
-	{
-		LASM_DEFAULT,
-		LASM_SUCCESS,
-		LASM_BAD_PARAMS,
-		LASM_NO_REPLY,
-		LASM_WRITE_FAILED,
-		LASM_FAILED_OTHER,
-		LASM_COMMAND_NOT_FOUND,
-		LASM_IN_PROGRESS
-	};
 	static LASMStatus lasmStatus = LASM_DEFAULT;
 	static bool lasmEntered = false;
-
-	bool ParseAndSendLASM(Tower::RequestData* towerData)
-	{
-		lasmStatus = LASM_IN_PROGRESS;
-
-		std::string inputString(lasmInput);
-		std::string inputParts[5];
-		int partIndex = 0;
-
-		size_t partLength = 0;
-		while ((partLength = inputString.find(" ")) != std::string::npos) {
-			inputParts[partIndex++] = inputString.substr(0, partLength);
-			inputString.erase(0, partLength + 1);
-		}
-		inputParts[partIndex] = inputString;
-
-		static LASM::CommandData lasmCommand;
-		LASM::Cmd_PBAliveOrNot(lasmCommand);
-		LASM::SendCommand(&lasmCommand, towerData);
-
-		if (LASM::GetCommandFromCode(inputParts[0].c_str(), inputParts + 1, partIndex, &lasmCommand))
-		{
-			if (LASM::SendCommand(&lasmCommand, towerData))
-			{
-				lasmStatus = LASM_SUCCESS;
-				return true;
-			}
-			else
-			{
-				lasmStatus = LASM_FAILED_OTHER;
-			}
-		}
-		else
-		{
-			lasmStatus = LASM_COMMAND_NOT_FOUND;
-		}
-
-		return false;
-	}
 
 	void SendVLL(BYTE* data, Tower::RequestData* towerData)
 	{
@@ -143,13 +96,13 @@ namespace IBTUI
 		Tower::GetCredits(towerData);
 		memcpy(towerCredits, towerData->stringBuffer, towerData->stringLength);
 
-		LASM::Cmd_PBAliveOrNot(lasmCommand);
-		bool success = LASM::SendCommand(
+		Cmd_PBAliveOrNot(lasmCommand);
+		bool success = SendCommand(
 			&lasmCommand,
 			towerData);
 
-		LASM::Cmd_PBAliveOrNot(lasmCommand);
-		success = LASM::SendCommand(
+		Cmd_PBAliveOrNot(lasmCommand);
+		success = SendCommand(
 			&lasmCommand,
 			towerData);
 
@@ -169,50 +122,63 @@ namespace IBTUI
 				// remote
 				rcxRemoteData.request = 0;
 
-				if (rcxRemoteData.message1 > 0) { rcxRemoteData.message1--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_1; }
-				if (rcxRemoteData.message2 > 0) { rcxRemoteData.message2--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_2; }
-				if (rcxRemoteData.message3 > 0) { rcxRemoteData.message3--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PB_MESSAGE_3; }
+				if (rcxRemoteData.message1 > 0) { rcxRemoteData.message1--; rcxRemoteData.request |= RemoteCommandRequest::PB_MESSAGE_1; }
+				if (rcxRemoteData.message2 > 0) { rcxRemoteData.message2--; rcxRemoteData.request |= RemoteCommandRequest::PB_MESSAGE_2; }
+				if (rcxRemoteData.message3 > 0) { rcxRemoteData.message3--; rcxRemoteData.request |= RemoteCommandRequest::PB_MESSAGE_3; }
 
 				if (rcxRemoteData.motorAFwd)
-					rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_FORWARDS;
+					rcxRemoteData.request |= RemoteCommandRequest::MOTOR_A_FORWARDS;
 				if (rcxRemoteData.motorABwd)
-					rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_A_BACKWARDS;
+					rcxRemoteData.request |= RemoteCommandRequest::MOTOR_A_BACKWARDS;
 
 				if (rcxRemoteData.motorBFwd)
-					rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_FORWARDS;
+					rcxRemoteData.request |= RemoteCommandRequest::MOTOR_B_FORWARDS;
 				if (rcxRemoteData.motorBBwd)
-					rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_B_BACKWARDS;
+					rcxRemoteData.request |= RemoteCommandRequest::MOTOR_B_BACKWARDS;
 
 				if (rcxRemoteData.motorCFwd)
-					rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_FORWARDS;
+					rcxRemoteData.request |= RemoteCommandRequest::MOTOR_C_FORWARDS;
 				if (rcxRemoteData.motorCBwd)
-					rcxRemoteData.request |= LASM::RemoteCommandRequest::MOTOR_C_BACKWARDS;
+					rcxRemoteData.request |= RemoteCommandRequest::MOTOR_C_BACKWARDS;
 
-				if (rcxRemoteData.program1 > 0) { rcxRemoteData.program1--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_1; }
-				if (rcxRemoteData.program2 > 0) { rcxRemoteData.program2--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_2; }
-				if (rcxRemoteData.program3 > 0) { rcxRemoteData.program3--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_3; }
-				if (rcxRemoteData.program4 > 0) { rcxRemoteData.program4--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_4; }
-				if (rcxRemoteData.program5 > 0) { rcxRemoteData.program5--; rcxRemoteData.request |= LASM::RemoteCommandRequest::PROGRAM_5; }
+				if (rcxRemoteData.program1 > 0) { rcxRemoteData.program1--; rcxRemoteData.request |= RemoteCommandRequest::PROGRAM_1; }
+				if (rcxRemoteData.program2 > 0) { rcxRemoteData.program2--; rcxRemoteData.request |= RemoteCommandRequest::PROGRAM_2; }
+				if (rcxRemoteData.program3 > 0) { rcxRemoteData.program3--; rcxRemoteData.request |= RemoteCommandRequest::PROGRAM_3; }
+				if (rcxRemoteData.program4 > 0) { rcxRemoteData.program4--; rcxRemoteData.request |= RemoteCommandRequest::PROGRAM_4; }
+				if (rcxRemoteData.program5 > 0) { rcxRemoteData.program5--; rcxRemoteData.request |= RemoteCommandRequest::PROGRAM_5; }
 
-				if (rcxRemoteData.stop > 0) { rcxRemoteData.stop--; rcxRemoteData.request |= LASM::RemoteCommandRequest::STOP_PROGRAM_AND_MOTORS; }
-				if (rcxRemoteData.sound > 0) { rcxRemoteData.sound--; rcxRemoteData.request |= LASM::RemoteCommandRequest::REMOTE_SOUND; }
+				if (rcxRemoteData.stop > 0) { rcxRemoteData.stop--; rcxRemoteData.request |= RemoteCommandRequest::STOP_PROGRAM_AND_MOTORS; }
+				if (rcxRemoteData.sound > 0) { rcxRemoteData.sound--; rcxRemoteData.request |= RemoteCommandRequest::REMOTE_SOUND; }
 
 				if (rcxRemoteData.request != 0)
 				{
 					Tower::SetCommMode(Tower::CommMode::IR, towerData);
 
-					// LASM documentation tells us that a remote command with 0 should be sent between multiple remote commands to clear internal buffers
-					LASM::Cmd_RemoteCommand(0, lasmCommand);
-					LASM::SendCommand(
-						&lasmCommand,
-						towerData,
-						NULL,
-						true,
-						true,
-						false);
+					if (rcxRemoteData.message1 > 0 ||
+						rcxRemoteData.message2 > 0 ||
+						rcxRemoteData.message3 > 0 ||
+						rcxRemoteData.program1 > 0 ||
+						rcxRemoteData.program2 > 0 ||
+						rcxRemoteData.program3 > 0 ||
+						rcxRemoteData.program4 > 0 ||
+						rcxRemoteData.program5 > 0 ||
+						rcxRemoteData.stop > 0 ||
+						rcxRemoteData.sound > 0)
+					{
+						// LASM documentation tells us that a remote command with 0 should be sent between multiple remote commands to clear internal buffers
+						// However I've found that this shouldn't be done for things like the motor commands.
+						Cmd_RemoteCommand(0, lasmCommand);
+						SendCommand(
+							&lasmCommand,
+							towerData,
+							NULL,
+							true,
+							true,
+							false);
+					}
 
-					LASM::Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
-					LASM::SendCommand(
+					Cmd_RemoteCommand(rcxRemoteData.request, lasmCommand);
+					SendCommand(
 						&lasmCommand,
 						towerData,
 						NULL,
@@ -290,7 +256,8 @@ namespace IBTUI
 			{
 				if (lasmEntered)
 				{
-					bool success = ParseAndSendLASM(towerData);
+					lasmStatus = LASM_IN_PROGRESS;
+					lasmStatus = ParseAndSendLASM(lasmInput, towerData);
 					lasmEntered = false;
 				}
 			}
@@ -553,7 +520,7 @@ namespace IBTUI
 		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + INFO_X, mainViewport->WorkPos.y + INFO_Y), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(INFO_WIDTH, INFO_HEIGHT), ImGuiCond_FirstUseEver);
 
-		ImGui::Begin("Tower Info");
+		ImGui::Begin("USB Tower Info");
 
 		ImGui::Text(towerCopyright);
 		ImGui::Separator();

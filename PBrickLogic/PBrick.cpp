@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <filesystem>
 #include "Utilities.h"
+#include <unistd.h>
 
 namespace fs = std::filesystem;
 
@@ -272,11 +273,19 @@ if (!condition) \
 		/* Send firmware commands to RCX */
 		LASM::CommandData command;
 		LASM::Cmd_GoIntoBootMode(command);
-		_returnIfFalse(LASM::SendCommand(&command, towerData));
+		_returnIfFalse(LASM::SendCommand(
+			&command,
+			towerData,
+			NULL,
+			true));
+
+		sleep(1);
 
 		int firmwareChecksum = sumForChecksum % 65536;
 		LASM::Cmd_BeginFirmwareDownload(firmwareChecksum, command);
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
+
+		sleep(1);
 
 		for (int i = 0; i < commandCount; i++)
 		{
