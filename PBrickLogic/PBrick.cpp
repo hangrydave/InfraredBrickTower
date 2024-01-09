@@ -282,8 +282,6 @@ if (!condition) \
 		LASM::Cmd_BeginFirmwareDownload(firmwareChecksum, command);
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
-		sleep(1);
-
 		for (int i = 0; i < commandCount; i++)
 		{
 			_returnIfFalse(LASM::SendCommand(&continueDownloadCommands[i], towerData));
