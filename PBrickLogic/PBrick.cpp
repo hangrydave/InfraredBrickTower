@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <filesystem>
 #include "Utilities.h"
-#include <unistd.h>
 
 namespace fs = std::filesystem;
 
@@ -278,8 +277,6 @@ if (!condition) \
 			towerData,
 			NULL,
 			true));
-
-		sleep(1);
 
 		int firmwareChecksum = sumForChecksum % 65536;
 		LASM::Cmd_BeginFirmwareDownload(firmwareChecksum, command);
