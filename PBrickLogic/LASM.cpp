@@ -674,4 +674,13 @@ namespace LASM
 
 		commandData.dataLength = index;
 	}
+
+	void PrintCommand(const CommandData* commandData)
+	{
+		for (int i = 0; i < commandData->dataLength; i++)
+		{
+			printf("%02x ", commandData->data[i]);
+		}
+		printf("\n");
+	}
 }

@@ -48,6 +48,12 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	bool verbose = false;
+	char* firmwarePath = NULL;
+	char* prgmToCompilePath = NULL;
+	char* prgmToDownloadPath = NULL;
+	bool lasm = false;
+
 	int result = 0;
 	for (int i = 1; i < argc; i++)
 	{
@@ -55,12 +61,19 @@ int main(int argc, char* argv[])
 		char* arg = argv[i];
 		if (strcmp(prior, "-v") == 0)
 		{
-
+			verbose = true;
 		}
 		else if (strcmp(prior, "--firmware") == 0)
 		{
-			result = RCX::DownloadFirmware(arg, towerData) ? 0 : 1;
-			break;
+			firmwarePath = arg;
+		}
+		else if (strcmp(prior, "--download") == 0)
+		{
+			prgmToDownloadPath = arg;
+		}
+		else if (strcmp(prior, "--compile") == 0)
+		{
+			prgmToCompilePath = arg;
 		}
 		else if (strcmp(arg, "--lasm") == 0 && i == argc - 1)
 		{
@@ -106,6 +119,26 @@ int main(int argc, char* argv[])
 			}
 			break;
 		}
+	}
+
+	if (verbose)
+	{
+		// idk
+	}
+
+	if (firmwarePath)
+	{
+		result = RCX::DownloadFirmware(firmwarePath, towerData) ? 0 : 1;
+	}
+
+	if (prgmToDownloadPath)
+	{
+		result = RCX::DownloadProgram(prgmToDownloadPath, 1, towerData) ? 0 : 1;
+	}
+
+	if (prgmToCompilePath)
+	{
+		// call nqc and compile???
 	}
 
 	usbTowerInterface->Close();

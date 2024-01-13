@@ -196,6 +196,8 @@ namespace LASM
 
 	void ComposeCommand(Command lasmCommand, BYTE* params, unsigned int paramsLength, CommandData& commandData);
 
+	void PrintCommand(const CommandData* commandData);
+
 	enum class MotorAction : BYTE
 	{
 		FLOAT = 0,
