@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
+// #include <string>
 
 using namespace LASM;
 
@@ -81,15 +82,21 @@ int main(int argc, char* argv[])
 
 			LASMStatus status;
 			char* input;
+			std::string inputString;
 			size_t len = 0;
-			size_t read = 0;
-			while (read != -1)
+			// size_t read = 0;
+			while (std::getline(std::cin, inputString))
 			{
 				printf(">");
-				read = getline(&input, &len, stdin);
-				input[read - 1] = 0; // To account for the newline added at the end
+				// read = getline(&input, &len, stdin);
+				// std::getline(std::cin, inputString);
 
-				if (strncmp(input, "exit", read - 1) == 0)
+				// To account for the newline added at the end
+				inputString.resize(inputString.length() - 1);
+				// input[read - 1] = 0; 
+
+				// if (strncmp(input, "exit", read - 1) == 0)
+				if (inputString == "exit")
 				{
 					break;
 				}

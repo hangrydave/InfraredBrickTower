@@ -296,8 +296,6 @@ if (!condition) \
 		LASM::Cmd_UnlockFirmware(command);
 		if (towerData->verbose) LASM::PrintCommand(&command);
 
-		if (towerData->verbose) LASM::PrintCommand(&command);
-
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		return true;
