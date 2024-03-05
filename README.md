@@ -16,6 +16,14 @@ Beyond supporting the USB tower on modern Windows operating systems, this projec
 
 ---
 
+## Usage
+
+There are builds available on the [Releases](https://github.com/hangrydave/InfraredBrickTower/releases) page for Windows and Linux.
+
+Just so you are aware, if you try to run the Windows build, Windows Defender SmartScreen might prevent it from running. You'll have to click the "More Info" button and hit the button to run it anyway. This happens because my program does things with hardware drivers, and developers are meant to purchase a code signing certificate to validate their program and prevent SmartScreen from flagging it. The certificates are pretty expensive, so I'm not gonna buy one, but if you don't trust my code, feel free to look through the source code and compile it yourself using the instructions below.
+
+---
+
 ## Building
 
 ### Part 1: Submodules
