@@ -263,6 +263,8 @@ namespace Tower
 		char stringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
 		wchar_t wideStringBuffer[REQUEST_REPLY_BUFFER_LENGTH];
 
+		bool verbose = false;
+
 		RequestData(HostTowerCommInterface* commInterface)
 		{
 			this->commInterface = commInterface;

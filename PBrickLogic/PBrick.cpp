@@ -180,6 +180,8 @@ if (!condition) \
 
 		bool inChunk = false;
 
+		if (towerData->verbose) printf("Firmware file is %d bytes long, and contains %d data bytes, so there will be %d commands.", fileSize, dataByteCount, commandCount);
+
 		/*
 		"part" refers to a part in the firmware file.
 
@@ -263,6 +265,7 @@ if (!condition) \
 				blockCount,
 				dataByteCountForThisOne,
 				continueDownloadCommands[commandIndex]);
+			if (towerData->verbose) LASM::PrintCommand(&continueDownloadCommands[commandIndex]);
 		}
 
 		delete[] cmdDataBytes;
@@ -272,10 +275,16 @@ if (!condition) \
 		/* Send firmware commands to RCX */
 		LASM::CommandData command;
 		LASM::Cmd_GoIntoBootMode(command);
-		_returnIfFalse(LASM::SendCommand(&command, towerData));
+		_returnIfFalse(LASM::SendCommand(
+			&command,
+			towerData,
+			NULL,
+			true));
 
 		int firmwareChecksum = sumForChecksum % 65536;
 		LASM::Cmd_BeginFirmwareDownload(firmwareChecksum, command);
+		if (towerData->verbose) LASM::PrintCommand(&command);
+
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		for (int i = 0; i < commandCount; i++)
@@ -285,6 +294,8 @@ if (!condition) \
 		delete[] continueDownloadCommands;
 
 		LASM::Cmd_UnlockFirmware(command);
+		if (towerData->verbose) LASM::PrintCommand(&command);
+
 		_returnIfFalse(LASM::SendCommand(&command, towerData));
 
 		return true;

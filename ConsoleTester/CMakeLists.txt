@@ -1,1 +1,1 @@
-file(GLOB SOURCE_C "ConsoleTester.cpp")
+file(GLOB SOURCE_C "main.cpp")

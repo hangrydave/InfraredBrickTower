@@ -103,7 +103,6 @@ namespace IBTUI
         BYTE deleteBytes[VLL_PACKET_LENGTH]{ VLL_DELETE_PROGRAM };
     };
 
-	bool ParseAndSendLASM(Tower::RequestData* towerData);
     void SendVLL(BYTE* data, Tower::RequestData* towerData);
     void RunTowerThread(bool& couldNotAccessTower, bool* programIsDone);
 

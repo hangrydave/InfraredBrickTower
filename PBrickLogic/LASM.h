@@ -8,6 +8,18 @@
 
 namespace LASM
 {
+	enum LASMStatus
+	{
+		LASM_DEFAULT,
+		LASM_SUCCESS,
+		LASM_BAD_PARAMS,
+		LASM_NO_REPLY,
+		LASM_WRITE_FAILED,
+		LASM_FAILED_OTHER,
+		LASM_COMMAND_NOT_FOUND,
+		LASM_IN_PROGRESS
+	};
+
 #define COMMAND_REPLY_BUFFER_LENGTH 10
 
 	/*enum Availability
@@ -174,6 +186,8 @@ namespace LASM
 		bool skipReply = false,
 		bool skipReplyValidation = false,
 		bool preWriteFlush = true);
+
+	LASMStatus ParseAndSendLASM(const char* lasmInput, Tower::RequestData* towerData);
 	bool GetCommandFromCode(
 		const char* code, 
 		std::string parameters[],
@@ -181,6 +195,8 @@ namespace LASM
 		CommandData* command);
 
 	void ComposeCommand(Command lasmCommand, BYTE* params, unsigned int paramsLength, CommandData& commandData);
+
+	void PrintCommand(const CommandData* commandData);
 
 	enum class MotorAction : BYTE
 	{
