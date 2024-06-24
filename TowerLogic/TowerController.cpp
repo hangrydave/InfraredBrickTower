@@ -3,9 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#if defined(WIN32)
-#include <windows.h>
-#elif defined(__linux)
+#if defined(__linux)
 #include <unistd.h>
 #endif
 

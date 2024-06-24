@@ -1,13 +1,18 @@
 #pragma once
 
 #if defined(WIN32)
-#include <stdio.h>
-#elif defined(__linux)
-#include <cstdio>
-#endif
 
+#include <stdio.h>
+#include <Windows.h>
+
+#elif defined(__linux)
+
+#include <cstdio>
 #define BYTE unsigned char
 #define WORD unsigned short
+
+#endif
+
 
 // typedef unsigned char BYTE;
 // typedef unsigned short WORD;
