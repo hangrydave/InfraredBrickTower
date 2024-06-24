@@ -45,7 +45,7 @@ namespace LASM
 		if (!writeSuccess)
 			return false;
 
-		if (skipReply)
+		if (replyBuffer == NULL || skipReply)
 			return true;
 
 		unsigned long lengthRead = 0;
@@ -103,7 +103,7 @@ namespace LASM
 		BYTE complement = ~commandByte & 0xf7;
 
 		// Instead of looking past the header, I'll just look for the complement followed by the byte.
-		unsigned int complementIndex = -1;
+		signed int complementIndex = -1;
 
 		// replyLength - 1 to leave some room at the end for the command following the complement
 		for (unsigned int i = 0; i < replyLength - 1; i++)

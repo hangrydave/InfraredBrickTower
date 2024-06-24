@@ -3,13 +3,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#if defined(WIN64)
+#if defined(WIN32)
+#include <windows.h>
 #elif defined(__linux)
 #include <unistd.h>
 #endif
-
-#define BYTE unsigned char
-#define WORD unsigned short
 
 #define MAX_WRITE_ATTEMPTS 5
 #define MAX_READ_ATTEMPTS 5
@@ -86,7 +84,7 @@ namespace Tower
 			if (bufferLength < 350)
 			{
 				// give time to finish
-#if defined(WIN64)
+#if defined(WIN32)
             	Sleep(WRITE_PAUSE_TIME);
 #elif defined(__linux)
             	sleep(WRITE_PAUSE_TIME / 1000);

@@ -1,17 +1,14 @@
 #pragma once
 
 #if defined(WIN32)
-
 #include <stdio.h>
-
 #elif defined(__linux)
-
 #include <cstdio>
-
 #endif
 
-#define BYTE unsigned char
-#define WORD unsigned short
+
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
 
 #include "HostTowerCommInterface.h"
 

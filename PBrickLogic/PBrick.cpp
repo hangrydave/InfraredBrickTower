@@ -280,7 +280,7 @@ if (!condition) \
 
 		for (int i = 0; i < commandCount; i++)
 		{
-			_returnIfFalse(LASM::SendCommand(&continueDownloadCommands[i], towerData));
+			_returnIfFalse(LASM::SendCommand(&continueDownloadCommands[i], towerData, NULL));
 		}
 		delete[] continueDownloadCommands;
 

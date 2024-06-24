@@ -16,7 +16,8 @@
 // useful documentation here: https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/using-winusb-api-to-communicate-with-a-usb-device#step-3-send-control-transfer-to-the-default-endpoint
 
 // NQC makefile says that legousbtower.c (Linux kernel module) has it as 200
-#define READ_TIMEOUT 300
+// 6/24/24 NOTE: i changed this from 300 to 200. maybe this was bad. switch back if needed
+#define READ_TIMEOUT 200
 #define WRITE_TIMEOUT 9999999 // idek at this point 
 
 #define DEBUG 0
