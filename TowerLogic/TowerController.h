@@ -6,9 +6,11 @@
 #include <cstdio>
 #endif
 
+#define BYTE unsigned char
+#define WORD unsigned short
 
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
+// typedef unsigned char BYTE;
+// typedef unsigned short WORD;
 
 #include "HostTowerCommInterface.h"
 

@@ -64,5 +64,8 @@
       "typeinfo": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "C_Cpp.clang_format_style": "file:.vscode/.clang-format"
+    "C_Cpp.clang_format_style": "file:.vscode/.clang-format",
+    "search.exclude": {
+      "lib/*": true
+    }
   }
