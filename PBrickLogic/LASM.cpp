@@ -61,6 +61,9 @@ namespace LASM
 		if (skipReplyValidation)
 			return true;
 
+		if (lengthRead == 0)
+			return true;
+
 		return ValidateReply(command, replyBuffer, lengthRead);
 	}
 
